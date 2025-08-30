@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris</title>
+    <!-- Use Google Fonts to import the Poppins font for a modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Custom Properties for a consistent theme */
+        :root {
+            --bg-color: #1a1a2e; /* Dark purple-blue background */
+            --container-bg: #2a2a4c; /* Slightly lighter container background */
+            --text-color: #e0e0e0; /* Off-white text */
+            --border-color: #5c5c8e; /* Subtle border color */
+            --shadow-color: rgba(0, 0, 0, 0.4); /* Shadow for depth */
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full viewport height */
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            user-select: none; /* Prevents text selection */
+            overflow: hidden; /* This prevents the scrollbar from appearing */
+        }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background-color: var(--container-bg);
+            border-radius: 12px; /* Rounded corners */
+            box-shadow: 0 10px 20px var(--shadow-color);
+            border: 2px solid var(--border-color);
+            max-width: 100%;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 2px 2px 4px var(--shadow-color);
+            letter-spacing: 2px;
+        }
+        .game-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap; /* Allows wrapping on smaller screens */
+            justify-content: center;
+        }
+        canvas {
+            background-color: #111;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            touch-action: none; /* Disable default touch actions */
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 150px;
+        }
+        .info-box {
+            background-color: #22223b;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .info-box h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+            color: #b3c0c9;
+        }
+        .score-value {
+            font-size: 1.2rem; /* Adjusted for smaller size */
+            font-weight: 700;
+        }
+        #next-canvas {
+            background-color: #22223b;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            margin: 0 auto;
+        }
+        .controls-info {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #a0a0c0;
+            text-align: left;
+            margin-top: 10px;
+        }
+        .controls-info h3 {
+            margin: 0 0 5px;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+        /* Message box for start screen and game over screen */
+        .message-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid #fff;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .message-box h2 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        .message-box p {
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+        .message-box button, #level-select, #controls-btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 2px solid #fff;
+            background-color: transparent;
+            color: #fff;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .message-box button:hover, #controls-btn:hover {
+            background-color: #fff;
+            color: var(--bg-color);
+        }
+        
+        #level-select {
+            width: 100%;
+            font-size: 0.9rem; /* Adjusted for smaller size */
+            padding: 8px 12px;
+            background-color: #3a3a5c;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            text-transform: capitalize;
+        }
+        #level-select option {
+            background-color: #2a2a4c;
+        }
+
+        /* Volume slider styling */
+        .volume-slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        #volume-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #4a4e69;
+            outline: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            border: 2px solid var(--container-bg);
+            transition: background 0.2s;
+        }
+        #volume-slider::-webkit-slider-thumb:hover {
+            background: #e0e0e0;
+        }
+        #volume-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            border: 2px solid var(--container-bg);
+            transition: background 0.2s;
+        }
+        #volume-slider::-moz-range-thumb:hover {
+            background: #e0e0e0;
+        }
+
+        /* Music control button styling */
+        .music-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-top: -10px; /* Adjust spacing */
+        }
+        #music-toggle-btn {
+            background-color: transparent;
+            color: #e0e0e0;
+            border: 2px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        #music-toggle-btn:hover {
+            background-color: var(--border-color);
+            color: #fff;
+        }
+        
+        /* Mobile controls specific styling */
+        #mobile-controls {
+            display: none; /* Hidden by default */
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .mobile-btn {
+            background-color: #4a4e69;
+            color: #e0e0e0;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            transition: background-color 0.2s;
+            flex-grow: 1; /* Allow buttons to grow to fill space */
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .mobile-btn:active {
+            background-color: #6a6b83;
+        }
+
+        /* Controls popup modal styling */
+        #controls-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.85);
+            border: 2px solid #fff;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 90%;
+        }
+
+        #controls-modal h2 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        #controls-modal .controls-info {
+            text-align: left;
+        }
+        
+        #controls-modal .close-btn {
+            align-self: flex-end;
+            padding: 5px 10px;
+        }
+        
+        /* Responsive design: show mobile controls on small screens, hide desktop info */
+        @media (max-width: 768px) {
+            .game-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            .sidebar {
+                flex-direction: row;
+                justify-content: center;
+                width: 100%;
+                gap: 10px;
+            }
+            .info-box {
+                flex: 1;
+            }
+            #mobile-controls {
+                display: flex; /* Show mobile controls */
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- Tone.js library for programmatic audio synthesis, replacing audio files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <div class="game-container">
+        <h1>Tetris</h1>
+        <div class="game-layout">
+            <!-- Main game canvas where the blocks fall -->
+            <canvas id="gameCanvas"></canvas>
+            <div class="sidebar">
+                <!-- Score display box -->
+                <div class="info-box">
+                    <h2>Score</h2>
+                    <div id="score" class="score-value">0</div>
+                </div>
+                <!-- Next piece preview box -->
+                <div class="info-box">
+                    <h2>Next</h2>
+                    <canvas id="next-canvas" width="90" height="90"></canvas>
+                </div>
+                <!-- Volume control box -->
+                <div class="info-box volume-slider-container">
+                    <h2>Volume</h2>
+                    <input type="range" id="volume-slider" min="-30" max="0" value="-10" step="1">
+                </div>
+                <!-- New music control button -->
+                <div class="music-controls">
+                    <button id="music-toggle-btn">Pause Music</button>
+                </div>
+                <button id="controls-btn">Controls</button>
+            </div>
+        </div>
+
+        <!-- Mobile-specific controls -->
+        <div id="mobile-controls">
+            <button id="move-left-btn" class="mobile-btn">◄</button>
+            <button id="rotate-btn" class="mobile-btn">↻</button>
+            <button id="move-right-btn" class="mobile-btn">►</button>
+            <button id="hard-drop-btn" class="mobile-btn">↓</button>
+        </div>
+
+        <!-- Start/Game Over message overlay, initially hidden -->
+        <div id="message-box" class="message-box">
+            <h2 id="message-title">Game Over</h2>
+            <p id="final-score">Final Score: 0</p>
+            <div class="info-box" style="width:100%;">
+                <h2>Start Level</h2>
+                <select id="level-select">
+                    <option value="0">Easy</option>
+                    <option value="1">Medium</option>
+                    <option value="2">Hard</option>
+                    <option value="3">Very Hard</option>
+                    <option value="bar-only">Bar Only</option>
+                </select>
+            </div>
+            <button id="action-button">Restart</button>
+        </div>
+        
+        <!-- New Controls pop-up modal -->
+        <div id="controls-modal" class="message-box">
+            <button class="close-btn" style="border:none;">✖</button>
+            <h2>Controls</h2>
+            <div class="controls-info">
+                <p>Arrow Up: Rotate</p>
+                <p>Arrow Left: Move Left</p>
+                <p>Arrow Right: Move Right</p>
+                <p>Arrow Down: Soft Drop</p>
+                <p>Space: Hard Drop</p>
+                <p>P: Pause/Resume</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Wait for the DOM to be fully loaded before running the script
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get canvas elements and their 2D contexts
+            const canvas = document.getElementById('gameCanvas');
+            const context = canvas.getContext('2d');
+            const nextCanvas = document.getElementById('next-canvas');
+            const nextContext = nextCanvas.getContext('2d');
+
+            // Get other UI elements
+            const scoreElement = document.getElementById('score');
+            const messageBox = document.getElementById('message-box');
+            const messageTitle = document.getElementById('message-title');
+            const finalScoreElement = document.getElementById('final-score');
+            const actionButton = document.getElementById('action-button');
+            const levelSelect = document.getElementById('level-select');
+            const volumeSlider = document.getElementById('volume-slider');
+            const musicToggleButton = document.getElementById('music-toggle-btn');
+            const controlsButton = document.getElementById('controls-btn');
+            const controlsModal = document.getElementById('controls-modal');
+            const closeModalButton = controlsModal.querySelector('.close-btn');
+
+            // Get mobile control buttons
+            const moveLeftBtn = document.getElementById('move-left-btn');
+            const moveRightBtn = document.getElementById('move-right-btn');
+            const rotateBtn = document.getElementById('rotate-btn');
+            const hardDropBtn = document.getElementById('hard-drop-btn');
+            
+            // Use a flag to track if audio context has started
+            let isMusicPlaying = false;
+            let audioContextStarted = false;
+            
+            // Function to start the audio context
+            function startAudioContext() {
+                // Check if the context is not running and hasn't been started yet
+                if (!audioContextStarted && Tone.context.state !== 'running') {
+                    Tone.start().then(() => {
+                        console.log("Audio context started.");
+                        audioContextStarted = true;
+                    }).catch(e => console.error("Error starting audio context:", e));
+                }
+            }
+
+            // Listen for any user interaction to start the audio context
+            document.body.addEventListener('click', startAudioContext, { once: true });
+            document.body.addEventListener('touchstart', startAudioContext, { once: true });
+
+
+            // Tone.js synthesizers for generating sounds programmatically
+            const lineClearSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+            const dropSynth = new Tone.MembraneSynth().toDestination();
+            const gameOverSynth = new Tone.Synth({
+                oscillator: { type: 'sine' },
+                envelope: {
+                    attack: 0.1,
+                    decay: 0.2,
+                    sustain: 0,
+                    release: 1.0
+                }
+            }).toDestination();
+            
+            // New Tone.js synth for the background music
+            const musicSynth = new Tone.Synth({
+                oscillator: { type: 'square' },
+                envelope: {
+                    attack: 0.05,
+                    decay: 0.2,
+                    sustain: 0.5,
+                    release: 0.8
+                }
+            }).toDestination();
+
+            // The iconic Tetris melody (Korobeiniki)
+            const tetrisNotes = [
+                "E5", "B4", "C5", "D5", "C5", "B4", "A4", "A4", "C5", "E5", "D5", "C5", "B4", "C5", "D5", "E5",
+                "C5", "A4", "A4", "A4", "B4", "C5", "D5", "D5", "F5", "A5", "G5", "F5", "E5", "C5", "E5", "E5",
+                "A#4", "D5", "F5", "A5", "G5", "F5", "E5", "C5", "E5", "E5", "A#4", "B4", "C5", "B4", "C5", "D5",
+                "E5", "C5", "A4", "A4", "A4", "B4", "C5", "D5", "D5", "F5", "A5", "G5", "F5", "E5", "C5", "E5", "E5"
+            ];
+
+            // Tone.js sequence to play the notes in order, looping indefinitely
+            const backgroundMusic = new Tone.Sequence((time, note) => {
+                musicSynth.triggerAttackRelease(note, "8n", time);
+            }, tetrisNotes, "8n");
+
+            backgroundMusic.loop = true;
+            backgroundMusic.playbackRate = 1.0;
+
+            // Game constants
+            const COLS = 10;
+            const ROWS = 20;
+            const BLOCK_SIZE = 30;
+            const PADDING = 2; // For spacing between blocks
+
+            // Set canvas dimensions based on constants
+            canvas.width = COLS * BLOCK_SIZE;
+            canvas.height = ROWS * BLOCK_SIZE;
+
+            // Definition of all Tetris piece shapes and their colors
+            const SHAPES = [
+                { shape: [[1, 1, 1, 1]], color: '#00ffff' }, // I
+                { shape: [[1, 1], [1, 1]], color: '#ffff00' }, // O
+                { shape: [[0, 1, 0], [1, 1, 1]], color: '#800080' }, // T
+                { shape: [[1, 1, 0], [0, 1, 1]], color: '#00ff00' }, // S
+                { shape: [[0, 1, 1], [1, 1, 0]], color: '#ff0000' }, // Z
+                { shape: [[1, 0, 0], [1, 1, 1]], color: '#0000ff' }, // J
+                { shape: [[0, 0, 1], [1, 1, 1]], color: '#ff7f00' }  // L
+            ];
+
+            // Game state variables
+            let board; // Initialized in restartGame()
+            let piece; // The current falling piece
+            let nextPiece; // The next piece to fall
+            let score = 0;
+            let dropCounter = 0;
+            let dropInterval = 1000;
+            let lastTime = 0;
+            let isGameOver = false;
+            let isAnimating = false;
+            let isPaused = false; // New variable to track pause state
+
+            // Variables for game progression
+            const speedLevels = [
+                { score: 0, interval: 1000 },
+                { score: 500, interval: 700 },
+                { score: 1500, interval: 500 },
+                { score: 3000, interval: 300 },
+            ];
+
+            // A mapping for the initial game speed based on user selection
+            const startSpeeds = {
+                '0': 1000,
+                '1': 700,
+                '2': 500,
+                '3': 100,
+                'bar-only': 1000
+            };
+            
+            // Creates a new, empty game board represented as a 2D array
+            function createBoard() {
+                return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+            }
+
+            // Creates a new random piece and its initial position
+            function createPiece() {
+                // Check if the user has selected the "Bar Only" mode
+                if (levelSelect.value === 'bar-only') {
+                    // Always return the 'I' piece
+                    const iPiece = SHAPES[0];
+                    return {
+                        shape: iPiece.shape,
+                        color: iPiece.color,
+                        x: Math.floor(COLS / 2) - Math.floor(iPiece.shape[0].length / 2),
+                        y: 0
+                    };
+                }
+
+                // If not in "Bar Only" mode, return a random piece as usual
+                const randomShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+                return {
+                    shape: randomShape.shape,
+                    color: randomShape.color,
+                    x: Math.floor(COLS / 2) - Math.floor(randomShape.shape[0].length / 2),
+                        y: 0
+                    };
+                }
+            
+            // Draws a single block on the canvas with color and padding
+            function drawBlock(context, x, y, color) {
+                context.fillStyle = color;
+                context.fillRect(x * BLOCK_SIZE + PADDING, y * BLOCK_SIZE + PADDING, BLOCK_SIZE - 2 * PADDING, BLOCK_SIZE - 2 * PADDING);
+                context.strokeStyle = '#222';
+                context.lineWidth = 1;
+                context.strokeRect(x * BLOCK_SIZE + PADDING, y * BLOCK_SIZE + PADDING, BLOCK_SIZE - 2 * PADDING, BLOCK_SIZE - 2 * PADDING);
+            }
+
+            // Draws a grid on the canvas
+            function drawGrid() {
+                context.strokeStyle = 'rgba(255, 255, 255, 0.1)'; // Subtle white grid lines
+                context.lineWidth = 1;
+
+                // Draw vertical lines
+                for (let x = 0; x < COLS; x++) {
+                    context.beginPath();
+                    context.moveTo(x * BLOCK_SIZE, 0);
+                    context.lineTo(x * BLOCK_SIZE, canvas.height);
+                    context.stroke();
+                }
+
+                // Draw horizontal lines
+                for (let y = 0; y < ROWS; y++) {
+                    context.beginPath();
+                    context.moveTo(0, y * BLOCK_SIZE);
+                    context.lineTo(canvas.width, y * BLOCK_SIZE);
+                    context.stroke();
+                }
+            }
+
+            // The main drawing function that redraws the entire game state
+            function draw() {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                drawGrid(); // Draw the grid first
+                drawBoard();
+                if (piece) {
+                    drawPiece(context, piece);
+                }
+                drawNextPiece();
+                updateUI();
+            }
+
+            // Draws all the blocks already placed on the board
+            function drawBoard() {
+                for (let row = 0; row < ROWS; row++) {
+                    for (let col = 0; col < COLS; col++) {
+                        if (board[row][col]) {
+                            drawBlock(context, col, row, board[row][col]);
+                        }
+                    }
+                }
+            }
+
+            // Draws the current falling piece without a smooth drop animation
+            function drawPiece(ctx, p) {
+                if (!p) return;
+                p.shape.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value) {
+                            // Draw the block at its integer coordinates
+                            drawBlock(ctx, p.x + x, p.y + y, p.color);
+                        }
+                    });
+                });
+            }
+
+            // Draws the next piece in the sidebar preview
+            function drawNextPiece() {
+                nextContext.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+                if (!nextPiece) return;
+                const nextShape = nextPiece.shape;
+                const rows = nextShape.length;
+                const cols = nextShape[0].length;
+                // Center the piece in the preview canvas
+                const xOffset = (nextCanvas.width / (BLOCK_SIZE - 10) - cols) / 2;
+                const yOffset = (nextCanvas.height / (BLOCK_SIZE - 10) - rows) / 2;
+                
+                nextShape.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value) {
+                            // Scale down the piece to fit the smaller preview canvas
+                            const smallBlockSize = 20;
+                            const smallPadding = 1;
+                            nextContext.fillStyle = nextPiece.color;
+                            nextContext.fillRect((x + xOffset) * smallBlockSize + smallPadding, (y + yOffset) * smallBlockSize + smallPadding, smallBlockSize - 2 * smallPadding, smallBlockSize - 2 * smallPadding);
+                            nextContext.strokeStyle = '#222';
+                            nextContext.lineWidth = 1;
+                            nextContext.strokeRect((x + xOffset) * smallBlockSize + smallPadding, (y + yOffset) * smallBlockSize + smallPadding, smallBlockSize - 2 * smallPadding, smallBlockSize - 2 * smallPadding);
+                        }
+                    });
+                });
+            }
+
+            // Checks if a piece can move to a new position without collision
+            function isValidMove(newPiece) {
+                for (let y = 0; y < newPiece.shape.length; y++) {
+                    for (let x = 0; x < newPiece.shape[y].length; x++) {
+                        if (newPiece.shape[y][x]) {
+                            const newX = newPiece.x + x;
+                            const newY = newPiece.y + y;
+                            // Check for collisions with walls or existing blocks
+                            if (newX < 0 || newX >= COLS || newY >= ROWS || (board[newY] && board[newY][newX])) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+
+            // Merges the current piece onto the game board when it lands
+            function merge() {
+                piece.shape.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value) {
+                            board[piece.y + y][piece.x + x] = piece.color;
+                        }
+                    });
+                });
+            }
+
+            // Rotates a 2D matrix 90 degrees clockwise
+            function rotate(matrix) {
+                const rows = matrix.length;
+                const cols = matrix[0].length;
+                // Create a new matrix with swapped dimensions
+                const result = Array.from({ length: cols }, () => Array(rows).fill(0));
+
+                for (let y = 0; y < rows; y++) {
+                    for (let x = 0; x < cols; x++) {
+                        // The rotation logic
+                        result[x][rows - 1 - y] = matrix[y][x];
+                    }
+                }
+                return result;
+            }
+
+            // A separate function to handle the line clear animation
+            function animateLineClear(linesToClear) {
+                const animationDuration = 200; // in ms
+                const startTime = Date.now();
+                // FIX: Schedule the line clear sound with a slight delay to ensure it feels separate from the drop sound
+                lineClearSynth.triggerAttackRelease(['C4', 'E4', 'G4', 'C5'], '8n', Tone.now() + 0.1);
+
+                function animate() {
+                    const elapsedTime = Date.now() - startTime;
+                    const progress = Math.min(elapsedTime / animationDuration, 1);
+                    const alpha = 1 - progress; // Fade from opaque (1) to transparent (0)
+
+                    context.save();
+                    context.globalAlpha = alpha;
+                    context.fillStyle = 'white';
+                    
+                    linesToClear.forEach(y => {
+                        context.fillRect(0, y * BLOCK_SIZE, canvas.width, BLOCK_SIZE);
+                    });
+                    
+                    context.restore();
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        // After animation, perform the actual line clearing
+                        performLineClearing(linesToClear);
+                    }
+                }
+                animate();
+            }
+
+            // Function to perform the actual line clearing after the animation
+            function performLineClearing(linesToClear) {
+                linesToClear.sort((a, b) => b - a);
+                linesToClear.forEach(y => {
+                    board.splice(y, 1);
+                    board.unshift(Array(COLS).fill(null));
+                });
+                
+                const linesCleared = linesToClear.length;
+                if (linesCleared > 0) {
+                    // Updated scoring system to give bonus points for multiple lines
+                    switch(linesCleared) {
+                        case 1: score += 100; break;
+                        case 2: score += 300; break;
+                        case 3: score += 500; break;
+                        case 4: score += 800; break;
+                    }
+                    scoreElement.textContent = score;
+                    // Check if the game should speed up after a line clear
+                    updateGameSpeed();
+                }
+                // Once lines are cleared, allow the main game loop to resume
+                isAnimating = false;
+                // CRUCIAL FIX: Re-call the main loop to resume the game
+                requestAnimationFrame(main);
+            }
+
+            // Checks the score and updates the game speed if a new level is reached
+            function updateGameSpeed() {
+                // If "Bar Only" mode is selected, don't change speed based on score.
+                if (levelSelect.value === 'bar-only') {
+                    return;
+                }
+
+                let newInterval = dropInterval;
+                for (let i = speedLevels.length - 1; i >= 0; i--) {
+                    const level = speedLevels[i];
+                    if (score >= level.score) {
+                        newInterval = level.interval;
+                        break;
+                    }
+                }
+
+                if (newInterval !== dropInterval) {
+                    dropInterval = newInterval;
+                    console.log(`Speeding up! New drop interval: ${dropInterval}`);
+                }
+            }
+            
+            // Checks for and initiates the line clear animation
+            function clearLines() {
+                const linesToClear = [];
+                for (let y = ROWS - 1; y >= 0; y--) {
+                    if (board[y].every(value => value !== null)) {
+                        linesToClear.push(y);
+                    }
+                }
+                if (linesToClear.length > 0) {
+                    // Set the flag to pause the main game loop
+                    isAnimating = true;
+                    animateLineClear(linesToClear);
+                }
+            }
+
+            // Drops the piece instantly to the lowest possible position
+            function hardDrop() {
+                while (isValidMove({ ...piece, y: piece.y + 1 })) {
+                    piece.y++;
+                }
+                // When hard dropping, the piece is immediately placed
+                merge();
+                // Play a percussive sound for the drop
+                dropSynth.triggerAttackRelease("C2", "8n");
+                clearLines();
+                piece = nextPiece;
+                nextPiece = createPiece();
+                if (!isValidMove(piece)) {
+                    isGameOver = true;
+                    showGameOver();
+                }
+                dropCounter = 0;
+            }
+            
+            // Pauses the game
+            function pauseGame() {
+                isPaused = true;
+                messageTitle.textContent = "Paused";
+                finalScoreElement.style.display = 'none';
+                actionButton.textContent = "Resume";
+                messageBox.style.display = 'flex';
+                // Stop the music when pausing
+                if (isMusicPlaying) {
+                    backgroundMusic.stop();
+                    musicToggleButton.textContent = "Play Music";
+                }
+            }
+
+            // Resumes the game
+            function resumeGame() {
+                isPaused = false;
+                messageBox.style.display = 'none';
+                main(); // Resume the animation loop
+                // Resume the music
+                if (isMusicPlaying) {
+                    backgroundMusic.start(0);
+                    musicToggleButton.textContent = "Pause Music";
+                }
+            }
+
+            // Updates all UI elements
+            function updateUI() {
+                scoreElement.textContent = score;
+            }
+
+            // Shows the game over message and final score
+            function showGameOver() {
+                isGameOver = true;
+                // Stop the music on game over
+                backgroundMusic.stop();
+                isMusicPlaying = false;
+                musicToggleButton.textContent = "Play Music";
+                
+                // Play a descending tone for game over
+                const now = Tone.now();
+                gameOverSynth.triggerAttackRelease('G4', '4n', now);
+                gameOverSynth.triggerAttackRelease('E4', '4n', now + 0.5);
+                gameOverSynth.triggerAttackRelease('C4', '4n', now + 1.0);
+                
+                messageTitle.textContent = "Game Over";
+                finalScoreElement.textContent = `Final Score: ${score}`;
+                finalScoreElement.style.display = 'block';
+                actionButton.textContent = "Restart";
+                messageBox.style.display = 'flex';
+                // Stop the game loop
+                cancelAnimationFrame(lastTime);
+            }
+
+            // Shows the initial start screen
+            function showStartScreen() {
+                messageTitle.textContent = "Welcome to Tetris";
+                finalScoreElement.style.display = 'none'; // Hide the score on the start screen
+                actionButton.textContent = "Start";
+                musicToggleButton.textContent = "Play Music"; // Ensure button is correct at start
+                isMusicPlaying = false;
+                messageBox.style.display = 'flex';
+            }
+
+            // Resets all game state and starts a new game
+            function startGame() {
+                messageBox.style.display = 'none';
+                board = createBoard();
+                score = 0;
+                isGameOver = false;
+                isAnimating = false;
+                isPaused = false;
+                dropInterval = startSpeeds[levelSelect.value];
+                piece = createPiece();
+                nextPiece = createPiece();
+                dropCounter = 0;
+                lastTime = 0;
+                
+                // Stop and restart music on game start
+                backgroundMusic.stop();
+                backgroundMusic.start(0);
+                isMusicPlaying = true;
+                musicToggleButton.textContent = "Pause Music";
+                
+                main(); // Start the game loop
+            }
+
+            // The main game loop using requestAnimationFrame
+            function main(time = 0) {
+                // If the game is over, paused, or an animation is running, do not proceed
+                if (isGameOver || isAnimating || isPaused) return;
+
+                const deltaTime = time - lastTime;
+                lastTime = time;
+
+                dropCounter += deltaTime;
+
+                // Check for a full drop interval passing
+                if (dropCounter >= dropInterval) {
+                    const newPiece = { ...piece, y: piece.y + 1 };
+                    if (isValidMove(newPiece)) {
+                        piece.y++;
+                    } else {
+                        // The piece cannot move down, so we merge it and get the next one
+                        merge();
+                        // Play a percussive sound for the drop
+                        dropSynth.triggerAttackRelease("C2", "8n");
+                        clearLines();
+                        // If line clear is not animating, get the next piece
+                        if (!isAnimating) {
+                            piece = nextPiece;
+                            nextPiece = createPiece();
+                            if (!isValidMove(piece)) {
+                                isGameOver = true;
+                                showGameOver();
+                            }
+                        }
+                    }
+                    dropCounter = 0; // Reset the counter for a new drop
+                }
+                
+                // Redraw the entire state based on the updated coordinates
+                draw();
+                
+                requestAnimationFrame(main); // Call the loop again for the next frame
+            }
+
+            // Event listener for keyboard controls
+            document.addEventListener('keydown', event => {
+                const key = event.key.toLowerCase(); // Convert key to lowercase for case-insensitivity
+
+                // Handle pause/resume with 'p' key
+                if (key === 'p') {
+                    if (isGameOver) return; // Cannot pause if game is over
+                    if (isPaused) {
+                        resumeGame();
+                    } else {
+                        pauseGame();
+                    }
+                    return; // Exit early to prevent other key actions
+                }
+
+                // Do not allow other controls if the game is paused or over
+                if (isGameOver || isPaused) return;
+                
+                // Temporarily store the original piece to revert if the move is invalid
+                const newPiece = { ...piece };
+
+                switch (key) {
+                    case 'arrowleft':
+                        newPiece.x--;
+                        if (isValidMove(newPiece)) {
+                            piece.x--;
+                        }
+                        break;
+                    case 'arrowright':
+                        newPiece.x++;
+                        if (isValidMove(newPiece)) {
+                            piece.x++;
+                        }
+                        break;
+                    case 'arrowdown':
+                        // Move the piece down one step for soft drop
+                        const softDropPiece = { ...piece, y: piece.y + 1 };
+                        if (isValidMove(softDropPiece)) {
+                            piece.y++;
+                            dropCounter = 0; // Reset the drop counter for a faster drop
+                        }
+                        break;
+                    case 'arrowup':
+                        newPiece.shape = rotate(piece.shape);
+                        if (isValidMove(newPiece)) {
+                            piece.shape = newPiece.shape;
+                        }
+                        break;
+                    case ' ': // Spacebar for hard drop
+                        event.preventDefault(); // Prevents page from scrolling
+                        hardDrop();
+                        break;
+                }
+                // Call draw to update the display immediately after a manual move
+                draw();
+            });
+
+            // Add event listeners for mobile buttons
+            moveLeftBtn.addEventListener('touchstart', () => {
+                if (isPaused || isGameOver) return;
+                const newPiece = { ...piece, x: piece.x - 1 };
+                if (isValidMove(newPiece)) {
+                    piece.x--;
+                    draw();
+                }
+            });
+
+            moveRightBtn.addEventListener('touchstart', () => {
+                if (isPaused || isGameOver) return;
+                const newPiece = { ...piece, x: piece.x + 1 };
+                if (isValidMove(newPiece)) {
+                    piece.x++;
+                    draw();
+                }
+            });
+
+            rotateBtn.addEventListener('touchstart', () => {
+                if (isPaused || isGameOver) return;
+                const newPiece = { ...piece, shape: rotate(piece.shape) };
+                if (isValidMove(newPiece)) {
+                    piece.shape = newPiece.shape;
+                    draw();
+                }
+            });
+
+            hardDropBtn.addEventListener('touchstart', () => {
+                if (isPaused || isGameOver) return;
+                hardDrop();
+                draw();
+            });
+            
+            // Event listener for the start/restart/resume button
+            actionButton.addEventListener('click', () => {
+                // Since audio context is now started on the first click on the body,
+                // we can proceed directly with the game logic
+                if (actionButton.textContent === "Resume") {
+                    resumeGame();
+                } else {
+                    startGame();
+                }
+            });
+
+            // Event listener for the music toggle button
+            musicToggleButton.addEventListener('click', () => {
+                if (isMusicPlaying) {
+                    backgroundMusic.stop();
+                    musicToggleButton.textContent = "Play Music";
+                } else {
+                    backgroundMusic.start(0);
+                    musicToggleButton.textContent = "Pause Music";
+                }
+                isMusicPlaying = !isMusicPlaying;
+            });
+
+            // Event listener for the volume slider
+            volumeSlider.addEventListener('input', (event) => {
+                // Set the master volume of Tone.js based on the slider value
+                Tone.Master.volume.value = event.target.value;
+            });
+
+            // Event listener for controls button
+            controlsButton.addEventListener('click', () => {
+                controlsModal.style.display = 'flex';
+            });
+            
+            // Event listener for controls modal close button
+            closeModalButton.addEventListener('click', () => {
+                controlsModal.style.display = 'none';
+            });
+            
+            // Initial game setup
+            showStartScreen(); // Show the start screen first
+        });
+    </script>
+</body>
+</html>

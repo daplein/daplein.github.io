@@ -195,16 +195,16 @@
             const initialPlayers = [
                 { name: 'David', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
                 { name: 'Anna', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
-                { name: 'Victoria Spencer', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Victoria', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
                 { name: 'Nicole', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
-                { name: 'Leonie Doyle', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Leonie', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
                 { name: 'Dara', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
-                { name: 'Jeroen Roodbol', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Jeroen', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
                 { name: 'Deborah', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
-                { name: 'Mary Farrell', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Mary', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
                 { name: 'Daphne', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
                 { name: 'Jacqui', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
-                { name: 'Rose Pollard', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Rose', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
                 { name: 'Alice', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 }
             ];
 
@@ -319,6 +319,21 @@
                     players[index].endTime = target.value;
                 }
             });
+
+            // Sync all players' start times with the main start time
+            startTimeInput.addEventListener('change', (e) => {
+                const newStartTime = e.target.value;
+                players.forEach(p => p.startTime = newStartTime);
+                renderPlayers();
+            });
+
+            // Sync all players' end times with the main end time
+            endTimeInput.addEventListener('change', (e) => {
+                const newEndTime = e.target.value;
+                players.forEach(p => p.endTime = newEndTime);
+                renderPlayers();
+            });
+
 
             // Helper function to convert "HH:MM" to minutes from midnight
             const timeToMinutes = (timeString) => {

@@ -1,0 +1,416 @@
+<!DOCTYPE ahtml>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pickleball Training Schedule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .container {
+            max-width: 90%;
+        }
+        @media (min-width: 768px) {
+            .container {
+                max-width: 800px;
+            }
+        }
+        .tab-button.active {
+            border-bottom: 3px solid #3b82f6;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        .tab-content.hidden {
+            display: none;
+        }
+        /* Add a minimum height to prevent layout shift */
+        .tab-content {
+            min-height: 400px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
+
+    <div class="container mx-auto p-6 bg-white rounded-xl shadow-lg w-full">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Pickleball Training Schedule</h1>
+        
+        <!-- Tab Buttons -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button id="playersTabBtn" class="tab-button active flex-1 py-3 px-4 text-center text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
+                Players
+            </button>
+            <button id="scheduleTabBtn" class="tab-button flex-1 py-3 px-4 text-center text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
+                Schedule
+            </button>
+        </div>
+
+        <!-- Players Tab Content -->
+        <div id="playersTabContent" class="tab-content">
+            <!-- Settings & Player Input Section -->
+            <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Settings</h2>
+                <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                    <div class="flex items-center gap-2">
+                        <label for="numCourts" class="font-medium text-gray-700">Number of Courts:</label>
+                        <input type="number" id="numCourts" value="2" min="1" class="w-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="startTime" class="font-medium text-gray-700">Starting Time:</label>
+                        <input type="time" id="startTime" value="18:30" class="w-32 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="endTime" class="font-medium text-gray-700">Ending Time:</label>
+                        <input type="time" id="endTime" value="20:00" class="w-32 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus-ring-blue-500">
+                    </div>
+                </div>
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700 mt-6">Add Players</h2>
+                <div class="flex flex-col md:flex-row gap-4 mb-4 items-center">
+                    <input type="text" id="playerName" placeholder="Enter player name" class="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="addPlayerBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
+                        Add Player
+                    </button>
+                </div>
+            </div>
+
+            <!-- Player List & Generate Button -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-700">Players</h2>
+                    <button id="generateScheduleBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
+                        Generate Schedule
+                    </button>
+                </div>
+                <div id="messageArea" class="text-red-500 font-semibold mb-4 text-center"></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto border-collapse">
+                        <thead class="bg-gray-200">
+                            <tr class="rounded-lg">
+                                <th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">No.</th>
+                                <th class="px-4 py-2 text-left text-gray-600">Player Name</th>
+                                <th class="px-4 py-2 text-left text-gray-600">Skill Level</th>
+                                <th class="px-4 py-2 text-left text-gray-600">Start Time</th>
+                                <th class="px-4 py-2 text-left text-gray-600">End Time</th>
+                                <th class="px-4 py-2 text-left text-gray-600">Rest Periods</th>
+                                <th class="px-4 py-2 text-left text-gray-600">Play Periods</th>
+                                <th class="px-4 py-2 text-left text-gray-600 rounded-tr-lg">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="playerTableBody" class="divide-y divide-gray-200">
+                            <!-- Player rows will be generated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Tab Content -->
+        <div id="scheduleTabContent" class="tab-content hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Training Schedule</h2>
+            <div id="scheduleTableContainer" class="overflow-x-auto">
+                <table class="w-full table-auto border-collapse">
+                    <thead class="bg-gray-200" id="scheduleTableHeader">
+                        <!-- Header will be dynamically generated -->
+                    </thead>
+                    <tbody id="scheduleTableBody" class="divide-y divide-gray-200">
+                        <!-- Schedule rows will be generated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const players = [];
+            
+            // Get default start and end times from main settings
+            const defaultStartTime = document.getElementById('startTime').value;
+            const defaultEndTime = document.getElementById('endTime').value;
+
+            // Initial player list, all starting at level 1 with 0 rest and play counts
+            const initialPlayers = [
+                { name: 'David', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Anna', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Victoria Spencer', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Nicole', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Leonie Doyle', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Dara', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Jeroen Roodbol', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Deborah', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Mary Farrell', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Daphne', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Jacqui', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Rose Pollard', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 },
+                { name: 'Alice', level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 }
+            ];
+
+            // DOM elements
+            const playersTabBtn = document.getElementById('playersTabBtn');
+            const scheduleTabBtn = document.getElementById('scheduleTabBtn');
+            const playersTabContent = document.getElementById('playersTabContent');
+            const scheduleTabContent = document.getElementById('scheduleTabContent');
+            const addPlayerBtn = document.getElementById('addPlayerBtn');
+            const playerNameInput = document.getElementById('playerName');
+            const playerTableBody = document.getElementById('playerTableBody');
+            const generateScheduleBtn = document.getElementById('generateScheduleBtn');
+            const scheduleTableBody = document.getElementById('scheduleTableBody');
+            const scheduleTableHeader = document.getElementById('scheduleTableHeader');
+            const numCourtsInput = document.getElementById('numCourts');
+            const startTimeInput = document.getElementById('startTime');
+            const endTimeInput = document.getElementById('endTime');
+            const messageArea = document.getElementById('messageArea');
+
+            // Tab functionality
+            function showTab(tabName) {
+                // Hide all tab contents
+                playersTabContent.classList.add('hidden');
+                scheduleTabContent.classList.add('hidden');
+
+                // Deactivate all tab buttons
+                playersTabBtn.classList.remove('active');
+                scheduleTabBtn.classList.remove('active');
+
+                // Show the selected tab and activate its button
+                if (tabName === 'players') {
+                    playersTabContent.classList.remove('hidden');
+                    playersTabBtn.classList.add('active');
+                } else if (tabName === 'schedule') {
+                    playersTabBtn.classList.remove('active');
+                    scheduleTabContent.classList.remove('hidden');
+                    scheduleTabBtn.classList.add('active');
+                }
+            }
+            
+            playersTabBtn.addEventListener('click', () => showTab('players'));
+            scheduleTabBtn.addEventListener('click', () => showTab('schedule'));
+
+            // Function to render the player list in the table
+            const renderPlayers = () => {
+                playerTableBody.innerHTML = '';
+                // Sort players by total play periods for a fair display
+                const sortedPlayers = [...players].sort((a, b) => b.playCount - a.playCount);
+                sortedPlayers.forEach((player, index) => {
+                    const row = document.createElement('tr');
+                    const originalIndex = players.findIndex(p => p.name === player.name);
+                    row.innerHTML = `
+                        <td class="px-4 py-2">${index + 1}</td>
+                        <td class="px-4 py-2">${player.name}</td>
+                        <td class="px-4 py-2">
+                            <select class="player-level-select p-1 border border-gray-300 rounded-md" data-index="${originalIndex}">
+                                <option value="1" ${player.level === 1 ? 'selected' : ''}>Level 1</option>
+                                <option value="2" ${player.level === 2 ? 'selected' : ''}>Level 2</option>
+                            </select>
+                        </td>
+                        <td class="px-4 py-2">
+                            <input type="time" class="player-start-time-input p-1 border border-gray-300 rounded-md" data-index="${originalIndex}" value="${player.startTime}">
+                        </td>
+                        <td class="px-4 py-2">
+                            <input type="time" class="player-end-time-input p-1 border border-gray-300 rounded-md" data-index="${originalIndex}" value="${player.endTime}">
+                        </td>
+                        <td class="px-4 py-2 font-bold">${player.restCount}</td>
+                        <td class="px-4 py-2 font-bold">${player.playCount}</td>
+                        <td class="px-4 py-2">
+                            <button class="remove-player-btn bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-md transition-colors duration-200" data-index="${originalIndex}">Remove</button>
+                        </td>
+                    `;
+                    playerTableBody.appendChild(row);
+                });
+            };
+
+            // Add initial players to the list and render
+            initialPlayers.forEach(p => players.push(p));
+            renderPlayers();
+            
+            // Add a new player to the list
+            addPlayerBtn.addEventListener('click', () => {
+                const name = playerNameInput.value.trim();
+                const defaultStartTime = startTimeInput.value;
+                const defaultEndTime = endTimeInput.value;
+                // New players are added with a default level of 1 and default session times
+                if (name) {
+                    players.push({ name, level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 });
+                    playerNameInput.value = '';
+                    renderPlayers();
+                }
+            });
+
+            // Remove a player from the list
+            playerTableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-player-btn')) {
+                    const index = e.target.getAttribute('data-index');
+                    players.splice(index, 1);
+                    renderPlayers();
+                }
+            });
+
+            // Update player level or availability times when a dropdown or input changes
+            playerTableBody.addEventListener('change', (e) => {
+                const target = e.target;
+                const index = target.getAttribute('data-index');
+                if (target.classList.contains('player-level-select')) {
+                    const newLevel = parseInt(target.value);
+                    players[index].level = newLevel;
+                } else if (target.classList.contains('player-start-time-input')) {
+                    players[index].startTime = target.value;
+                } else if (target.classList.contains('player-end-time-input')) {
+                    players[index].endTime = target.value;
+                }
+            });
+
+            // Helper function to convert "HH:MM" to minutes from midnight
+            const timeToMinutes = (timeString) => {
+                const [hours, minutes] = timeString.split(':').map(Number);
+                return hours * 60 + minutes;
+            };
+
+            // Function to generate and display the schedule
+            const generateAndDisplaySchedule = () => {
+                // Reset play and rest counts for a new schedule
+                players.forEach(p => {
+                    p.restCount = 0;
+                    p.playCount = 0;
+                });
+                renderPlayers();
+
+                messageArea.textContent = '';
+                scheduleTableBody.innerHTML = '';
+
+                // Get settings from input fields
+                const numCourts = parseInt(numCourtsInput.value);
+                const roundDurationMinutes = 10;
+                const startTimeValue = startTimeInput.value;
+                const endTimeValue = endTimeInput.value;
+
+                // Validation Checks
+                if (players.length === 0) {
+                    messageArea.textContent = 'Please add some players first.';
+                    return;
+                }
+                if (players.length / 4 < numCourts) {
+                    messageArea.textContent = `You need at least ${numCourts * 4} players for ${numCourts} courts.`;
+                    return;
+                }
+                
+                // Calculate number of rounds based on start and end times
+                const startMinutes = timeToMinutes(startTimeValue);
+                const endMinutes = timeToMinutes(endTimeValue);
+                if (endMinutes <= startMinutes) {
+                    messageArea.textContent = 'End time must be after start time.';
+                    return;
+                }
+                const totalDurationMinutes = endMinutes - startMinutes;
+                const numRounds = Math.floor(totalDurationMinutes / roundDurationMinutes);
+                
+                // Generate table headers based on the number of courts
+                let headerHtml = `<tr class="rounded-lg">
+                                    <th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">Round</th>
+                                    <th class="px-4 py-2 text-left text-gray-600">Time Slot</th>
+                                    <th class="px-4 py-2 text-left text-gray-600">Available Players</th>`;
+                for (let i = 1; i <= numCourts; i++) {
+                    headerHtml += `<th class="px-4 py-2 text-left text-gray-600">Court ${i}</th>`;
+                }
+                headerHtml += `<th class="px-4 py-2 text-left text-gray-600 rounded-tr-lg">Resting Players</th>`;
+                headerHtml += `</tr>`;
+                scheduleTableHeader.innerHTML = headerHtml;
+
+                // Create a balanced schedule
+                let currentMinutes = startMinutes;
+
+                for (let round = 0; round < numRounds; round++) {
+                    const row = document.createElement('tr');
+                    const currentHour = Math.floor(currentMinutes / 60);
+                    const currentMinute = currentMinutes % 60;
+                    const nextMinutes = currentMinutes + roundDurationMinutes;
+                    const nextHour = Math.floor(nextMinutes / 60);
+                    const nextMinute = nextMinutes % 60;
+
+                    const timeString = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+                    const nextTimeString = `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}`;
+
+                    // Filter players who are available during this time slot
+                    const availablePlayers = players.filter(p => {
+                        const playerStartMinutes = timeToMinutes(p.startTime);
+                        const playerEndMinutes = timeToMinutes(p.endTime);
+                        return currentMinutes >= playerStartMinutes && currentMinutes < playerEndMinutes;
+                    });
+                    
+                    // Sort available players by play count (ascending) to prioritize playing for those who played least
+                    availablePlayers.sort((a, b) => {
+                        if (a.playCount === b.playCount) {
+                            return Math.random() - 0.5; // Shuffle players with the same play count
+                        }
+                        return a.playCount - b.playCount;
+                    });
+                    
+                    const playingPlayers = availablePlayers.slice(0, numCourts * 4);
+                    const restingPlayers = availablePlayers.slice(numCourts * 4);
+                    
+                    let courtData = '';
+                    if (playingPlayers.length >= numCourts * 4) {
+                        for (let i = 0; i < playingPlayers.length; i += 4) {
+                            const teamA = [playingPlayers[i], playingPlayers[i + 1]];
+                            const teamB = [playingPlayers[i + 2], playingPlayers[i + 3]];
+                            if (teamA[0] && teamA[1] && teamB[0] && teamB[1]) {
+                                courtData += `<td class="px-4 py-2">${teamA[0].name} & ${teamA[1].name} vs. ${teamB[0].name} & ${teamB[1].name}</td>`;
+                            }
+                        }
+                    } else {
+                        // Not enough players to fill all courts
+                        courtData = `<td colspan="${numCourts}" class="px-4 py-2 text-center text-gray-500 italic">Not enough players to fill all courts this round.</td>`;
+                    }
+
+                    // Update counts for all players
+                    players.forEach(p => {
+                        const isPlaying = playingPlayers.includes(p);
+                        if (isPlaying) {
+                            p.playCount++;
+                        } else if (availablePlayers.includes(p)) {
+                            p.restCount++;
+                        }
+                    });
+                    
+                    let restingTeamDisplay = '---';
+                    if (restingPlayers.length > 0) {
+                        const restingTeamNames = [];
+                        for(let i = 0; i < restingPlayers.length; i+=2) {
+                            if (restingPlayers[i+1]) {
+                                restingTeamNames.push(`${restingPlayers[i].name} & ${restingPlayers[i+1].name}`);
+                            } else {
+                                restingTeamNames.push(restingPlayers[i].name);
+                            }
+                        }
+                        restingTeamDisplay = restingTeamNames.join(', ');
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="px-4 py-2">${round + 1}</td>
+                        <td class="px-4 py-2">${timeString} - ${nextTimeString}</td>
+                        <td class="px-4 py-2">${availablePlayers.length} / ${players.length}</td>
+                        ${courtData}
+                        <td class="px-4 py-2">${restingTeamDisplay}</td>
+                    `;
+                    scheduleTableBody.appendChild(row);
+                    currentMinutes += roundDurationMinutes;
+                }
+
+                // Update the player table to show rest and play counts
+                renderPlayers();
+
+                // After generating, switch to the schedule view
+                showTab('schedule');
+            };
+
+            // Set up event listeners
+            generateScheduleBtn.addEventListener('click', generateAndDisplaySchedule);
+
+            // Automatically generate schedule on page load
+            generateAndDisplaySchedule();
+        });
+    </script>
+
+</body>
+</html>

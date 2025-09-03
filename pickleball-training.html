@@ -354,18 +354,17 @@
                     st: p.startTime,
                     et: p.endTime
                 }));
-                // Stringify the data
                 const playerJson = JSON.stringify(shareablePlayers);
-                // Compress the JSON string using pako.deflate
-                const compressed = pako.deflate(playerJson, { to: 'string' });
-                // Base64 encode the compressed data
-                const encoded = btoa(compressed);
+
+                // Corrected compression and encoding to handle binary data
+                const compressed = pako.deflate(playerJson);
+                const encoded = btoa(String.fromCharCode.apply(null, compressed));
                 
                 const params = new URLSearchParams();
-                params.set('p', encoded); // Use a shorter parameter name for brevity
-                params.set('c', numCourts); // Courts
-                params.set('st', startTimeValue); // Start Time
-                params.set('et', endTimeValue); // End Time
+                params.set('p', encoded);
+                params.set('c', numCourts);
+                params.set('st', startTimeValue);
+                params.set('et', endTimeValue);
                 const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
                 shareUrlInput.value = newUrl;
 
@@ -496,9 +495,13 @@
 
                 if (playersParam) {
                     try {
-                        // Decode and decompress the data
+                        // Corrected decoding and decompression to handle binary data
                         const decoded = atob(playersParam);
-                        const decompressed = pako.inflate(decoded, { to: 'string' });
+                        const charCodes = new Uint8Array(decoded.length);
+                        for (let i = 0; i < decoded.length; i++) {
+                            charCodes[i] = decoded.charCodeAt(i);
+                        }
+                        const decompressed = pako.inflate(charCodes, { to: 'string' });
                         const parsedPlayers = JSON.parse(decompressed);
 
                         players = parsedPlayers.map(p => ({

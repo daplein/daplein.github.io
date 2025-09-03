@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pickleball Training Schedule</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add pako for compression/decompression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -344,19 +346,26 @@
                 const startMinutes = timeToMinutes(startTimeValue);
                 const endMinutes = timeToMinutes(endTimeValue);
 
-                // --- URL UPDATE LOGIC ---
-                // Construct a simplified player data array for the URL
+                // --- URL UPDATE LOGIC: Encode and compress payload ---
+                // Create a simplified player data array for the URL
                 const shareablePlayers = players.map(p => ({
                     n: p.name,
                     l: p.level,
                     st: p.startTime,
                     et: p.endTime
                 }));
+                // Stringify the data
+                const playerJson = JSON.stringify(shareablePlayers);
+                // Compress the JSON string using pako.deflate
+                const compressed = pako.deflate(playerJson, { to: 'string' });
+                // Base64 encode the compressed data
+                const encoded = btoa(compressed);
+                
                 const params = new URLSearchParams();
-                params.set('players', JSON.stringify(shareablePlayers));
-                params.set('courts', numCourts);
-                params.set('startTime', startTimeValue);
-                params.set('endTime', endTimeValue);
+                params.set('p', encoded); // Use a shorter parameter name for brevity
+                params.set('c', numCourts); // Courts
+                params.set('st', startTimeValue); // Start Time
+                params.set('et', endTimeValue); // End Time
                 const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
                 shareUrlInput.value = newUrl;
 
@@ -480,14 +489,18 @@
             // Function to load state from URL on page load
             const loadStateFromUrl = () => {
                 const params = new URLSearchParams(window.location.search);
-                const playersParam = params.get('players');
-                const courtsParam = params.get('courts');
-                const startTimeParam = params.get('startTime');
-                const endTimeParam = params.get('endTime');
+                const playersParam = params.get('p');
+                const courtsParam = params.get('c');
+                const startTimeParam = params.get('st');
+                const endTimeParam = params.get('et');
 
                 if (playersParam) {
                     try {
-                        const parsedPlayers = JSON.parse(playersParam);
+                        // Decode and decompress the data
+                        const decoded = atob(playersParam);
+                        const decompressed = pako.inflate(decoded, { to: 'string' });
+                        const parsedPlayers = JSON.parse(decompressed);
+
                         players = parsedPlayers.map(p => ({
                             name: p.n,
                             level: p.l,
@@ -503,6 +516,7 @@
 
                     } catch (e) {
                         console.error('Failed to parse players from URL:', e);
+                        // Fallback to default players if parsing fails
                         players = initialPlayers;
                     }
                 } else {

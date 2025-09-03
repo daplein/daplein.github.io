@@ -30,6 +30,51 @@
         .tab-content {
             min-height: 400px;
         }
+
+        /* Responsive table styles for mobile */
+        .responsive-table {
+            border-collapse: collapse;
+        }
+        .responsive-table th,
+        .responsive-table td {
+            white-space: nowrap; /* Prevent content from wrapping in cells */
+        }
+        @media (max-width: 767px) {
+            .responsive-table thead {
+                display: none;
+            }
+            .responsive-table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                padding: 1rem;
+            }
+            .responsive-table td {
+                display: block;
+                text-align: right;
+                font-size: 0.875rem;
+                position: relative;
+                padding-left: 50%;
+                border: none;
+            }
+            .responsive-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 1rem;
+                width: calc(50% - 1.5rem);
+                font-weight: 600;
+                text-align: left;
+            }
+            .responsive-table td:first-child {
+                border-top-left-radius: 0.5rem;
+                border-top-right-radius: 0.5rem;
+            }
+            .responsive-table td:last-child {
+                border-bottom-left-radius: 0.5rem;
+                border-bottom-right-radius: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
@@ -85,7 +130,7 @@
                 </div>
                 <div id="messageArea" class="text-red-500 font-semibold mb-4 text-center"></div>
                 <div class="overflow-x-auto">
-                    <table class="w-full table-auto border-collapse">
+                    <table class="w-full table-auto border-collapse responsive-table">
                         <thead class="bg-gray-200">
                             <tr class="rounded-lg">
                                 <th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">No.</th>
@@ -110,7 +155,7 @@
         <div id="scheduleTabContent" class="tab-content hidden">
             <h2 class="text-2xl font-semibold mb-4 text-gray-700">Training Schedule</h2>
             <div id="scheduleTableContainer" class="overflow-x-auto">
-                <table class="w-full table-auto border-collapse">
+                <table class="w-full table-auto border-collapse responsive-table">
                     <thead class="bg-gray-200" id="scheduleTableHeader">
                         <!-- Header will be dynamically generated -->
                     </thead>
@@ -197,23 +242,23 @@
                     const row = document.createElement('tr');
                     const originalIndex = players.findIndex(p => p.name === player.name);
                     row.innerHTML = `
-                        <td class="px-4 py-2">${index + 1}</td>
-                        <td class="px-4 py-2">${player.name}</td>
-                        <td class="px-4 py-2">
+                        <td class="px-4 py-2" data-label="No.">${index + 1}</td>
+                        <td class="px-4 py-2" data-label="Player Name">${player.name}</td>
+                        <td class="px-4 py-2" data-label="Skill Level">
                             <select class="player-level-select p-1 border border-gray-300 rounded-md" data-index="${originalIndex}">
                                 <option value="1" ${player.level === 1 ? 'selected' : ''}>Level 1</option>
                                 <option value="2" ${player.level === 2 ? 'selected' : ''}>Level 2</option>
                             </select>
                         </td>
-                        <td class="px-4 py-2">
+                        <td class="px-4 py-2" data-label="Start Time">
                             <input type="time" class="player-start-time-input p-1 border border-gray-300 rounded-md" data-index="${originalIndex}" value="${player.startTime}">
                         </td>
-                        <td class="px-4 py-2">
+                        <td class="px-4 py-2" data-label="End Time">
                             <input type="time" class="player-end-time-input p-1 border border-gray-300 rounded-md" data-index="${originalIndex}" value="${player.endTime}">
                         </td>
-                        <td class="px-4 py-2 font-bold">${player.restCount}</td>
-                        <td class="px-4 py-2 font-bold">${player.playCount}</td>
-                        <td class="px-4 py-2">
+                        <td class="px-4 py-2 font-bold" data-label="Rest Periods">${player.restCount}</td>
+                        <td class="px-4 py-2 font-bold" data-label="Play Periods">${player.playCount}</td>
+                        <td class="px-4 py-2" data-label="Action">
                             <button class="remove-player-btn bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-md transition-colors duration-200" data-index="${originalIndex}">Remove</button>
                         </td>
                     `;
@@ -355,12 +400,12 @@
                             const teamA = [playingPlayers[i], playingPlayers[i + 1]];
                             const teamB = [playingPlayers[i + 2], playingPlayers[i + 3]];
                             if (teamA[0] && teamA[1] && teamB[0] && teamB[1]) {
-                                courtData += `<td class="px-4 py-2">${teamA[0].name} & ${teamA[1].name} vs. ${teamB[0].name} & ${teamB[1].name}</td>`;
+                                courtData += `<td class="px-4 py-2" data-label="Court ${i/4 + 1}">${teamA[0].name} & ${teamA[1].name} vs. ${teamB[0].name} & ${teamB[1].name}</td>`;
                             }
                         }
                     } else {
                         // Not enough players to fill all courts
-                        courtData = `<td colspan="${numCourts}" class="px-4 py-2 text-center text-gray-500 italic">Not enough players to fill all courts this round.</td>`;
+                        courtData = `<td colspan="${numCourts}" class="px-4 py-2 text-center text-gray-500 italic" data-label="Courts">Not enough players to fill all courts this round.</td>`;
                     }
 
                     // Update counts for all players
@@ -387,11 +432,11 @@
                     }
                     
                     row.innerHTML = `
-                        <td class="px-4 py-2">${round + 1}</td>
-                        <td class="px-4 py-2">${timeString} - ${nextTimeString}</td>
-                        <td class="px-4 py-2">${availablePlayers.length} / ${players.length}</td>
+                        <td class="px-4 py-2" data-label="Round">${round + 1}</td>
+                        <td class="px-4 py-2" data-label="Time Slot">${timeString} - ${nextTimeString}</td>
+                        <td class="px-4 py-2" data-label="Available Players">${availablePlayers.length} / ${players.length}</td>
                         ${courtData}
-                        <td class="px-4 py-2">${restingTeamDisplay}</td>
+                        <td class="px-4 py-2" data-label="Resting Players">${restingTeamDisplay}</td>
                     `;
                     scheduleTableBody.appendChild(row);
                     currentMinutes += roundDurationMinutes;

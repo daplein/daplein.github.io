@@ -514,16 +514,19 @@
                         if (startTimeParam) startTimeInput.value = startTimeParam;
                         if (endTimeParam) endTimeInput.value = endTimeParam;
 
+                        // Automatically generate the schedule after loading from URL
+                        generateAndDisplaySchedule();
+
                     } catch (e) {
                         console.error('Failed to parse players from URL:', e);
                         // Fallback to default players if parsing fails
                         players = initialPlayers;
+                        renderPlayers(); // Render the default list
                     }
                 } else {
                     players = initialPlayers;
+                    renderPlayers(); // Render the default list
                 }
-
-                renderPlayers();
             };
 
             // Set up event listeners

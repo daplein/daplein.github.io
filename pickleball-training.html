@@ -1,9 +1,9 @@
-<!DOCTYPE ahtml>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pickleball Training Schedule test</title>
+    <title>Pickleball Training Schedule</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Add pako for compression/decompression -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
@@ -82,7 +82,7 @@
 
     <div class="container mx-auto p-0 bg-white rounded-none md:rounded-xl shadow-lg w-full">
         <div class="p-4 md:p-6">
-            <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Pickleball Training Schedule Test</h1>
+            <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Pickleball Training Schedule</h1>
         
             <!-- Tab Buttons -->
             <div class="flex border-b border-gray-200 mb-6">
@@ -326,6 +326,43 @@
                 return hours * 60 + minutes;
             };
 
+            // Helper function to render a schedule object into the HTML table
+            const renderSchedule = (scheduleData, numCourts) => {
+                scheduleTableBody.innerHTML = '';
+                // Generate table headers based on the number of courts
+                let headerHtml = `<tr class="rounded-lg">
+                                    <th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">Round</th>
+                                    <th class="px-4 py-2 text-left text-gray-600">Time Slot</th>
+                                    <th class="px-4 py-2 text-left text-gray-600">Available Players</th>`;
+                for (let i = 1; i <= numCourts; i++) {
+                    headerHtml += `<th class="px-4 py-2 text-left text-gray-600">Court ${i}</th>`;
+                }
+                headerHtml += `<th class="px-4 py-2 text-left text-gray-600 rounded-tr-lg">Resting Players</th>`;
+                headerHtml += `</tr>`;
+                scheduleTableHeader.innerHTML = headerHtml;
+
+                // Populate table rows with schedule data
+                scheduleData.forEach((roundData, index) => {
+                    const row = document.createElement('tr');
+                    const courtData = roundData.courts.map((court, courtIndex) => {
+                        const teamA = court[0].join(' & ');
+                        const teamB = court[1].join(' & ');
+                        return `<td class="px-4 py-2" data-label="Court ${courtIndex + 1}">${teamA} vs. ${teamB}</td>`;
+                    }).join('');
+                    
+                    const restingTeamDisplay = roundData.resting.length > 0 ? roundData.resting.join(', ') : '---';
+
+                    row.innerHTML = `
+                        <td class="px-4 py-2" data-label="Round">${index + 1}</td>
+                        <td class="px-4 py-2" data-label="Time Slot">${roundData.time}</td>
+                        <td class="px-4 py-2" data-label="Available Players">${roundData.playingCount} / ${players.length}</td>
+                        ${courtData}
+                        <td class="px-4 py-2" data-label="Resting Players">${restingTeamDisplay}</td>
+                    `;
+                    scheduleTableBody.appendChild(row);
+                });
+            }
+
             // Function to generate and display the schedule
             const generateAndDisplaySchedule = () => {
                 // Reset play and rest counts for a new schedule
@@ -346,28 +383,6 @@
                 const startMinutes = timeToMinutes(startTimeValue);
                 const endMinutes = timeToMinutes(endTimeValue);
 
-                // --- URL UPDATE LOGIC: Encode and compress payload ---
-                // Create a simplified player data array for the URL
-                const shareablePlayers = players.map(p => ({
-                    n: p.name,
-                    l: p.level,
-                    st: p.startTime,
-                    et: p.endTime
-                }));
-                const playerJson = JSON.stringify(shareablePlayers);
-
-                // Corrected compression and encoding to handle binary data
-                const compressed = pako.deflate(playerJson);
-                const encoded = btoa(String.fromCharCode.apply(null, compressed));
-                
-                const params = new URLSearchParams();
-                params.set('p', encoded);
-                params.set('c', numCourts);
-                params.set('st', startTimeValue);
-                params.set('et', endTimeValue);
-                const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-                shareUrlInput.value = newUrl;
-
                 // Validation Checks
                 if (players.length === 0) {
                     messageArea.textContent = 'Please add some players first.';
@@ -386,32 +401,17 @@
                 const totalDurationMinutes = endMinutes - startMinutes;
                 const numRounds = Math.floor(totalDurationMinutes / roundDurationMinutes);
                 
-                // Generate table headers based on the number of courts
-                let headerHtml = `<tr class="rounded-lg">
-                                    <th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">Round</th>
-                                    <th class="px-4 py-2 text-left text-gray-600">Time Slot</th>
-                                    <th class="px-4 py-2 text-left text-gray-600">Available Players</th>`;
-                for (let i = 1; i <= numCourts; i++) {
-                    headerHtml += `<th class="px-4 py-2 text-left text-gray-600">Court ${i}</th>`;
-                }
-                headerHtml += `<th class="px-4 py-2 text-left text-gray-600 rounded-tr-lg">Resting Players</th>`;
-                headerHtml += `</tr>`;
-                scheduleTableHeader.innerHTML = headerHtml;
-
                 // Create a balanced schedule
                 let currentMinutes = startMinutes;
+                const shareableSchedule = [];
 
                 for (let round = 0; round < numRounds; round++) {
-                    const row = document.createElement('tr');
                     const currentHour = Math.floor(currentMinutes / 60);
                     const currentMinute = currentMinutes % 60;
                     const nextMinutes = currentMinutes + roundDurationMinutes;
-                    const nextHour = Math.floor(nextMinutes / 60);
-                    const nextMinute = nextMinutes % 60;
 
                     const timeString = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
-                    const nextTimeString = `${String(nextHour).padStart(2, '0')}:${String(nextMinute).padStart(2, '0')}`;
-
+                    
                     // Filter players who are available during this time slot
                     const availablePlayers = players.filter(p => {
                         const playerStartMinutes = timeToMinutes(p.startTime);
@@ -430,19 +430,24 @@
                     const playingPlayers = availablePlayers.slice(0, numCourts * 4);
                     const restingPlayers = availablePlayers.slice(numCourts * 4);
                     
-                    let courtData = '';
+                    const roundData = {
+                        time: timeString,
+                        courts: [],
+                        resting: restingPlayers.map(p => p.name),
+                        playingCount: playingPlayers.length
+                    };
+
                     if (playingPlayers.length >= numCourts * 4) {
                         for (let i = 0; i < playingPlayers.length; i += 4) {
-                            const teamA = [playingPlayers[i], playingPlayers[i + 1]];
-                            const teamB = [playingPlayers[i + 2], playingPlayers[i + 3]];
-                            if (teamA[0] && teamA[1] && teamB[0] && teamB[1]) {
-                                courtData += `<td class="px-4 py-2" data-label="Court ${i/4 + 1}">${teamA[0].name} & ${teamA[1].name} vs. ${teamB[0].name} & ${teamB[1].name}</td>`;
-                            }
+                            const teamA = [playingPlayers[i].name, playingPlayers[i + 1].name];
+                            const teamB = [playingPlayers[i + 2].name, playingPlayers[i + 3].name];
+                            roundData.courts.push([teamA, teamB]);
                         }
                     } else {
                         // Not enough players to fill all courts
-                        courtData = `<td colspan="${numCourts}" class="px-4 py-2 text-center text-gray-500 italic" data-label="Courts">Not enough players to fill all courts this round.</td>`;
+                        roundData.courts.push([]);
                     }
+                    shareableSchedule.push(roundData);
 
                     // Update counts for all players
                     players.forEach(p => {
@@ -453,33 +458,40 @@
                             p.restCount++;
                         }
                     });
-                    
-                    let restingTeamDisplay = '---';
-                    if (restingPlayers.length > 0) {
-                        const restingTeamNames = [];
-                        for(let i = 0; i < restingPlayers.length; i+=2) {
-                            if (restingPlayers[i+1]) {
-                                restingTeamNames.push(`${restingPlayers[i].name} & ${restingPlayers[i+1].name}`);
-                            } else {
-                                restingTeamNames.push(restingPlayers[i].name);
-                            }
-                        }
-                        restingTeamDisplay = restingTeamNames.join(', ');
-                    }
-                    
-                    row.innerHTML = `
-                        <td class="px-4 py-2" data-label="Round">${round + 1}</td>
-                        <td class="px-4 py-2" data-label="Time Slot">${timeString} - ${nextTimeString}</td>
-                        <td class="px-4 py-2" data-label="Available Players">${availablePlayers.length} / ${players.length}</td>
-                        ${courtData}
-                        <td class="px-4 py-2" data-label="Resting Players">${restingTeamDisplay}</td>
-                    `;
-                    scheduleTableBody.appendChild(row);
                     currentMinutes += roundDurationMinutes;
                 }
 
                 // Update the player table to show rest and play counts
                 renderPlayers();
+                
+                // Render the generated schedule
+                renderSchedule(shareableSchedule, numCourts);
+
+                // --- URL UPDATE LOGIC: Encode and compress payload ---
+                const shareablePlayers = players.map(p => ({
+                    n: p.name,
+                    l: p.level,
+                    st: p.startTime,
+                    et: p.endTime
+                }));
+                const playerJson = JSON.stringify(shareablePlayers);
+                const scheduleJson = JSON.stringify(shareableSchedule);
+
+                // Corrected compression and encoding to handle binary data
+                const compressedPlayers = pako.deflate(playerJson);
+                const encodedPlayers = btoa(String.fromCharCode.apply(null, compressedPlayers));
+                
+                const compressedSchedule = pako.deflate(scheduleJson);
+                const encodedSchedule = btoa(String.fromCharCode.apply(null, compressedSchedule));
+                
+                const params = new URLSearchParams();
+                params.set('p', encodedPlayers);
+                params.set('s', encodedSchedule);
+                params.set('c', numCourts);
+                params.set('st', startTimeValue);
+                params.set('et', endTimeValue);
+                const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+                shareUrlInput.value = newUrl;
 
                 // After generating, switch to the schedule view
                 showTab('schedule');
@@ -489,20 +501,22 @@
             const loadStateFromUrl = () => {
                 const params = new URLSearchParams(window.location.search);
                 const playersParam = params.get('p');
+                const scheduleParam = params.get('s');
                 const courtsParam = params.get('c');
                 const startTimeParam = params.get('st');
                 const endTimeParam = params.get('et');
+                
+                let scheduleLoaded = false;
 
                 if (playersParam) {
                     try {
-                        // Corrected decoding and decompression to handle binary data
-                        const decoded = atob(playersParam);
-                        const charCodes = new Uint8Array(decoded.length);
-                        for (let i = 0; i < decoded.length; i++) {
-                            charCodes[i] = decoded.charCodeAt(i);
+                        const decodedPlayers = atob(playersParam);
+                        const playerCharCodes = new Uint8Array(decodedPlayers.length);
+                        for (let i = 0; i < decodedPlayers.length; i++) {
+                            playerCharCodes[i] = decodedPlayers.charCodeAt(i);
                         }
-                        const decompressed = pako.inflate(charCodes, { to: 'string' });
-                        const parsedPlayers = JSON.parse(decompressed);
+                        const decompressedPlayers = pako.inflate(playerCharCodes, { to: 'string' });
+                        const parsedPlayers = JSON.parse(decompressedPlayers);
 
                         players = parsedPlayers.map(p => ({
                             name: p.n,
@@ -517,14 +531,58 @@
                         if (startTimeParam) startTimeInput.value = startTimeParam;
                         if (endTimeParam) endTimeInput.value = endTimeParam;
 
-                        // Automatically generate the schedule after loading from URL
-                        generateAndDisplaySchedule();
+                        if (scheduleParam) {
+                             try {
+                                const decodedSchedule = atob(scheduleParam);
+                                const scheduleCharCodes = new Uint8Array(decodedSchedule.length);
+                                for (let i = 0; i < decodedSchedule.length; i++) {
+                                    scheduleCharCodes[i] = decodedSchedule.charCodeAt(i);
+                                }
+                                const decompressedSchedule = pako.inflate(scheduleCharCodes, { to: 'string' });
+                                const parsedSchedule = JSON.parse(decompressedSchedule);
+                                
+                                // Re-calculate player play and rest counts from the loaded schedule
+                                players.forEach(p => {
+                                    p.restCount = 0;
+                                    p.playCount = 0;
+                                });
+                                parsedSchedule.forEach(round => {
+                                    round.courts.forEach(court => {
+                                        court[0].forEach(name => {
+                                            const player = players.find(p => p.name === name);
+                                            if (player) player.playCount++;
+                                        });
+                                        court[1].forEach(name => {
+                                            const player = players.find(p => p.name === name);
+                                            if (player) player.playCount++;
+                                        });
+                                    });
+                                    round.resting.forEach(name => {
+                                        const player = players.find(p => p.name === name);
+                                        if (player) player.restCount++;
+                                    });
+                                });
+
+                                renderPlayers();
+                                renderSchedule(parsedSchedule, parseInt(numCourtsInput.value));
+                                showTab('schedule');
+                                scheduleLoaded = true;
+                                
+                             } catch (e) {
+                                console.error('Failed to parse schedule from URL:', e);
+                             }
+                        }
+
+                        if (!scheduleLoaded) {
+                            // If no schedule was in the URL (or it failed to parse), generate a new one
+                            generateAndDisplaySchedule();
+                        }
 
                     } catch (e) {
                         console.error('Failed to parse players from URL:', e);
                         // Fallback to default players if parsing fails
                         players = initialPlayers;
-                        renderPlayers(); // Render the default list
+                        renderPlayers();
                     }
                 } else {
                     players = initialPlayers;

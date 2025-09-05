@@ -770,6 +770,11 @@
                 const randomCourts = Math.floor(Math.random() * 4) + 1;
                 numCourtsInput.value = randomCourts;
 
+                // Set a minimum number of players based on the courts selected
+                const minPlayers = randomCourts * 4;
+                const maxPlayers = 20; // A reasonable upper limit
+                const numPlayers = Math.floor(Math.random() * (maxPlayers - minPlayers + 1)) + minPlayers;
+                
                 // Randomly set start and end times
                 const startHour = Math.floor(Math.random() * 10) + 10; // 10 to 19 (10am to 7pm)
                 const startMinute = Math.floor(Math.random() * 4) * 15; // 0, 15, 30, 45
@@ -786,7 +791,6 @@
                 endTimeInput.value = endTime;
                 
                 // Generate players
-                const numPlayers = Math.floor(Math.random() * 15) + 1; // 1 to 15 players
                 const newPlayers = [];
                 const usedNames = new Set();
                 

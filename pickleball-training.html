@@ -155,7 +155,18 @@
 
             <!-- Schedule Tab Content -->
             <div id="scheduleTabContent" class="tab-content hidden">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Training Schedule</h2>
+                <!-- Combined heading and share URL section -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-2 md:mb-0">Training Schedule</h2>
+                    <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto mt-2 md:mt-0">
+                        <input type="text" id="shareUrlInput" class="flex-1 p-2 border border-gray-300 rounded-md bg-white focus:outline-none text-sm truncate" readonly placeholder="Shareable URL will appear here...">
+                        <button id="copyUrlBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors duration-200 flex-shrink-0">
+                            Copy URL
+                        </button>
+                    </div>
+                </div>
+                <div id="copyMessage" class="text-green-500 text-sm font-semibold mt-2 hidden"></div>
+                
                 <div id="scheduleTableContainer" class="overflow-x-auto">
                     <table class="w-full table-auto border-collapse responsive-table">
                         <thead class="bg-gray-200" id="scheduleTableHeader">
@@ -165,19 +176,6 @@
                             <!-- Schedule rows will be generated here by JavaScript -->
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Shareable URL Section -->
-                <div class="mt-8 bg-gray-50 p-4 rounded-lg">
-                    <h2 class="text-xl font-semibold mb-2 text-gray-700">Share This Schedule</h2>
-                    <p class="text-sm text-gray-600 mb-4">Copy and share this URL to view the same schedule and player list.</p>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="shareUrlInput" class="flex-1 p-2 border border-gray-300 rounded-md bg-white focus:outline-none text-sm truncate" readonly>
-                        <button id="copyUrlBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 flex-shrink-0">
-                            Copy URL
-                        </button>
-                    </div>
-                    <div id="copyMessage" class="text-green-500 text-sm font-semibold mt-2 hidden">Copied!</div>
                 </div>
             </div>
         </div>
@@ -251,6 +249,63 @@
             playersTabBtn.addEventListener('click', () => showTab('players'));
             scheduleTabBtn.addEventListener('click', () => showTab('schedule'));
 
+            // Function to update the shareable URL based on the current state
+            const updateUrlWithCurrentState = (scheduleData = []) => {
+                try {
+                    const shareablePlayers = players.map(p => ({
+                        n: p.name,
+                        l: p.level,
+                        st: p.startTime,
+                        et: p.endTime
+                    }));
+                    const playerJson = JSON.stringify(shareablePlayers);
+                    const scheduleJson = JSON.stringify(scheduleData);
+
+                    // Corrected compression and encoding to handle binary data
+                    const compressedPlayers = pako.deflate(playerJson);
+                    const encodedPlayers = btoa(String.fromCharCode.apply(null, compressedPlayers));
+                    
+                    const compressedSchedule = pako.deflate(scheduleJson);
+                    const encodedSchedule = btoa(String.fromCharCode.apply(null, compressedSchedule));
+                    
+                    const params = new URLSearchParams();
+                    params.set('p', encodedPlayers);
+                    params.set('s', encodedSchedule);
+                    params.set('c', numCourtsInput.value);
+                    params.set('st', startTimeInput.value);
+                    params.set('et', endTimeInput.value);
+                    const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+                    shareUrlInput.value = newUrl;
+                } catch (e) {
+                    console.error('Error generating shareable URL:', e);
+                }
+            };
+
+            // Function to add a player
+            const addPlayer = () => {
+                const name = playerNameInput.value.trim();
+                const defaultStartTime = startTimeInput.value;
+                const defaultEndTime = endTimeInput.value;
+                if (name) {
+                    players.push({ name, level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 });
+                    playerNameInput.value = '';
+                    renderPlayers();
+                    updateUrlWithCurrentState(); // Update URL after adding a player
+                }
+            };
+
+            // Add player functionality
+            addPlayerBtn.addEventListener('click', addPlayer);
+
+            // Add player on Enter key press in the input field
+            playerNameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevent form submission
+                    addPlayer();
+                }
+            });
+
+
             // Function to render the player list in the table
             const renderPlayers = () => {
                 playerTableBody.innerHTML = '';
@@ -284,25 +339,13 @@
                 });
             };
 
-            // Add a new player to the list
-            addPlayerBtn.addEventListener('click', () => {
-                const name = playerNameInput.value.trim();
-                const defaultStartTime = startTimeInput.value;
-                const defaultEndTime = endTimeInput.value;
-                // New players are added with a default level of 1 and default session times
-                if (name) {
-                    players.push({ name, level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0 });
-                    playerNameInput.value = '';
-                    renderPlayers();
-                }
-            });
-
             // Remove a player from the list
             playerTableBody.addEventListener('click', (e) => {
                 if (e.target.classList.contains('remove-player-btn')) {
                     const index = e.target.getAttribute('data-index');
                     players.splice(index, 1);
                     renderPlayers();
+                    updateUrlWithCurrentState(); // Update URL after removing a player
                 }
             });
 
@@ -318,6 +361,7 @@
                 } else if (target.classList.contains('player-end-time-input')) {
                     players[index].endTime = target.value;
                 }
+                updateUrlWithCurrentState(); // Update URL after any player detail changes
             });
 
             // Sync all players' start times with the main start time
@@ -325,6 +369,7 @@
                 const newStartTime = e.target.value;
                 players.forEach(p => p.startTime = newStartTime);
                 renderPlayers();
+                updateUrlWithCurrentState(); // Update URL when global start time changes
             });
 
             // Sync all players' end times with the main end time
@@ -332,6 +377,7 @@
                 const newEndTime = e.target.value;
                 players.forEach(p => p.endTime = newEndTime);
                 renderPlayers();
+                updateUrlWithCurrentState(); // Update URL when global end time changes
             });
 
 
@@ -361,7 +407,7 @@
                     const row = document.createElement('tr');
                     const courtData = roundData.courts.map((court, courtIndex) => {
                         const teamA = court[0].join(' & ');
-                        const teamB = court[1].join(' & ');
+                        const teamB = court[1].join(' & ' );
                         return `<td class="px-4 py-2" data-label="Court ${courtIndex + 1}">${teamA} vs. ${teamB}</td>`;
                     }).join('');
                     
@@ -482,31 +528,8 @@
                 // Render the generated schedule
                 renderSchedule(shareableSchedule, numCourts);
 
-                // --- URL UPDATE LOGIC: Encode and compress payload ---
-                const shareablePlayers = players.map(p => ({
-                    n: p.name,
-                    l: p.level,
-                    st: p.startTime,
-                    et: p.endTime
-                }));
-                const playerJson = JSON.stringify(shareablePlayers);
-                const scheduleJson = JSON.stringify(shareableSchedule);
-
-                // Corrected compression and encoding to handle binary data
-                const compressedPlayers = pako.deflate(playerJson);
-                const encodedPlayers = btoa(String.fromCharCode.apply(null, compressedPlayers));
-                
-                const compressedSchedule = pako.deflate(scheduleJson);
-                const encodedSchedule = btoa(String.fromCharCode.apply(null, compressedSchedule));
-                
-                const params = new URLSearchParams();
-                params.set('p', encodedPlayers);
-                params.set('s', encodedSchedule);
-                params.set('c', numCourts);
-                params.set('st', startTimeValue);
-                params.set('et', endTimeValue);
-                const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-                shareUrlInput.value = newUrl;
+                // Update the URL with the new schedule data
+                updateUrlWithCurrentState(shareableSchedule);
 
                 // After generating, switch to the schedule view
                 showTab('schedule');
@@ -598,10 +621,12 @@
                         // Fallback to default players if parsing fails
                         players = initialPlayers;
                         renderPlayers();
+                        updateUrlWithCurrentState();
                     }
                 } else {
                     players = initialPlayers;
                     renderPlayers(); // Render the default list
+                    updateUrlWithCurrentState();
                 }
             };
 
@@ -613,8 +638,9 @@
                 shareUrlInput.select();
                 navigator.clipboard.writeText(shareUrlInput.value)
                     .then(() => {
+                        copyMessage.textContent = 'The URL has been copied to your clipboard. It contains all the player and schedule information.';
                         copyMessage.classList.remove('hidden');
-                        setTimeout(() => copyMessage.classList.add('hidden'), 2000);
+                        setTimeout(() => copyMessage.classList.add('hidden'), 5000);
                     })
                     .catch(err => {
                         console.error('Failed to copy text: ', err);

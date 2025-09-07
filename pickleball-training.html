@@ -1111,31 +1111,43 @@
             scheduleTableBody.addEventListener('blur', (e) => {
                 const target = e.target;
                 if (target.classList.contains('score-input')) {
-                    const courtCell = target.closest('.court-cell');
-                    if (courtCell) {
-                        const roundIndex = parseInt(courtCell.dataset.roundIndex);
-                        const courtIndex = parseInt(courtCell.dataset.courtIndex);
-                        const inputs = courtCell.querySelectorAll('.score-input');
-                        const scoreA = parseInt(inputs[0].value) || 0;
-                        const scoreB = parseInt(inputs[1].value) || 0;
-                        const played = scoreA > 0 || scoreB > 0;
-                        
-                        scheduleData[roundIndex].courts[courtIndex][2] = played; // Update played status
-                        scheduleData[roundIndex].courts[courtIndex][3] = scoreA; // Update scoreA
-                        scheduleData[roundIndex].courts[courtIndex][4] = scoreB; // Update scoreB
-
-                        if (played) {
-                            courtCell.classList.add('played');
-                        } else {
-                            courtCell.classList.remove('played');
-                        }
-
-                        calculatePlayerStats();
-                        updateUrlWithCurrentState();
-                    }
+                    updateCourtScores(target);
                 }
             }, true);
-            
+
+            // Add click handler for court cells
+            scheduleTableBody.addEventListener('click', (e) => {
+                const courtCell = e.target.closest('.court-cell');
+                if (courtCell && !e.target.classList.contains('score-input')) {
+                    const inputs = courtCell.querySelectorAll('.score-input');
+                    inputs[0].value = '0';
+                    inputs[1].value = '0';
+
+                    // Update the game status and scores
+                    updateCourtScores(inputs[0]);
+                }
+            });
+
+            // Function to update court scores and status
+            const updateCourtScores = (element) => {
+                const courtCell = element.closest('.court-cell');
+                if (courtCell) {
+                    const roundIndex = parseInt(courtCell.dataset.roundIndex);
+                    const courtIndex = parseInt(courtCell.dataset.courtIndex);
+                    const inputs = courtCell.querySelectorAll('.score-input');
+                    const scoreA = parseInt(inputs[0].value) || 0;
+                    const scoreB = parseInt(inputs[1].value) || 0;
+
+                    scheduleData[roundIndex].courts[courtIndex][2] = true; // Mark as played
+                    scheduleData[roundIndex].courts[courtIndex][3] = scoreA;
+                    scheduleData[roundIndex].courts[courtIndex][4] = scoreB;
+
+                    courtCell.classList.add('played');
+                    calculatePlayerStats();
+                    updateUrlWithCurrentState();
+                }
+            };
+
             // Set up event listeners
             generateScheduleBtn.addEventListener('click', generateAndDisplaySchedule);
             resetBtn.addEventListener('click', resetApplicationState);

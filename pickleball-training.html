@@ -147,11 +147,12 @@
         </div>
 
         <!-- Tab Buttons -->
-        <div class="flex border-b border-gray-200 mb-6">
-            <button id="playersTabBtn" class="tab-button active flex-1 py-3 px-4 text-center text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
-                Players
+        <div class="sticky top-0 z-10 bg-white flex border-b border-gray-200 mb-6 shadow-sm">
+            <!-- Changed -->
+            <button id="playersTabBtn" class="tab-button active flex-1 py-4 px-4 text-center text-lg font-medium text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
+                <span id="playerCount" class="bg-gray-200 text-gray-700 text-sm font-bold ml-2 px-2 py-1 rounded-full">0</span> Players
             </button>
-            <button id="scheduleTabBtn" class="tab-button flex-1 py-3 px-4 text-center text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
+            <button id="scheduleTabBtn" class="tab-button flex-1 py-4 px-4 text-center text-lg font-medium text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
                 Schedule
             </button>
         </div>
@@ -693,6 +694,12 @@
 
         // Function to render the player list in the table
         const renderPlayers = () => {
+            // Changed: Update the player count in the tab
+            const playerCountSpan = document.getElementById('playerCount');
+            if (playerCountSpan) {
+                playerCountSpan.textContent = players.length;
+            }
+
             playerTableBody.innerHTML = '';
             // Use the players array directly, as it is now sorted
             players.forEach((player, index) => {
@@ -1256,4 +1263,3 @@
 
 </body>
 </html>
-

@@ -124,14 +124,14 @@
 <div class="container mx-auto p-0 bg-white rounded-none md:rounded-xl shadow-lg w-full">
     <div class="p-4 md:p-6">
         <div class="flex items-center justify-between mb-6">
-            <div>
+            <div class="flex items-center">
                 <div class="flex items-center gap-2">
                     <h1 class="text-3xl font-bold text-gray-800" contenteditable="true" id="trainingTitle">Pickleball Training</h1>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 cursor-pointer hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" onclick="document.getElementById('trainingTitle').focus()">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
                     </svg>
                 </div>
-                <div class="mt-2">
+                <div class="ml-2">
                     <input type="date" id="trainingDate" class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
@@ -563,6 +563,8 @@
                 params.set('st', startTimeInput.value); // Start time
                 params.set('et', endTimeInput.value); // End time
                 params.set('bt', balancedTeamsCheckbox.checked ? 'true' : 'false'); // Balanced teams setting
+
+                setHTMLDocTitle();
 
                 const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
                 shareUrlInput.value = newUrl;
@@ -1057,7 +1059,11 @@
             showTab('players');
         };
 
-        // Function to load state from URL on page load
+        function setHTMLDocTitle() {
+            document.title = trainingTitle.textContent + ' - ' + new Date(trainingDateInput.value).toLocaleDateString("en-IE");
+        }
+
+// Function to load state from URL on page load
         const loadStateFromUrl = () => {
             const params = new URLSearchParams(window.location.search);
             const playersParam = params.get('p');
@@ -1079,6 +1085,9 @@
             } else {
                 trainingDateInput.value = formattedDate;
             }
+
+            setHTMLDocTitle();
+
             if (courtsParam) {
                 numCourtsInput.value = courtsParam;
             }

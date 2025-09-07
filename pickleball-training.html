@@ -185,7 +185,7 @@
                             <button id="resetBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-1/2 sm:w-auto">
                                 Reset
                             </button>
-                            <button id="randomPlayersBtn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-1/2 sm:w-auto">
+                            <button id="randomPlayersBtn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-1/2 sm:w-auto hidden">
                                 Random
                             </button>
                             <button id="generateScheduleBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-full sm:w-auto">
@@ -1008,7 +1008,16 @@
                 const startTimeParam = params.get('st');
                 const endTimeParam = params.get('et');
                 const balancedTeamsParam = params.get('bt');
-                
+                const debugParam = params.get('debug');
+
+                // Show/hide random button based on debug parameter
+                const randomBtn = document.getElementById('randomPlayersBtn');
+                if (debugParam === 'true') {
+                    randomBtn.classList.remove('hidden');
+                } else {
+                    randomBtn.classList.add('hidden');
+                }
+
                 let scheduleLoaded = false;
 
                 if (playersParam) {

@@ -148,9 +148,8 @@
 
         <!-- Tab Buttons -->
         <div class="sticky top-0 z-10 bg-white flex border-b border-gray-200 mb-6 shadow-sm">
-            <!-- Changed -->
             <button id="playersTabBtn" class="tab-button active flex-1 py-4 px-4 text-center text-lg font-medium text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
-                <span id="playerCount" class="bg-gray-200 text-gray-700 text-sm font-bold ml-2 px-2 py-1 rounded-full">0</span> Players
+                Players <span id="playerCount" class="bg-gray-200 text-gray-700 text-sm font-bold ml-2 px-2 py-1 rounded-full">0</span>
             </button>
             <button id="scheduleTabBtn" class="tab-button flex-1 py-4 px-4 text-center text-lg font-medium text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
                 Schedule
@@ -181,12 +180,19 @@
                     <input type="checkbox" id="balancedTeams" class="form-checkbox h-5 w-5 text-blue-600 rounded">
                     <label for="balancedTeams" class="font-medium text-gray-700">Prevent Level 2 players from teaming up</label>
                 </div>
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700 mt-6">Add Players</h2>
+
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700 mt-6">Add Players Manually</h2>
                 <div class="flex flex-row gap-4 mb-4 items-center">
                     <input type="text" id="playerName" placeholder="Enter player name (Press Enter to add)" class="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <button id="addPlayerBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 whitespace-nowrap">
                         Add
                     </button>
+                </div>
+
+                <!-- CSV Upload Section -->
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700 mt-6">Import Players from CSV</h2>
+                <div class="flex flex-row gap-4 mb-4 items-center">
+                    <input type="file" id="csvFileInput" accept=".csv" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
             </div>
 
@@ -391,6 +397,7 @@
         const balancedTeamsCheckbox = document.getElementById('balancedTeams');
         const resetBtn = document.getElementById('resetBtn');
         const randomPlayersBtn = document.getElementById('randomPlayersBtn');
+        const csvFileInput = document.getElementById('csvFileInput');
 
         // Tab functionality
         function showTab(tabName) {
@@ -612,6 +619,89 @@
             }
         });
 
+        // Function to handle CSV file upload
+        const handleFileUpload = (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result;
+                try {
+                    const lines = text.split('\n').filter(line => line.trim() !== ''); // Split and remove empty lines
+
+                    // Find the header row which contains "Name" and "Phone"
+                    let headerRowIndex = -1;
+                    for (let i = 0; i < lines.length; i++) {
+                        const cleanedLine = lines[i].toLowerCase().replace(/"/g, '');
+                        if (cleanedLine.includes('name,') && cleanedLine.includes('phone,')) {
+                            headerRowIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (headerRowIndex === -1) {
+                        messageArea.textContent = 'CSV must contain a header row with "Name" and "Phone" columns.';
+                        return;
+                    }
+
+                    const headerLine = lines[headerRowIndex];
+                    const headers = headerLine.split(',').map(h => h.replace(/"/g, '').trim());
+
+                    const nameIndex = headers.findIndex(h => h.toLowerCase() === 'name');
+                    const phoneIndex = headers.findIndex(h => h.toLowerCase() === 'phone');
+
+                    if (nameIndex === -1 || phoneIndex === -1) {
+                        messageArea.textContent = 'Could not find "Name" or "Phone" column in the CSV header.';
+                        return;
+                    }
+
+                    const playingStatusIndex = phoneIndex + 1;
+
+                    const newPlayers = [];
+                    const dataRows = lines.slice(headerRowIndex + 1);
+
+                    dataRows.forEach(line => {
+                        const data = line.split(',');
+
+                        if (data.length > playingStatusIndex) {
+                            const isPlaying = data[playingStatusIndex].trim() !== '';
+                            if (isPlaying) {
+                                const name = data[nameIndex].replace(/"/g, '').trim();
+                                if (name) {
+                                    const defaultStartTime = startTimeInput.value;
+                                    const defaultEndTime = endTimeInput.value;
+                                    newPlayers.push({ name, level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0, wins: 0 });
+                                }
+                            }
+                        }
+                    });
+
+                    if (newPlayers.length > 0) {
+                        players = newPlayers; // Replace current players
+                        renderPlayers();
+                        updateUrlWithCurrentState();
+                        messageArea.textContent = `Successfully imported ${newPlayers.length} players.`;
+                        setTimeout(() => { messageArea.textContent = '' }, 3000);
+                    } else {
+                        messageArea.textContent = 'No players marked as playing were found in the CSV file.';
+                    }
+
+                } catch (error) {
+                    console.error("Error parsing CSV:", error);
+                    messageArea.textContent = 'Failed to parse the CSV file. Please check the file format.';
+                } finally {
+                    event.target.value = '';
+                }
+            };
+
+            reader.readAsText(file);
+        };
+
+        csvFileInput.addEventListener('change', handleFileUpload);
+
         // Function to calculate and update player stats
         const calculatePlayerStats = () => {
             // Reset stats
@@ -694,17 +784,14 @@
 
         // Function to render the player list in the table
         const renderPlayers = () => {
-            // Changed: Update the player count in the tab
             const playerCountSpan = document.getElementById('playerCount');
             if (playerCountSpan) {
                 playerCountSpan.textContent = players.length;
             }
 
             playerTableBody.innerHTML = '';
-            // Use the players array directly, as it is now sorted
             players.forEach((player, index) => {
                 const row = document.createElement('tr');
-                // Use a data attribute with the player's name for robust identification
                 row.setAttribute('data-player-name', player.name);
                 row.innerHTML = `
                         <td class="px-4 py-2" data-label="No.">${index + 1}</td>
@@ -1263,3 +1350,4 @@
 
 </body>
 </html>
+

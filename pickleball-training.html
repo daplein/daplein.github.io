@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pickleball Training Schedule</title>
-    <script src="./libs/pako.min.js"></script>
-    <script src="./libs/tailwind.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!--    <script src="./libs/pako.min.js"></script>-->
+    <!--    <script src="./libs/tailwind.min.js"></script>-->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -38,7 +40,7 @@
             border-collapse: collapse;
             width: 100%; /* Ensure table takes full width */
         }
-        
+
         @media (max-width: 767px) {
             .responsive-table thead {
                 display: none;
@@ -119,377 +121,341 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
 
-    <div class="container mx-auto p-0 bg-white rounded-none md:rounded-xl shadow-lg w-full">
-        <div class="p-4 md:p-6">
-            <div class="flex items-center justify-between mb-6">
-                <div>
+<div class="container mx-auto p-0 bg-white rounded-none md:rounded-xl shadow-lg w-full">
+    <div class="p-4 md:p-6">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <div class="flex items-center gap-2">
                     <h1 class="text-3xl font-bold text-gray-800" contenteditable="true" id="trainingTitle">Pickleball Training</h1>
-                    <div class="mt-2">
-                        <input type="date" id="trainingDate" class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 cursor-pointer hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" onclick="document.getElementById('trainingTitle').focus()">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
+                    </svg>
+                </div>
+                <div class="mt-2">
+                    <input type="date" id="trainingDate" class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="flex items-center">
+                <input type="hidden" id="shareUrlInput">
+                <button id="copyUrlBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors duration-200 flex-shrink-0 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                    </svg>
+                    Share
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Buttons -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button id="playersTabBtn" class="tab-button active flex-1 py-3 px-4 text-center text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
+                Players
+            </button>
+            <button id="scheduleTabBtn" class="tab-button flex-1 py-3 px-4 text-center text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
+                Schedule
+            </button>
+        </div>
+
+        <!-- Players Tab Content -->
+        <div id="playersTabContent" class="tab-content">
+            <!-- Settings & Player Input Section -->
+            <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Settings</h2>
+                <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                    <div class="flex items-center gap-2">
+                        <label for="numCourts" class="font-medium text-gray-700">Number of Courts:</label>
+                        <input type="number" id="numCourts" value="2" min="1" max="4" class="w-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="startTime" class="font-medium text-gray-700">Starting Time:</label>
+                        <input type="time" id="startTime" value="18:30" class="w-32 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="endTime" class="font-medium text-gray-700">Ending Time:</label>
+                        <input type="time" id="endTime" value="20:00" class="w-32 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus-ring-blue-500">
                     </div>
                 </div>
-                <div class="flex items-center">
-                    <input type="hidden" id="shareUrlInput">
-                    <button id="copyUrlBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors duration-200 flex-shrink-0 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
-                        </svg>
-                        Share
+                <!-- New option for team balancing -->
+                <div class="flex items-center gap-2 mb-4">
+                    <input type="checkbox" id="balancedTeams" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                    <label for="balancedTeams" class="font-medium text-gray-700">Prevent Level 2 players from teaming up</label>
+                </div>
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700 mt-6">Add Players</h2>
+                <div class="flex flex-row gap-4 mb-4 items-center">
+                    <input type="text" id="playerName" placeholder="Enter player name (Press Enter to add)" class="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="addPlayerBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 whitespace-nowrap">
+                        Add
                     </button>
                 </div>
             </div>
 
-            <!-- Tab Buttons -->
-            <div class="flex border-b border-gray-200 mb-6">
-                <button id="playersTabBtn" class="tab-button active flex-1 py-3 px-4 text-center text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
-                    Players
-                </button>
-                <button id="scheduleTabBtn" class="tab-button flex-1 py-3 px-4 text-center text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
-                    Schedule
-                </button>
-            </div>
-
-            <!-- Players Tab Content -->
-            <div id="playersTabContent" class="tab-content">
-                <!-- Settings & Player Input Section -->
-                <div class="mb-6 bg-gray-50 p-4 rounded-lg">
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Settings</h2>
-                    <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-                        <div class="flex items-center gap-2">
-                            <label for="numCourts" class="font-medium text-gray-700">Number of Courts:</label>
-                            <input type="number" id="numCourts" value="2" min="1" max="4" class="w-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <label for="startTime" class="font-medium text-gray-700">Starting Time:</label>
-                            <input type="time" id="startTime" value="18:30" class="w-32 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <label for="endTime" class="font-medium text-gray-700">Ending Time:</label>
-                            <input type="time" id="endTime" value="20:00" class="w-32 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus-ring-blue-500">
-                        </div>
-                    </div>
-                    <!-- New option for team balancing -->
-                    <div class="flex items-center gap-2 mb-4">
-                        <input type="checkbox" id="balancedTeams" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <label for="balancedTeams" class="font-medium text-gray-700">Prevent Level 2 players from teaming up</label>
-                    </div>
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-700 mt-6">Add Players</h2>
-                    <div class="flex flex-row gap-4 mb-4 items-center">
-                        <input type="text" id="playerName" placeholder="Enter player name (Press Enter to add)" class="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button id="addPlayerBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 whitespace-nowrap">
-                            Add
+            <!-- Player List & Generate Button -->
+            <div class="mb-8">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-700">Players</h2>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button id="resetBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-1/2 sm:w-auto">
+                            Reset
+                        </button>
+                        <button id="randomPlayersBtn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-1/2 sm:w-auto hidden">
+                            Random
+                        </button>
+                        <button id="generateScheduleBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-full sm:w-auto">
+                            Generate Schedule
                         </button>
                     </div>
                 </div>
-
-                <!-- Player List & Generate Button -->
-                <div class="mb-8">
-                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
-                        <h2 class="text-2xl font-semibold text-gray-700">Players</h2>
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <button id="resetBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-1/2 sm:w-auto">
-                                Reset
-                            </button>
-                            <button id="randomPlayersBtn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-1/2 sm:w-auto hidden">
-                                Random
-                            </button>
-                            <button id="generateScheduleBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-full sm:w-auto">
-                                Generate Schedule
-                            </button>
-                        </div>
-                    </div>
-                    <div id="messageArea" class="text-red-500 font-semibold mb-4 text-center"></div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full table-auto border-collapse responsive-table">
-                            <thead class="bg-gray-200">
-                                <tr class="rounded-lg">
-                                    <th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">No.</th>
-                                    <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="name">
-                                        Player Name
-                                        <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="level">
-                                        Skill Level
-                                        <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="startTime">
-                                        Start Time
-                                        <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="endTime">
-                                        End Time
-                                        <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="playCount">
-                                        Play Periods
-                                        <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="restCount">
-                                        Rest Periods
-                                        <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="wins">
-                                        Wins
-                                        <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="px-4 py-2 text-left text-gray-600 rounded-tr-lg">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="playerTableBody" class="divide-y divide-gray-200">
-                                <!-- Player rows will be generated here by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Schedule Tab Content -->
-            <div id="scheduleTabContent" class="tab-content hidden">
-                <!-- Combined heading and share URL section -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-                    <div class="flex items-center gap-4">
-                        <h2 class="text-2xl font-semibold text-gray-700">Training Schedule</h2>
-                        <div class="flex gap-2">
-                            <button id="generateScheduleInTabBtn" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                </svg>
-                                Generate Schedule
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="scheduleTableContainer" class="overflow-x-auto">
+                <div id="messageArea" class="text-red-500 font-semibold mb-4 text-center"></div>
+                <div class="overflow-x-auto">
                     <table class="w-full table-auto border-collapse responsive-table">
-                        <thead class="bg-gray-200" id="scheduleTableHeader">
-                            <!-- Header will be dynamically generated -->
+                        <thead class="bg-gray-200">
+                        <tr class="rounded-lg">
+                            <th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">No.</th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="name">
+                                Player Name
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="level">
+                                Skill Level
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="startTime">
+                                Start Time
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="endTime">
+                                End Time
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="playCount">
+                                Play Periods
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="restCount">
+                                Rest Periods
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="wins">
+                                Wins
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 rounded-tr-lg">Action</th>
+                        </tr>
                         </thead>
-                        <tbody id="scheduleTableBody" class="divide-y divide-gray-200">
-                            <!-- Schedule rows will be generated here by JavaScript -->
+                        <tbody id="playerTableBody" class="divide-y divide-gray-200">
+                        <!-- Player rows will be generated here by JavaScript -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Notification Popup -->
-    <div id="notificationPopup" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 ease-in-out">
-        <div class="flex items-center space-x-2">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <p>The URL has been copied to your clipboard.</p>
+        <!-- Schedule Tab Content -->
+        <div id="scheduleTabContent" class="tab-content hidden">
+            <!-- Combined heading and share URL section -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-2xl font-semibold text-gray-700">Training Schedule</h2>
+                    <div class="flex gap-2">
+                        <button id="generateScheduleInTabBtn" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Generate Schedule
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="scheduleTableContainer" class="overflow-x-auto">
+                <table class="w-full table-auto border-collapse responsive-table">
+                    <thead class="bg-gray-200" id="scheduleTableHeader">
+                    <!-- Header will be dynamically generated -->
+                    </thead>
+                    <tbody id="scheduleTableBody" class="divide-y divide-gray-200">
+                    <!-- Schedule rows will be generated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- Share Modal -->
-    <div id="shareModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
-        <div class="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold text-gray-900">Share Training Schedule</h3>
-                <button id="closeShareModal" class="text-gray-500 hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+<!-- Notification Popup -->
+<div id="notificationPopup" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 ease-in-out">
+    <div class="flex items-center space-x-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <p>The URL has been copied to your clipboard.</p>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div id="shareModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-900">Share Training Schedule</h3>
+            <button id="closeShareModal" class="text-gray-500 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <button id="copyLongUrlBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                     </svg>
+                    Copy Long URL
                 </button>
             </div>
-            <div class="space-y-4">
-                <div>
-                    <button id="copyLongUrlBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                        </svg>
-                        Copy Long URL
-                    </button>
-                </div>
-                <div>
-                    <button id="copyTinyUrlBtn" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                        </svg>
-                        Copy Tiny URL
-                    </button>
-                </div>
+            <div>
+                <button id="copyTinyUrlBtn" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                    </svg>
+                    Copy Tiny URL
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let players = [];
-            let scheduleData = [];
-            let sortDirection = {}; // To store the sort direction for each column
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let players = [];
+        let scheduleData = [];
+        let sortDirection = {}; // To store the sort direction for each column
 
-            // List of random names for the "Random" button
-            const randomNames = ["Alice", "Bob", "Charlie", "Diana", "Ethan", "Fiona", "George", "Hannah", "Isaac", "Jasmine", "Kevin", "Laura", "Mike", "Nora", "Oscar", "Penny", "Quinn", "Rachel", "Sam", "Tina"];
-            const trainingDateInput = document.getElementById('trainingDate');
-            const trainingTitle = document.getElementById('trainingTitle');
+        // List of random names for the "Random" button
+        const randomNames = ["Alice", "Bob", "Charlie", "Diana", "Ethan", "Fiona", "George", "Hannah", "Isaac", "Jasmine", "Kevin", "Laura", "Mike", "Nora", "Oscar", "Penny", "Quinn", "Rachel", "Sam", "Tina"];
+        const trainingDateInput = document.getElementById('trainingDate');
+        const trainingTitle = document.getElementById('trainingTitle');
 
-            // Make title editable and update URL when changed
-            trainingTitle.addEventListener('blur', () => {
-                updateUrlWithCurrentState();
-            });
+        // Make title editable and update URL when changed
+        trainingTitle.addEventListener('blur', () => {
+            updateUrlWithCurrentState();
+        });
 
-            // Prevent newlines in title
-            trainingTitle.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    trainingTitle.blur();
-                }
-            });
-
-            // Add focus styling to title
-            trainingTitle.addEventListener('focus', () => {
-                trainingTitle.classList.add('outline-2', 'outline-blue-500', 'outline', 'rounded-md', 'bg-blue-50');
-            });
-
-            trainingTitle.addEventListener('blur', () => {
-                trainingTitle.classList.remove('outline-2', 'outline-blue-500', 'outline', 'rounded-md', 'bg-blue-50');
-            });
-
-            // Set default date to today
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            if (trainingDateInput) {
-                trainingDateInput.value = formattedDate;
-            }
-
-            // Add date change listener
-            trainingDateInput.addEventListener('change', () => {
-                updateUrlWithCurrentState();
-            });
-
-            // DOM elements
-            const playersTabBtn = document.getElementById('playersTabBtn');
-            const scheduleTabBtn = document.getElementById('scheduleTabBtn');
-            const playersTabContent = document.getElementById('playersTabContent');
-            const scheduleTabContent = document.getElementById('scheduleTabContent');
-            const addPlayerBtn = document.getElementById('addPlayerBtn');
-            const playerNameInput = document.getElementById('playerName');
-            const playerTableBody = document.getElementById('playerTableBody');
-            const generateScheduleBtn = document.getElementById('generateScheduleBtn');
-            const scheduleTableBody = document.getElementById('scheduleTableBody');
-            const scheduleTableHeader = document.getElementById('scheduleTableHeader');
-            const numCourtsInput = document.getElementById('numCourts');
-            const startTimeInput = document.getElementById('startTime');
-            const endTimeInput = document.getElementById('endTime');
-            const messageArea = document.getElementById('messageArea');
-            const shareUrlInput = document.getElementById('shareUrlInput');
-            const copyUrlBtn = document.getElementById('copyUrlBtn');
-            const copyMessage = document.getElementById('copyMessage');
-            const playerTableHead = document.querySelector('#playersTabContent thead');
-            const balancedTeamsCheckbox = document.getElementById('balancedTeams');
-            const resetBtn = document.getElementById('resetBtn');
-            const randomPlayersBtn = document.getElementById('randomPlayersBtn');
-
-            // Tab functionality
-            function showTab(tabName) {
-                // Hide all tab contents
-                playersTabContent.classList.add('hidden');
-                scheduleTabContent.classList.add('hidden');
-
-                // Deactivate all tab buttons
-                playersTabBtn.classList.remove('active');
-                scheduleTabBtn.classList.remove('active');
-
-                // Show the selected tab and activate its button
-                if (tabName === 'players') {
-                    playersTabContent.classList.remove('hidden');
-                    playersTabBtn.classList.add('active');
-                } else if (tabName === 'schedule') {
-                    playersTabBtn.classList.remove('active');
-                    scheduleTabContent.classList.remove('hidden');
-                    scheduleTabBtn.classList.add('active');
-                }
-            }
-
-            // Share modal functionality
-            const shareModal = document.getElementById('shareModal');
-            const closeShareModal = document.getElementById('closeShareModal');
-            const copyLongUrlBtn = document.getElementById('copyLongUrlBtn');
-            const copyTinyUrlBtn = document.getElementById('copyTinyUrlBtn');
-
-            // Function to create tiny URL using TinyURL API
-            const createTinyUrl = async (longUrl) => {
-                try {
-                    const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
-                    if (!response.ok) throw new Error('Failed to create tiny URL');
-                    return await response.text();
-                } catch (error) {
-                    console.error('Error creating tiny URL:', error);
-                    return null;
-                }
-            };
-
-            // Show modal
-            copyUrlBtn.addEventListener('click', (e) => {
+        // Prevent newlines in title
+        trainingTitle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
                 e.preventDefault();
-                shareModal.classList.remove('hidden');
-                shareModal.classList.add('flex');
-            });
+                trainingTitle.blur();
+            }
+        });
 
-            // Close modal
-            closeShareModal.addEventListener('click', () => {
+        // Add focus styling to title
+        trainingTitle.addEventListener('focus', () => {
+            trainingTitle.classList.add('outline-2', 'outline-blue-500', 'outline', 'rounded-md', 'bg-blue-50');
+        });
+
+        trainingTitle.addEventListener('blur', () => {
+            trainingTitle.classList.remove('outline-2', 'outline-blue-500', 'outline', 'rounded-md', 'bg-blue-50');
+        });
+
+        // Set default date to today
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        if (trainingDateInput) {
+            trainingDateInput.value = formattedDate;
+        }
+
+        // Add date change listener
+        trainingDateInput.addEventListener('change', () => {
+            updateUrlWithCurrentState();
+        });
+
+        // DOM elements
+        const playersTabBtn = document.getElementById('playersTabBtn');
+        const scheduleTabBtn = document.getElementById('scheduleTabBtn');
+        const playersTabContent = document.getElementById('playersTabContent');
+        const scheduleTabContent = document.getElementById('scheduleTabContent');
+        const addPlayerBtn = document.getElementById('addPlayerBtn');
+        const playerNameInput = document.getElementById('playerName');
+        const playerTableBody = document.getElementById('playerTableBody');
+        const generateScheduleBtn = document.getElementById('generateScheduleBtn');
+        const scheduleTableBody = document.getElementById('scheduleTableBody');
+        const scheduleTableHeader = document.getElementById('scheduleTableHeader');
+        const numCourtsInput = document.getElementById('numCourts');
+        const startTimeInput = document.getElementById('startTime');
+        const endTimeInput = document.getElementById('endTime');
+        const messageArea = document.getElementById('messageArea');
+        const shareUrlInput = document.getElementById('shareUrlInput');
+        const copyUrlBtn = document.getElementById('copyUrlBtn');
+        const copyMessage = document.getElementById('copyMessage');
+        const playerTableHead = document.querySelector('#playersTabContent thead');
+        const balancedTeamsCheckbox = document.getElementById('balancedTeams');
+        const resetBtn = document.getElementById('resetBtn');
+        const randomPlayersBtn = document.getElementById('randomPlayersBtn');
+
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            playersTabContent.classList.add('hidden');
+            scheduleTabContent.classList.add('hidden');
+
+            // Deactivate all tab buttons
+            playersTabBtn.classList.remove('active');
+            scheduleTabBtn.classList.remove('active');
+
+            // Show the selected tab and activate its button
+            if (tabName === 'players') {
+                playersTabContent.classList.remove('hidden');
+                playersTabBtn.classList.add('active');
+            } else if (tabName === 'schedule') {
+                playersTabBtn.classList.remove('active');
+                scheduleTabContent.classList.remove('hidden');
+                scheduleTabBtn.classList.add('active');
+            }
+        }
+
+        // Share modal functionality
+        const shareModal = document.getElementById('shareModal');
+        const closeShareModal = document.getElementById('closeShareModal');
+        const copyLongUrlBtn = document.getElementById('copyLongUrlBtn');
+        const copyTinyUrlBtn = document.getElementById('copyTinyUrlBtn');
+
+        // Function to create tiny URL using TinyURL API
+        const createTinyUrl = async (longUrl) => {
+            try {
+                const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+                if (!response.ok) throw new Error('Failed to create tiny URL');
+                return await response.text();
+            } catch (error) {
+                console.error('Error creating tiny URL:', error);
+                return null;
+            }
+        };
+
+        // Show modal
+        copyUrlBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            shareModal.classList.remove('hidden');
+            shareModal.classList.add('flex');
+        });
+
+        // Close modal
+        closeShareModal.addEventListener('click', () => {
+            shareModal.classList.remove('flex');
+            shareModal.classList.add('hidden');
+        });
+
+        // Close modal when clicking outside
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
                 shareModal.classList.remove('flex');
                 shareModal.classList.add('hidden');
-            });
+            }
+        });
 
-            // Close modal when clicking outside
-            shareModal.addEventListener('click', (e) => {
-                if (e.target === shareModal) {
-                    shareModal.classList.remove('flex');
-                    shareModal.classList.add('hidden');
-                }
-            });
-
-            // Copy long URL
-            copyLongUrlBtn.addEventListener('click', () => {
-                shareUrlInput.select();
-                navigator.clipboard.writeText(shareUrlInput.value)
-                    .then(() => {
-                        const popup = document.getElementById('notificationPopup');
-                        popup.classList.remove('opacity-0', 'translate-y-full');
-                        popup.classList.add('opacity-100', 'translate-y-0');
-
-                        setTimeout(() => {
-                            popup.classList.remove('opacity-100', 'translate-y-0');
-                            popup.classList.add('opacity-0', 'translate-y-full');
-                            // Hide modal after successful copy
-                            shareModal.classList.remove('flex');
-                            shareModal.classList.add('hidden');
-                        }, 2000);
-                    })
-                    .catch(err => {
-                        console.error('Failed to copy text: ', err);
-                    });
-            });
-
-            // Copy tiny URL functionality
-            copyTinyUrlBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-
-                // Change button text to show loading state
-                const originalText = copyTinyUrlBtn.innerHTML;
-                copyTinyUrlBtn.innerHTML = `
-                    <svg class="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Creating Tiny URL...
-                `;
-                copyTinyUrlBtn.disabled = true;
-
-                // Get the current long URL
-                const longUrl = shareUrlInput.value;
-                const tinyUrl = await createTinyUrl(longUrl);
-
-                if (tinyUrl) {
-                    // Copy the tiny URL to clipboard
-                    await navigator.clipboard.writeText(tinyUrl);
-
-                    // Show success notification
+        // Copy long URL
+        copyLongUrlBtn.addEventListener('click', () => {
+            shareUrlInput.select();
+            navigator.clipboard.writeText(shareUrlInput.value)
+                .then(() => {
                     const popup = document.getElementById('notificationPopup');
                     popup.classList.remove('opacity-0', 'translate-y-full');
                     popup.classList.add('opacity-100', 'translate-y-0');
@@ -501,196 +467,237 @@
                         shareModal.classList.remove('flex');
                         shareModal.classList.add('hidden');
                     }, 2000);
-                } else {
-                    // Show error in the button
-                    copyTinyUrlBtn.innerHTML = `
+                })
+                .catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+        });
+
+        // Copy tiny URL functionality
+        copyTinyUrlBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            // Change button text to show loading state
+            const originalText = copyTinyUrlBtn.innerHTML;
+            copyTinyUrlBtn.innerHTML = `
+                    <svg class="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating Tiny URL...
+                `;
+            copyTinyUrlBtn.disabled = true;
+
+            // Get the current long URL
+            const longUrl = shareUrlInput.value;
+            const tinyUrl = await createTinyUrl(longUrl);
+
+            if (tinyUrl) {
+                // Copy the tiny URL to clipboard
+                await navigator.clipboard.writeText(tinyUrl);
+
+                // Show success notification
+                const popup = document.getElementById('notificationPopup');
+                popup.classList.remove('opacity-0', 'translate-y-full');
+                popup.classList.add('opacity-100', 'translate-y-0');
+
+                setTimeout(() => {
+                    popup.classList.remove('opacity-100', 'translate-y-0');
+                    popup.classList.add('opacity-0', 'translate-y-full');
+                    // Hide modal after successful copy
+                    shareModal.classList.remove('flex');
+                    shareModal.classList.add('hidden');
+                }, 2000);
+            } else {
+                // Show error in the button
+                copyTinyUrlBtn.innerHTML = `
                         <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                         </svg>
                         Failed to create Tiny URL
                     `;
-                }
+            }
 
-                // Reset button after 3 seconds if there was an error
-                if (!tinyUrl) {
-                    setTimeout(() => {
-                        copyTinyUrlBtn.innerHTML = originalText;
-                        copyTinyUrlBtn.disabled = false;
-                    }, 3000);
-                }
-            });
+            // Reset button after 3 seconds if there was an error
+            if (!tinyUrl) {
+                setTimeout(() => {
+                    copyTinyUrlBtn.innerHTML = originalText;
+                    copyTinyUrlBtn.disabled = false;
+                }, 3000);
+            }
+        });
 
-            playersTabBtn.addEventListener('click', () => showTab('players'));
-            scheduleTabBtn.addEventListener('click', () => showTab('schedule'));
+        playersTabBtn.addEventListener('click', () => showTab('players'));
+        scheduleTabBtn.addEventListener('click', () => showTab('schedule'));
 
-            // Function to update the shareable URL based on the current state
-            const updateUrlWithCurrentState = () => {
+        // Function to update the shareable URL based on the current state
+        const updateUrlWithCurrentState = () => {
+            try {
+                // Player data
+                const shareablePlayers = players.map(p => ({
+                    n: p.name,
+                    l: p.level,
+                    st: p.startTime,
+                    et: p.endTime,
+                    w: p.wins
+                }));
+                const playerJson = JSON.stringify(shareablePlayers);
+                const scheduleJson = JSON.stringify(scheduleData);
+
+                // Compress player and schedule data
+                const compressedPlayers = pako.deflate(playerJson);
+                const encodedPlayers = btoa(String.fromCharCode.apply(null, compressedPlayers));
+                const compressedSchedule = pako.deflate(scheduleJson);
+                const encodedSchedule = btoa(String.fromCharCode.apply(null, compressedSchedule));
+
+                // Build URL parameters with all settings
+                const params = new URLSearchParams();
+                // Core data
+                params.set('p', encodedPlayers);
+                params.set('s', encodedSchedule);
+
+                // Settings
+                params.set('t', trainingTitle.textContent); // Title
+                params.set('d', trainingDateInput.value); // Date
+                params.set('c', numCourtsInput.value); // Courts
+                params.set('st', startTimeInput.value); // Start time
+                params.set('et', endTimeInput.value); // End time
+                params.set('bt', balancedTeamsCheckbox.checked ? 'true' : 'false'); // Balanced teams setting
+
+                const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+                shareUrlInput.value = newUrl;
+
                 try {
-                    // Player data
-                    const shareablePlayers = players.map(p => ({
-                        n: p.name,
-                        l: p.level,
-                        st: p.startTime,
-                        et: p.endTime,
-                        w: p.wins
-                    }));
-                    const playerJson = JSON.stringify(shareablePlayers);
-                    const scheduleJson = JSON.stringify(scheduleData);
-
-                    // Compress player and schedule data
-                    const compressedPlayers = pako.deflate(playerJson);
-                    const encodedPlayers = btoa(String.fromCharCode.apply(null, compressedPlayers));
-                    const compressedSchedule = pako.deflate(scheduleJson);
-                    const encodedSchedule = btoa(String.fromCharCode.apply(null, compressedSchedule));
-
-                    // Build URL parameters with all settings
-                    const params = new URLSearchParams();
-                    // Core data
-                    params.set('p', encodedPlayers);
-                    params.set('s', encodedSchedule);
-
-                    // Settings
-                    params.set('t', trainingTitle.textContent); // Title
-                    params.set('d', trainingDateInput.value); // Date
-                    params.set('c', numCourtsInput.value); // Courts
-                    params.set('st', startTimeInput.value); // Start time
-                    params.set('et', endTimeInput.value); // End time
-                    params.set('bt', balancedTeamsCheckbox.checked ? 'true' : 'false'); // Balanced teams setting
-
-                    const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-                    shareUrlInput.value = newUrl;
-                    
-                    try {
-                        window.history.pushState({}, '', newUrl);
-                    } catch (e) {
-                        console.error('Failed to update browser history:', e);
-                    }
+                    window.history.pushState({}, '', newUrl);
                 } catch (e) {
-                    console.error('Error generating shareable URL:', e);
+                    console.error('Failed to update browser history:', e);
                 }
-            };
+            } catch (e) {
+                console.error('Error generating shareable URL:', e);
+            }
+        };
 
-            // Add change listeners to all settings to update URL
-            numCourtsInput.addEventListener('change', updateUrlWithCurrentState);
-            startTimeInput.addEventListener('change', updateUrlWithCurrentState);
-            endTimeInput.addEventListener('change', updateUrlWithCurrentState);
-            balancedTeamsCheckbox.addEventListener('change', updateUrlWithCurrentState);
-            trainingDateInput.addEventListener('change', updateUrlWithCurrentState);
+        // Add change listeners to all settings to update URL
+        numCourtsInput.addEventListener('change', updateUrlWithCurrentState);
+        startTimeInput.addEventListener('change', updateUrlWithCurrentState);
+        endTimeInput.addEventListener('change', updateUrlWithCurrentState);
+        balancedTeamsCheckbox.addEventListener('change', updateUrlWithCurrentState);
+        trainingDateInput.addEventListener('change', updateUrlWithCurrentState);
 
-            // Function to add a player
-            const addPlayer = (name) => {
-                const defaultStartTime = startTimeInput.value;
-                const defaultEndTime = endTimeInput.value;
-                if (name) {
-                    players.push({ name, level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0, wins: 0 });
-                    playerNameInput.value = '';
-                    renderPlayers();
-                    updateUrlWithCurrentState(); // Update URL after adding a player
-                }
-            };
+        // Function to add a player
+        const addPlayer = (name) => {
+            const defaultStartTime = startTimeInput.value;
+            const defaultEndTime = endTimeInput.value;
+            if (name) {
+                players.push({ name, level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0, wins: 0 });
+                playerNameInput.value = '';
+                renderPlayers();
+                updateUrlWithCurrentState(); // Update URL after adding a player
+            }
+        };
 
-            // Add player functionality
-            addPlayerBtn.addEventListener('click', () => {
+        // Add player functionality
+        addPlayerBtn.addEventListener('click', () => {
+            addPlayer(playerNameInput.value.trim());
+        });
+
+        // Add player on Enter key press in the input field
+        playerNameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent form submission
                 addPlayer(playerNameInput.value.trim());
+            }
+        });
+
+        // Function to calculate and update player stats
+        const calculatePlayerStats = () => {
+            // Reset stats
+            players.forEach(p => {
+                p.wins = 0;
             });
 
-            // Add player on Enter key press in the input field
-            playerNameInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault(); // Prevent form submission
-                    addPlayer(playerNameInput.value.trim());
-                }
-            });
-            
-            // Function to calculate and update player stats
-            const calculatePlayerStats = () => {
-                // Reset stats
-                players.forEach(p => {
-                    p.wins = 0;
-                });
-
-                scheduleData.forEach(round => {
-                    round.courts.forEach(court => {
-                        const [teamA, teamB, played, scoreA, scoreB] = court;
-                        if (played && scoreA !== null && scoreB !== null) {
-                            if (scoreA > scoreB) {
-                                // Team A won
-                                teamA.forEach(playerName => {
-                                    const player = players.find(p => p.name === playerName);
-                                    if (player) {
-                                        player.wins++;
-                                    }
-                                });
-                            } else if (scoreB > scoreA) {
-                                // Team B won
-                                teamB.forEach(playerName => {
-                                    const player = players.find(p => p.name === playerName);
-                                    if (player) {
-                                        player.wins++;
-                                    }
-                                });
-                            }
+            scheduleData.forEach(round => {
+                round.courts.forEach(court => {
+                    const [teamA, teamB, played, scoreA, scoreB] = court;
+                    if (played && scoreA !== null && scoreB !== null) {
+                        if (scoreA > scoreB) {
+                            // Team A won
+                            teamA.forEach(playerName => {
+                                const player = players.find(p => p.name === playerName);
+                                if (player) {
+                                    player.wins++;
+                                }
+                            });
+                        } else if (scoreB > scoreA) {
+                            // Team B won
+                            teamB.forEach(playerName => {
+                                const player = players.find(p => p.name === playerName);
+                                if (player) {
+                                    player.wins++;
+                                }
+                            });
                         }
-                    });
+                    }
                 });
-                renderPlayers();
-            };
+            });
+            renderPlayers();
+        };
 
-            // Function to handle table sorting
-            const sortPlayers = (column) => {
-                // Toggle sort direction
-                if (sortDirection[column] === 'asc') {
-                    sortDirection[column] = 'desc';
+        // Function to handle table sorting
+        const sortPlayers = (column) => {
+            // Toggle sort direction
+            if (sortDirection[column] === 'asc') {
+                sortDirection[column] = 'desc';
+            } else {
+                sortDirection[column] = 'asc';
+            }
+
+            // Remove sort icons from all headers
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.classList.remove('asc', 'desc');
+            });
+
+            // Add the new sort icon to the current header
+            const header = document.querySelector(`th[data-sort-by="${column}"] .sort-icon`);
+            if (header) {
+                header.classList.add(sortDirection[column]);
+            }
+
+            // Sort the players array
+            players.sort((a, b) => {
+                const aValue = a[column];
+                const bValue = b[column];
+
+                if (typeof aValue === 'string') {
+                    return sortDirection[column] === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
                 } else {
-                    sortDirection[column] = 'asc';
-                }
-
-                // Remove sort icons from all headers
-                document.querySelectorAll('.sort-icon').forEach(icon => {
-                    icon.classList.remove('asc', 'desc');
-                });
-                
-                // Add the new sort icon to the current header
-                const header = document.querySelector(`th[data-sort-by="${column}"] .sort-icon`);
-                if (header) {
-                    header.classList.add(sortDirection[column]);
-                }
-
-                // Sort the players array
-                players.sort((a, b) => {
-                    const aValue = a[column];
-                    const bValue = b[column];
-
-                    if (typeof aValue === 'string') {
-                        return sortDirection[column] === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-                    } else {
-                        return sortDirection[column] === 'asc' ? aValue - bValue : bValue - aValue;
-                    }
-                });
-                
-                renderPlayers();
-            };
-
-            // Event listener for sortable headers
-            playerTableHead.addEventListener('click', (e) => {
-                const header = e.target.closest('th.sortable');
-                if (header) {
-                    const sortBy = header.getAttribute('data-sort-by');
-                    if (sortBy) {
-                        sortPlayers(sortBy);
-                    }
+                    return sortDirection[column] === 'asc' ? aValue - bValue : bValue - aValue;
                 }
             });
 
-            // Function to render the player list in the table
-            const renderPlayers = () => {
-                playerTableBody.innerHTML = '';
-                // Use the players array directly, as it is now sorted
-                players.forEach((player, index) => {
-                    const row = document.createElement('tr');
-                    // Use a data attribute with the player's name for robust identification
-                    row.setAttribute('data-player-name', player.name);
-                    row.innerHTML = `
+            renderPlayers();
+        };
+
+        // Event listener for sortable headers
+        playerTableHead.addEventListener('click', (e) => {
+            const header = e.target.closest('th.sortable');
+            if (header) {
+                const sortBy = header.getAttribute('data-sort-by');
+                if (sortBy) {
+                    sortPlayers(sortBy);
+                }
+            }
+        });
+
+        // Function to render the player list in the table
+        const renderPlayers = () => {
+            playerTableBody.innerHTML = '';
+            // Use the players array directly, as it is now sorted
+            players.forEach((player, index) => {
+                const row = document.createElement('tr');
+                // Use a data attribute with the player's name for robust identification
+                row.setAttribute('data-player-name', player.name);
+                row.innerHTML = `
                         <td class="px-4 py-2" data-label="No.">${index + 1}</td>
                         <td class="px-4 py-2" data-label="Player Name">
                             <span contenteditable="true" class="editable-name" data-player-name="${player.name}">${player.name}</span>
@@ -714,106 +721,106 @@
                             <button class="remove-player-btn bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-md transition-colors duration-200" data-player-name="${player.name}">Remove</button>
                         </td>
                     `;
-                    playerTableBody.appendChild(row);
-                });
-            };
-
-            // Find a player object by name
-            const findPlayerByName = (name) => {
-                return players.find(p => p.name === name);
-            };
-
-            // Remove a player from the list
-            playerTableBody.addEventListener('click', (e) => {
-                if (e.target.classList.contains('remove-player-btn')) {
-                    const playerName = e.target.getAttribute('data-player-name');
-                    players = players.filter(p => p.name !== playerName);
-                    renderPlayers();
-                    updateUrlWithCurrentState(); // Update URL after removing a player
-                }
+                playerTableBody.appendChild(row);
             });
+        };
 
-            // Update player level or availability times when a dropdown or input changes
-            playerTableBody.addEventListener('change', (e) => {
-                const target = e.target;
-                const playerName = target.getAttribute('data-player-name');
-                const player = findPlayerByName(playerName);
+        // Find a player object by name
+        const findPlayerByName = (name) => {
+            return players.find(p => p.name === name);
+        };
+
+        // Remove a player from the list
+        playerTableBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-player-btn')) {
+                const playerName = e.target.getAttribute('data-player-name');
+                players = players.filter(p => p.name !== playerName);
+                renderPlayers();
+                updateUrlWithCurrentState(); // Update URL after removing a player
+            }
+        });
+
+        // Update player level or availability times when a dropdown or input changes
+        playerTableBody.addEventListener('change', (e) => {
+            const target = e.target;
+            const playerName = target.getAttribute('data-player-name');
+            const player = findPlayerByName(playerName);
+            if (player) {
+                if (target.classList.contains('player-level-select')) {
+                    player.level = parseInt(target.value);
+                } else if (target.classList.contains('player-start-time-input')) {
+                    player.startTime = target.value;
+                } else if (target.classList.contains('player-end-time-input')) {
+                    player.endTime = target.value;
+                }
+                updateUrlWithCurrentState(); // Update URL after any player detail changes
+            }
+        });
+
+        // Add an event listener to update player name on blur (when the user clicks away)
+        playerTableBody.addEventListener('blur', (e) => {
+            const target = e.target;
+            if (target.classList.contains('editable-name')) {
+                const oldName = target.getAttribute('data-player-name');
+                const newName = target.textContent.trim();
+                const player = findPlayerByName(oldName);
                 if (player) {
-                    if (target.classList.contains('player-level-select')) {
-                        player.level = parseInt(target.value);
-                    } else if (target.classList.contains('player-start-time-input')) {
-                        player.startTime = target.value;
-                    } else if (target.classList.contains('player-end-time-input')) {
-                        player.endTime = target.value;
-                    }
-                    updateUrlWithCurrentState(); // Update URL after any player detail changes
+                    player.name = newName;
+                    target.setAttribute('data-player-name', newName); // Update the data attribute
+                    // Also update the data attributes on sibling elements in the same row
+                    const row = target.closest('tr');
+                    row.querySelectorAll('[data-player-name]').forEach(el => el.setAttribute('data-player-name', newName));
+                    updateUrlWithCurrentState();
                 }
-            });
+            }
+        }, true); // Use capture phase to catch the event before other listeners
 
-            // Add an event listener to update player name on blur (when the user clicks away)
-            playerTableBody.addEventListener('blur', (e) => {
-                const target = e.target;
-                if (target.classList.contains('editable-name')) {
-                    const oldName = target.getAttribute('data-player-name');
-                    const newName = target.textContent.trim();
-                    const player = findPlayerByName(oldName);
-                    if (player) {
-                        player.name = newName;
-                        target.setAttribute('data-player-name', newName); // Update the data attribute
-                        // Also update the data attributes on sibling elements in the same row
-                        const row = target.closest('tr');
-                        row.querySelectorAll('[data-player-name]').forEach(el => el.setAttribute('data-player-name', newName));
-                        updateUrlWithCurrentState();
-                    }
-                }
-            }, true); // Use capture phase to catch the event before other listeners
+        // Sync all players' start times with the main start time
+        startTimeInput.addEventListener('change', (e) => {
+            const newStartTime = e.target.value;
+            players.forEach(p => p.startTime = newStartTime);
+            renderPlayers();
+            updateUrlWithCurrentState(); // Update URL when global start time changes
+        });
 
-            // Sync all players' start times with the main start time
-            startTimeInput.addEventListener('change', (e) => {
-                const newStartTime = e.target.value;
-                players.forEach(p => p.startTime = newStartTime);
-                renderPlayers();
-                updateUrlWithCurrentState(); // Update URL when global start time changes
-            });
+        // Sync all players' end times with the main end time
+        endTimeInput.addEventListener('change', (e) => {
+            const newEndTime = e.target.value;
+            players.forEach(p => p.endTime = newEndTime);
+            renderPlayers();
+            updateUrlWithCurrentState(); // Update URL when global end time changes
+        });
 
-            // Sync all players' end times with the main end time
-            endTimeInput.addEventListener('change', (e) => {
-                const newEndTime = e.target.value;
-                players.forEach(p => p.endTime = newEndTime);
-                renderPlayers();
-                updateUrlWithCurrentState(); // Update URL when global end time changes
-            });
+        // Helper function to convert "HH:MM" to minutes from midnight
+        const timeToMinutes = (timeString) => {
+            const [hours, minutes] = timeString.split(':').map(Number);
+            return hours * 60 + minutes;
+        };
 
-            // Helper function to convert "HH:MM" to minutes from midnight
-            const timeToMinutes = (timeString) => {
-                const [hours, minutes] = timeString.split(':').map(Number);
-                return hours * 60 + minutes;
-            };
-
-            // Helper function to render a schedule object into the HTML table
-            const renderSchedule = (numCourts) => {
-                scheduleTableBody.innerHTML = '';
-                // Generate table headers based on the number of courts
-                let headerHtml = `<tr class="rounded-lg">
+        // Helper function to render a schedule object into the HTML table
+        const renderSchedule = (numCourts) => {
+            scheduleTableBody.innerHTML = '';
+            // Generate table headers based on the number of courts
+            let headerHtml = `<tr class="rounded-lg">
                                     <th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">Round</th>
                                     <th class="px-4 py-2 text-left text-gray-600">Time Slot</th>
                                     <th class="px-4 py-2 text-left text-gray-600">Available Players</th>`;
-                for (let i = 1; i <= numCourts; i++) {
-                    headerHtml += `<th class="px-4 py-2 text-left text-gray-600">Court ${i}</th>`;
-                }
-                headerHtml += `<th class="px-4 py-2 text-left text-gray-600 rounded-tr-lg">Resting Players</th>`;
-                headerHtml += `</tr>`;
-                scheduleTableHeader.innerHTML = headerHtml;
+            for (let i = 1; i <= numCourts; i++) {
+                headerHtml += `<th class="px-4 py-2 text-left text-gray-600">Court ${i}</th>`;
+            }
+            headerHtml += `<th class="px-4 py-2 text-left text-gray-600 rounded-tr-lg">Resting Players</th>`;
+            headerHtml += `</tr>`;
+            scheduleTableHeader.innerHTML = headerHtml;
 
-                // Populate table rows with schedule data
-                scheduleData.forEach((roundData, roundIndex) => {
-                    const row = document.createElement('tr');
-                    const courtData = roundData.courts.map((court, courtIndex) => {
-                        const [teamA, teamB, played, scoreA, scoreB] = court;
-                        const scoreAValue = scoreA !== null ? scoreA : '';
-                        const scoreBValue = scoreB !== null ? scoreB : '';
-                        
-                        return `<td class="px-2 py-2" data-label="Court ${courtIndex + 1}">
+            // Populate table rows with schedule data
+            scheduleData.forEach((roundData, roundIndex) => {
+                const row = document.createElement('tr');
+                const courtData = roundData.courts.map((court, courtIndex) => {
+                    const [teamA, teamB, played, scoreA, scoreB] = court;
+                    const scoreAValue = scoreA !== null ? scoreA : '';
+                    const scoreBValue = scoreB !== null ? scoreB : '';
+
+                    return `<td class="px-2 py-2" data-label="Court ${courtIndex + 1}">
                                 <div class="court-cell cursor-pointer rounded-lg p-2 transition-colors duration-200 ${played ? 'bg-green-200' : 'bg-gray-100'}" data-round-index="${roundIndex}" data-court-index="${courtIndex}">
                                     <div class="flex flex-col items-center">
                                         <span>${teamA.join(' & ')}</span>
@@ -826,417 +833,418 @@
                                     </div>
                                 </div>
                             </td>`;
-                    }).join('');
-                    
-                    const restingTeamDisplay = roundData.resting.length > 0 ? roundData.resting.join(', ') : '---';
+                }).join('');
 
-                    row.innerHTML = `
+                const restingTeamDisplay = roundData.resting.length > 0 ? roundData.resting.join(', ') : '---';
+
+                row.innerHTML = `
                         <td class="px-4 py-2" data-label="Round">${roundIndex + 1}</td>
                         <td class="px-4 py-2" data-label="Time Slot">${roundData.time}</td>
                         <td class="px-4 py-2" data-label="Available Players">${roundData.playingCount} / ${players.length}</td>
                         ${courtData}
                         <td class="px-4 py-2" data-label="Resting Players">${restingTeamDisplay}</td>
                     `;
-                    scheduleTableBody.appendChild(row);
-                });
+                scheduleTableBody.appendChild(row);
+            });
+        }
+
+        // Function to shuffle an array
+        const shuffleArray = (array) => {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        };
+
+        // Function to generate and display the schedule
+        const generateAndDisplaySchedule = () => {
+            // Reset play and rest counts for a new schedule
+            players.forEach(p => {
+                p.restCount = 0;
+                p.playCount = 0;
+                p.wins = 0; // Reset wins on new schedule generation
+            });
+            renderPlayers();
+
+            messageArea.textContent = '';
+            scheduleTableBody.innerHTML = '';
+
+            // Get settings from input fields
+            const numCourts = parseInt(numCourtsInput.value);
+            const roundDurationMinutes = 10;
+            const startTimeValue = startTimeInput.value;
+            const endTimeValue = endTimeInput.value;
+            const startMinutes = timeToMinutes(startTimeValue);
+            const endMinutes = timeToMinutes(endTimeValue);
+            const useBalancedTeams = balancedTeamsCheckbox.checked;
+
+            // Validation Checks
+            if (players.length < numCourts * 4) {
+                messageArea.textContent = `You need at least ${numCourts * 4} players for ${numCourts} courts.`;
+                return;
             }
 
-            // Function to shuffle an array
-            const shuffleArray = (array) => {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-            };
-            
-            // Function to generate and display the schedule
-            const generateAndDisplaySchedule = () => {
-                // Reset play and rest counts for a new schedule
-                players.forEach(p => {
-                    p.restCount = 0;
-                    p.playCount = 0;
-                    p.wins = 0; // Reset wins on new schedule generation
+            // Calculate number of rounds based on start and end times
+            if (endMinutes <= startMinutes) {
+                messageArea.textContent = 'End time must be after start time.';
+                return;
+            }
+            const totalDurationMinutes = endMinutes - startMinutes;
+            const numRounds = Math.floor(totalDurationMinutes / roundDurationMinutes);
+
+            // Create a balanced schedule
+            let currentMinutes = startMinutes;
+            scheduleData = [];
+
+            for (let round = 0; round < numRounds; round++) {
+                const currentHour = Math.floor(currentMinutes / 60);
+                const currentMinute = currentMinutes % 60;
+                const timeString = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+
+                // Filter players who are available during this time slot
+                const availablePlayers = players.filter(p => {
+                    const playerStartMinutes = timeToMinutes(p.startTime);
+                    const playerEndMinutes = timeToMinutes(p.endTime);
+                    return currentMinutes >= playerStartMinutes && currentMinutes < playerEndMinutes;
                 });
-                renderPlayers();
 
-                messageArea.textContent = '';
-                scheduleTableBody.innerHTML = '';
+                // Sort available players by play count (ascending) to prioritize playing for those who played least
+                availablePlayers.sort((a, b) => a.playCount - b.playCount);
 
-                // Get settings from input fields
-                const numCourts = parseInt(numCourtsInput.value);
-                const roundDurationMinutes = 10;
-                const startTimeValue = startTimeInput.value;
-                const endTimeValue = endTimeInput.value;
-                const startMinutes = timeToMinutes(startTimeValue);
-                const endMinutes = timeToMinutes(endTimeValue);
-                const useBalancedTeams = balancedTeamsCheckbox.checked;
+                const playersToPlay = availablePlayers.slice(0, numCourts * 4);
+                const restingPlayers = availablePlayers.slice(numCourts * 4);
 
-                // Validation Checks
-                if (players.length < numCourts * 4) {
-                    messageArea.textContent = `You need at least ${numCourts * 4} players for ${numCourts} courts.`;
-                    return;
-                }
-                
-                // Calculate number of rounds based on start and end times
-                if (endMinutes <= startMinutes) {
-                    messageArea.textContent = 'End time must be after start time.';
-                    return;
-                }
-                const totalDurationMinutes = endMinutes - startMinutes;
-                const numRounds = Math.floor(totalDurationMinutes / roundDurationMinutes);
-                
-                // Create a balanced schedule
-                let currentMinutes = startMinutes;
-                scheduleData = [];
+                const roundData = {
+                    time: timeString,
+                    courts: [],
+                    resting: restingPlayers.map(p => p.name),
+                    playingCount: playersToPlay.length
+                };
 
-                for (let round = 0; round < numRounds; round++) {
-                    const currentHour = Math.floor(currentMinutes / 60);
-                    const currentMinute = currentMinutes % 60;
-                    const timeString = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
-                    
-                    // Filter players who are available during this time slot
-                    const availablePlayers = players.filter(p => {
-                        const playerStartMinutes = timeToMinutes(p.startTime);
-                        const playerEndMinutes = timeToMinutes(p.endTime);
-                        return currentMinutes >= playerStartMinutes && currentMinutes < playerEndMinutes;
-                    });
-                    
-                    // Sort available players by play count (ascending) to prioritize playing for those who played least
-                    availablePlayers.sort((a, b) => a.playCount - b.playCount);
-                    
-                    const playersToPlay = availablePlayers.slice(0, numCourts * 4);
-                    const restingPlayers = availablePlayers.slice(numCourts * 4);
-                    
-                    const roundData = {
-                        time: timeString,
-                        courts: [],
-                        resting: restingPlayers.map(p => p.name),
-                        playingCount: playersToPlay.length
-                    };
-                    
-                    const teams = [];
-                    let remainingPlayers = [...playersToPlay];
+                const teams = [];
+                let remainingPlayers = [...playersToPlay];
 
-                    if (useBalancedTeams) {
-                        const level1Players = remainingPlayers.filter(p => p.level === 1);
-                        const level2Players = remainingPlayers.filter(p => p.level === 2);
-                        
-                        // Form mixed-level teams first
-                        while (level1Players.length > 0 && level2Players.length > 0) {
-                            const team = [level2Players.shift(), level1Players.shift()];
-                            teams.push(team);
-                        }
-                        
-                        // Form teams from remaining players of the same level
-                        while (level1Players.length >= 2) {
-                            const team = [level1Players.shift(), level1Players.shift()];
-                            teams.push(team);
-                        }
-                        while (level2Players.length >= 2) {
-                            const team = [level2Players.shift(), level2Players.shift()];
-                            teams.push(team);
-                        }
-                        remainingPlayers = [...level1Players, ...level2Players]; // These players will be resting
-                    } else {
-                        // If balanced teams are not required, just form teams from the list
-                        while (remainingPlayers.length >= 2) {
-                            const team = [remainingPlayers.shift(), remainingPlayers.shift()];
-                            teams.push(team);
-                        }
+                if (useBalancedTeams) {
+                    const level1Players = remainingPlayers.filter(p => p.level === 1);
+                    const level2Players = remainingPlayers.filter(p => p.level === 2);
+
+                    // Form mixed-level teams first
+                    while (level1Players.length > 0 && level2Players.length > 0) {
+                        const team = [level2Players.shift(), level1Players.shift()];
+                        teams.push(team);
                     }
 
-                    shuffleArray(teams); // Shuffle teams to mix up opponents
-
-                    // Assign teams to courts
-                    for (let i = 0; i < numCourts && teams.length >= 2; i++) {
-                        const teamA = teams.shift();
-                        const teamB = teams.shift();
-                        roundData.courts.push([teamA.map(p => p.name), teamB.map(p => p.name), false, null, null]);
-                        
-                        // Update play counts for the players who just played
-                        teamA.forEach(p => p.playCount++);
-                        teamB.forEach(p => p.playCount++);
+                    // Form teams from remaining players of the same level
+                    while (level1Players.length >= 2) {
+                        const team = [level1Players.shift(), level1Players.shift()];
+                        teams.push(team);
                     }
-                    
-                    // Update rest counts for all available players who did not get to play
-                    const playersWhoPlayed = roundData.courts.flat().flat();
-                    playersToPlay.forEach(p => {
-                        if (!playersWhoPlayed.includes(p.name)) {
-                           p.restCount++;
-                        }
-                    });
-
-                    scheduleData.push(roundData);
-                    currentMinutes += roundDurationMinutes;
-                }
-
-                // Update the player table to show rest and play counts
-                renderPlayers();
-                
-                // Render the generated schedule
-                renderSchedule(numCourts);
-
-                // Update the URL with the new schedule data
-                updateUrlWithCurrentState();
-
-                // Only switch to schedule tab if we successfully generated a schedule
-                if (scheduleData && scheduleData.length > 0) {
-                    showTab('schedule');
-                }
-            };
-
-            // Function to generate a random list of players
-            const generateRandomPlayers = () => {
-                // Randomly set number of courts (1-4)
-                const randomCourts = Math.floor(Math.random() * 4) + 1;
-                numCourtsInput.value = randomCourts;
-
-                // Set a minimum number of players based on the courts selected
-                const minPlayers = randomCourts * 4;
-                const maxPlayers = 20; // A reasonable upper limit
-                const numPlayers = Math.floor(Math.random() * (maxPlayers - minPlayers + 1)) + minPlayers;
-                
-                // Randomly set start and end times
-                const startHour = Math.floor(Math.random() * 10) + 10; // 10 to 19 (10am to 7pm)
-                const startMinute = Math.floor(Math.random() * 4) * 15; // 0, 15, 30, 45
-                const sessionDuration = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3 hours
-                
-                const startTime = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
-                
-                const endMinutes = timeToMinutes(startTime) + (sessionDuration * 60);
-                const endHour = Math.floor(endMinutes / 60);
-                const endMinute = endMinutes % 60;
-                const endTime = `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`;
-
-                startTimeInput.value = startTime;
-                endTimeInput.value = endTime;
-                
-                // Generate players
-                const newPlayers = [];
-                const usedNames = new Set();
-                
-                while (newPlayers.length < numPlayers) {
-                    const randomName = randomNames[Math.floor(Math.random() * randomNames.length)];
-                    if (!usedNames.has(randomName)) {
-                        newPlayers.push({
-                            name: randomName,
-                            level: 1,
-                            startTime,
-                            endTime,
-                            restCount: 0,
-                            playCount: 0,
-                            wins: 0
-                        });
-                        usedNames.add(randomName);
+                    while (level2Players.length >= 2) {
+                        const team = [level2Players.shift(), level2Players.shift()];
+                        teams.push(team);
                     }
-                }
-                players = newPlayers;
-                renderPlayers();
-                updateUrlWithCurrentState();
-                messageArea.textContent = '';
-                showTab('players');
-            };
-
-            // Function to reset the application to its initial state
-            const resetApplicationState = () => {
-                players = [];
-                scheduleData = [];
-                renderPlayers();
-                renderSchedule(parseInt(numCourtsInput.value));
-                shareUrlInput.value = '';
-                // Clear URL parameters
-                window.history.pushState({}, '', window.location.pathname);
-                messageArea.textContent = '';
-                showTab('players');
-            };
-
-            // Function to load state from URL on page load
-            const loadStateFromUrl = () => {
-                const params = new URLSearchParams(window.location.search);
-                const playersParam = params.get('p');
-                const scheduleParam = params.get('s');
-                const courtsParam = params.get('c');
-                const startTimeParam = params.get('st');
-                const endTimeParam = params.get('et');
-                const balancedTeamsParam = params.get('bt');
-                const debugParam = params.get('debug');
-                const dateParam = params.get('d');
-                const titleParam = params.get('t');
-
-                // Load all settings from URL parameters
-                if (titleParam) {
-                    trainingTitle.textContent = titleParam;
-                }
-                if (dateParam) {
-                    trainingDateInput.value = dateParam;
+                    remainingPlayers = [...level1Players, ...level2Players]; // These players will be resting
                 } else {
-                    trainingDateInput.value = formattedDate;
-                }
-                if (courtsParam) {
-                    numCourtsInput.value = courtsParam;
-                }
-                if (startTimeParam) {
-                    startTimeInput.value = startTimeParam;
-                }
-                if (endTimeParam) {
-                    endTimeInput.value = endTimeParam;
-                }
-                if (balancedTeamsParam) {
-                    balancedTeamsCheckbox.checked = balancedTeamsParam === 'true';
+                    // If balanced teams are not required, just form teams from the list
+                    while (remainingPlayers.length >= 2) {
+                        const team = [remainingPlayers.shift(), remainingPlayers.shift()];
+                        teams.push(team);
+                    }
                 }
 
+                shuffleArray(teams); // Shuffle teams to mix up opponents
 
-                // Show/hide random button based on debug parameter
-                const randomBtn = document.getElementById('randomPlayersBtn');
-                if (debugParam === 'true') {
-                    randomBtn.classList.remove('hidden');
-                } else {
-                    randomBtn.classList.add('hidden');
+                // Assign teams to courts
+                for (let i = 0; i < numCourts && teams.length >= 2; i++) {
+                    const teamA = teams.shift();
+                    const teamB = teams.shift();
+                    roundData.courts.push([teamA.map(p => p.name), teamB.map(p => p.name), false, null, null]);
+
+                    // Update play counts for the players who just played
+                    teamA.forEach(p => p.playCount++);
+                    teamB.forEach(p => p.playCount++);
                 }
 
-                let scheduleLoaded = false;
+                // Update rest counts for all available players who did not get to play
+                const playersWhoPlayed = roundData.courts.flat().flat();
+                playersToPlay.forEach(p => {
+                    if (!playersWhoPlayed.includes(p.name)) {
+                        p.restCount++;
+                    }
+                });
 
-                if (playersParam) {
-                    try {
-                        const decodedPlayers = atob(playersParam);
-                        const playerCharCodes = new Uint8Array(decodedPlayers.length);
-                        for (let i = 0; i < decodedPlayers.length; i++) {
-                            playerCharCodes[i] = decodedPlayers.charCodeAt(i);
-                        }
-                        const decompressedPlayers = pako.inflate(playerCharCodes, { to: 'string' });
-                        const parsedPlayers = JSON.parse(decompressedPlayers);
+                scheduleData.push(roundData);
+                currentMinutes += roundDurationMinutes;
+            }
 
-                        players = parsedPlayers.map(p => ({
-                            name: p.n,
-                            level: p.l,
-                            startTime: p.st,
-                            endTime: p.et,
-                            restCount: 0, // Reset these as they are recalculated
-                            playCount: 0, // Reset these as they are recalculated
-                            wins: p.w || 0 // Load wins from URL or default to 0
-                        }));
-                        
-                        if (courtsParam) numCourtsInput.value = courtsParam;
-                        if (startTimeParam) startTimeInput.value = startTimeParam;
-                        if (endTimeParam) endTimeInput.value = endTimeParam;
-                        if (balancedTeamsParam) balancedTeamsCheckbox.checked = balancedTeamsParam === 'true';
+            // Update the player table to show rest and play counts
+            renderPlayers();
 
-                        if (scheduleParam) {
-                             try {
-                                const decodedSchedule = atob(scheduleParam);
-                                const scheduleCharCodes = new Uint8Array(decodedSchedule.length);
-                                for (let i = 0; i < decodedSchedule.length; i++) {
-                                    scheduleCharCodes[i] = decodedSchedule.charCodeAt(i);
-                                }
-                                const decompressedSchedule = pako.inflate(scheduleCharCodes, { to: 'string' });
-                                scheduleData = JSON.parse(decompressedSchedule);
-                                
-                                if (scheduleData && scheduleData.length > 0) {
-                                    // Recalculate player play and rest counts from the loaded schedule
-                                    players.forEach(p => {
-                                        p.restCount = 0;
-                                        p.playCount = 0;
-                                    });
-                                    scheduleData.forEach(round => {
-                                        round.courts.forEach(court => {
-                                            if (court.length > 0 && court[0].length > 0) {
-                                                // Update play counts for Team A and Team B
-                                                court[0].forEach(name => {
+            // Render the generated schedule
+            renderSchedule(numCourts);
+
+            // Update the URL with the new schedule data
+            updateUrlWithCurrentState();
+
+            // Only switch to schedule tab if we successfully generated a schedule
+            if (scheduleData && scheduleData.length > 0) {
+                showTab('schedule');
+            }
+        };
+
+        // Function to generate a random list of players
+        const generateRandomPlayers = () => {
+            // Randomly set number of courts (1-4)
+            const randomCourts = Math.floor(Math.random() * 4) + 1;
+            numCourtsInput.value = randomCourts;
+
+            // Set a minimum number of players based on the courts selected
+            const minPlayers = randomCourts * 4;
+            const maxPlayers = 20; // A reasonable upper limit
+            const numPlayers = Math.floor(Math.random() * (maxPlayers - minPlayers + 1)) + minPlayers;
+
+            // Randomly set start and end times
+            const startHour = Math.floor(Math.random() * 10) + 10; // 10 to 19 (10am to 7pm)
+            const startMinute = Math.floor(Math.random() * 4) * 15; // 0, 15, 30, 45
+            const sessionDuration = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3 hours
+
+            const startTime = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
+
+            const endMinutes = timeToMinutes(startTime) + (sessionDuration * 60);
+            const endHour = Math.floor(endMinutes / 60);
+            const endMinute = endMinutes % 60;
+            const endTime = `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`;
+
+            startTimeInput.value = startTime;
+            endTimeInput.value = endTime;
+
+            // Generate players
+            const newPlayers = [];
+            const usedNames = new Set();
+
+            while (newPlayers.length < numPlayers) {
+                const randomName = randomNames[Math.floor(Math.random() * randomNames.length)];
+                if (!usedNames.has(randomName)) {
+                    newPlayers.push({
+                        name: randomName,
+                        level: 1,
+                        startTime,
+                        endTime,
+                        restCount: 0,
+                        playCount: 0,
+                        wins: 0
+                    });
+                    usedNames.add(randomName);
+                }
+            }
+            players = newPlayers;
+            renderPlayers();
+            updateUrlWithCurrentState();
+            messageArea.textContent = '';
+            showTab('players');
+        };
+
+        // Function to reset the application to its initial state
+        const resetApplicationState = () => {
+            players = [];
+            scheduleData = [];
+            renderPlayers();
+            renderSchedule(parseInt(numCourtsInput.value));
+            shareUrlInput.value = '';
+            // Clear URL parameters
+            window.history.pushState({}, '', window.location.pathname);
+            messageArea.textContent = '';
+            showTab('players');
+        };
+
+        // Function to load state from URL on page load
+        const loadStateFromUrl = () => {
+            const params = new URLSearchParams(window.location.search);
+            const playersParam = params.get('p');
+            const scheduleParam = params.get('s');
+            const courtsParam = params.get('c');
+            const startTimeParam = params.get('st');
+            const endTimeParam = params.get('et');
+            const balancedTeamsParam = params.get('bt');
+            const debugParam = params.get('debug');
+            const dateParam = params.get('d');
+            const titleParam = params.get('t');
+
+            // Load all settings from URL parameters
+            if (titleParam) {
+                trainingTitle.textContent = titleParam;
+            }
+            if (dateParam) {
+                trainingDateInput.value = dateParam;
+            } else {
+                trainingDateInput.value = formattedDate;
+            }
+            if (courtsParam) {
+                numCourtsInput.value = courtsParam;
+            }
+            if (startTimeParam) {
+                startTimeInput.value = startTimeParam;
+            }
+            if (endTimeParam) {
+                endTimeInput.value = endTimeParam;
+            }
+            if (balancedTeamsParam) {
+                balancedTeamsCheckbox.checked = balancedTeamsParam === 'true';
+            }
+
+
+            // Show/hide random button based on debug parameter
+            const randomBtn = document.getElementById('randomPlayersBtn');
+            if (debugParam === 'true') {
+                randomBtn.classList.remove('hidden');
+            } else {
+                randomBtn.classList.add('hidden');
+            }
+
+            let scheduleLoaded = false;
+
+            if (playersParam) {
+                try {
+                    const decodedPlayers = atob(playersParam);
+                    const playerCharCodes = new Uint8Array(decodedPlayers.length);
+                    for (let i = 0; i < decodedPlayers.length; i++) {
+                        playerCharCodes[i] = decodedPlayers.charCodeAt(i);
+                    }
+                    const decompressedPlayers = pako.inflate(playerCharCodes, { to: 'string' });
+                    const parsedPlayers = JSON.parse(decompressedPlayers);
+
+                    players = parsedPlayers.map(p => ({
+                        name: p.n,
+                        level: p.l,
+                        startTime: p.st,
+                        endTime: p.et,
+                        restCount: 0, // Reset these as they are recalculated
+                        playCount: 0, // Reset these as they are recalculated
+                        wins: p.w || 0 // Load wins from URL or default to 0
+                    }));
+
+                    if (courtsParam) numCourtsInput.value = courtsParam;
+                    if (startTimeParam) startTimeInput.value = startTimeParam;
+                    if (endTimeParam) endTimeInput.value = endTimeParam;
+                    if (balancedTeamsParam) balancedTeamsCheckbox.checked = balancedTeamsParam === 'true';
+
+                    if (scheduleParam) {
+                        try {
+                            const decodedSchedule = atob(scheduleParam);
+                            const scheduleCharCodes = new Uint8Array(decodedSchedule.length);
+                            for (let i = 0; i < decodedSchedule.length; i++) {
+                                scheduleCharCodes[i] = decodedSchedule.charCodeAt(i);
+                            }
+                            const decompressedSchedule = pako.inflate(scheduleCharCodes, { to: 'string' });
+                            scheduleData = JSON.parse(decompressedSchedule);
+
+                            if (scheduleData && scheduleData.length > 0) {
+                                // Recalculate player play and rest counts from the loaded schedule
+                                players.forEach(p => {
+                                    p.restCount = 0;
+                                    p.playCount = 0;
+                                });
+                                scheduleData.forEach(round => {
+                                    round.courts.forEach(court => {
+                                        if (court.length > 0 && court[0].length > 0) {
+                                            // Update play counts for Team A and Team B
+                                            court[0].forEach(name => {
+                                                const player = findPlayerByName(name);
+                                                if (player) player.playCount++;
+                                            });
+                                            if (court[1] && court[1].length > 0) {
+                                                court[1].forEach(name => {
                                                     const player = findPlayerByName(name);
                                                     if (player) player.playCount++;
                                                 });
-                                                if (court[1] && court[1].length > 0) {
-                                                    court[1].forEach(name => {
-                                                        const player = findPlayerByName(name);
-                                                        if (player) player.playCount++;
-                                                    });
-                                                }
                                             }
-                                        });
-                                        round.resting.forEach(name => {
-                                            const player = findPlayerByName(name);
-                                            if (player) player.restCount++;
-                                        });
+                                        }
                                     });
-                                    calculatePlayerStats();
-                                    renderSchedule(parseInt(numCourtsInput.value));
-                                    showTab('schedule');
-                                    scheduleLoaded = true;
-                                }
+                                    round.resting.forEach(name => {
+                                        const player = findPlayerByName(name);
+                                        if (player) player.restCount++;
+                                    });
+                                });
+                                calculatePlayerStats();
+                                renderSchedule(parseInt(numCourtsInput.value));
+                                showTab('schedule');
+                                scheduleLoaded = true;
+                            }
 
-                             } catch (e) {
-                                console.error('Failed to parse schedule from URL:', e);
-                             }
+                        } catch (e) {
+                            console.error('Failed to parse schedule from URL:', e);
                         }
-
-                        if (!scheduleLoaded) {
-                            // Initialize players table but stay on Players tab
-                            renderPlayers();
-                            showTab('players');
-                        }
-
-                    } catch (e) {
-                        console.error('Failed to parse players from URL:', e);
-                        // Fallback to empty state if parsing fails
-                        resetApplicationState();
                     }
-                } else {
-                    // No URL parameters, start fresh
+
+                    if (!scheduleLoaded) {
+                        // Initialize players table but stay on Players tab
+                        renderPlayers();
+                        showTab('players');
+                    }
+
+                } catch (e) {
+                    console.error('Failed to parse players from URL:', e);
+                    // Fallback to empty state if parsing fails
                     resetApplicationState();
                 }
-            };
-            
-            // Add an event listener for score input blur to update the schedule and stats
-            scheduleTableBody.addEventListener('blur', (e) => {
-                const target = e.target;
-                if (target.classList.contains('score-input')) {
-                    updateCourtScores(target);
-                }
-            }, true);
+            } else {
+                // No URL parameters, start fresh
+                resetApplicationState();
+            }
+        };
 
-            // Add click handler for court cells
-            scheduleTableBody.addEventListener('click', (e) => {
-                const courtCell = e.target.closest('.court-cell');
-                if (courtCell && !e.target.classList.contains('score-input')) {
-                    const inputs = courtCell.querySelectorAll('.score-input');
-                    inputs[0].value = '0';
-                    inputs[1].value = '0';
+        // Add an event listener for score input blur to update the schedule and stats
+        scheduleTableBody.addEventListener('blur', (e) => {
+            const target = e.target;
+            if (target.classList.contains('score-input')) {
+                updateCourtScores(target);
+            }
+        }, true);
 
-                    // Update the game status and scores
-                    updateCourtScores(inputs[0]);
-                }
-            });
+        // Add click handler for court cells
+        scheduleTableBody.addEventListener('click', (e) => {
+            const courtCell = e.target.closest('.court-cell');
+            if (courtCell && !e.target.classList.contains('score-input')) {
+                const inputs = courtCell.querySelectorAll('.score-input');
+                inputs[0].value = '0';
+                inputs[1].value = '0';
 
-            // Function to update court scores and status
-            const updateCourtScores = (element) => {
-                const courtCell = element.closest('.court-cell');
-                if (courtCell) {
-                    const roundIndex = parseInt(courtCell.dataset.roundIndex);
-                    const courtIndex = parseInt(courtCell.dataset.courtIndex);
-                    const inputs = courtCell.querySelectorAll('.score-input');
-                    const scoreA = parseInt(inputs[0].value) || 0;
-                    const scoreB = parseInt(inputs[1].value) || 0;
-
-                    scheduleData[roundIndex].courts[courtIndex][2] = true; // Mark as played
-                    scheduleData[roundIndex].courts[courtIndex][3] = scoreA;
-                    scheduleData[roundIndex].courts[courtIndex][4] = scoreB;
-
-                    courtCell.classList.add('played');
-                    calculatePlayerStats();
-                    updateUrlWithCurrentState();
-                }
-            };
-
-            // Set up event listeners
-            generateScheduleBtn.addEventListener('click', generateAndDisplaySchedule);
-            resetBtn.addEventListener('click', resetApplicationState);
-            randomPlayersBtn.addEventListener('click', generateRandomPlayers);
-            document.getElementById('generateScheduleInTabBtn').addEventListener('click', generateAndDisplaySchedule);
-
-            // Initial call to load state from URL or use defaults
-            loadStateFromUrl();
+                // Update the game status and scores
+                updateCourtScores(inputs[0]);
+            }
         });
-    </script>
+
+        // Function to update court scores and status
+        const updateCourtScores = (element) => {
+            const courtCell = element.closest('.court-cell');
+            if (courtCell) {
+                const roundIndex = parseInt(courtCell.dataset.roundIndex);
+                const courtIndex = parseInt(courtCell.dataset.courtIndex);
+                const inputs = courtCell.querySelectorAll('.score-input');
+                const scoreA = parseInt(inputs[0].value) || 0;
+                const scoreB = parseInt(inputs[1].value) || 0;
+
+                scheduleData[roundIndex].courts[courtIndex][2] = true; // Mark as played
+                scheduleData[roundIndex].courts[courtIndex][3] = scoreA;
+                scheduleData[roundIndex].courts[courtIndex][4] = scoreB;
+
+                courtCell.classList.add('played');
+                calculatePlayerStats();
+                updateUrlWithCurrentState();
+            }
+        };
+
+        // Set up event listeners
+        generateScheduleBtn.addEventListener('click', generateAndDisplaySchedule);
+        resetBtn.addEventListener('click', resetApplicationState);
+        randomPlayersBtn.addEventListener('click', generateRandomPlayers);
+        document.getElementById('generateScheduleInTabBtn').addEventListener('click', generateAndDisplaySchedule);
+
+        // Initial call to load state from URL or use defaults
+        loadStateFromUrl();
+    });
+</script>
 
 </body>
 </html>
+

@@ -356,299 +356,7 @@
                 // Deactivate all tab buttons
                 playersTabBtn.classList.remove('active');
                 scheduleTabBtn.classList.remove('active');
-            // Tab functionality
-            playersTabBtn.addEventListener('click', () => {
-                playersTabBtn.classList.add('active');
-                scheduleTabBtn.classList.remove('active');
-                playersTabContent.classList.remove('hidden');
-                scheduleTabContent.classList.add('hidden');
-            });
 
-            scheduleTabBtn.addEventListener('click', () => {
-                scheduleTabBtn.classList.add('active');
-                playersTabBtn.classList.remove('active');
-                scheduleTabContent.classList.remove('hidden');
-                playersTabContent.classList.add('hidden');
-
-                // Generate schedule automatically when switching to schedule tab
-                if (scheduleData.length === 0) {
-                    generateSchedule();
-                } else {
-                    renderSchedule();
-                }
-            });
-
-            // Add Player button functionality
-            addPlayerBtn.addEventListener('click', () => {
-                const playerName = playerNameInput.value.trim();
-                if (playerName === '') {
-                    return;
-                }
-
-                // Check for duplicate player names
-                const isDuplicate = players.some(player => player.name === playerName);
-                if (isDuplicate) {
-                    showMessage('Player already exists!', 'error');
-                    return;
-                }
-
-                const newPlayer = {
-                    name: playerName,
-                    level: 1,
-                    startTime: defaultStartTime,
-                    endTime: defaultEndTime,
-                    playCount: 0,
-                    restCount: 0,
-                    wins: 0
-                };
-                players.push(newPlayer);
-                playerNameInput.value = '';
-
-                // Update player table
-                renderPlayerTable();
-                showMessage('Player added successfully!', 'success');
-            });
-
-            // Reset button functionality
-            resetBtn.addEventListener('click', () => {
-                players = [];
-                scheduleData = [];
-                sortDirection = {};
-                document.getElementById('numCourts').value = 2;
-                document.getElementById('startTime').value = '18:30';
-                document.getElementById('endTime').value = '20:00';
-                document.getElementById('balancedTeams').checked = false;
-                document.getElementById('messageArea').innerHTML = '';
-                document.getElementById('playerName').value = '';
-
-                // Clear tables
-                document.getElementById('playerTableBody').innerHTML = '';
-                document.getElementById('scheduleTableBody').innerHTML = '';
-                document.getElementById('scheduleTableHeader').innerHTML = '';
-
-                showMessage('Reset successful!', 'success');
-            });
-
-            // Random button functionality
-            randomPlayersBtn.addEventListener('click', () => {
-                // Generate random players
-                const numPlayers = Math.floor(Math.random() * 8) + 4; // Random number between 4 and 11
-                players = [];
-                for (let i = 0; i < numPlayers; i++) {
-                    const randomName = randomNames[Math.floor(Math.random() * randomNames.length)];
-                    const playerLevel = Math.floor(Math.random() * 3) + 1; // Random level between 1 and 3
-                    players.push({
-                        name: randomName,
-                        level: playerLevel,
-                        startTime: defaultStartTime,
-                        endTime: defaultEndTime,
-                        playCount: 0,
-                        restCount: 0,
-                        wins: 0
-                    });
-                }
-
-                // Update player table
-                renderPlayerTable();
-                showMessage('Random players generated!', 'success');
-            });
-
-            // Generate Schedule button functionality
-            generateScheduleBtn.addEventListener('click', () => {
-                generateSchedule();
-            });
-
-            // Function to generate schedule
-            function generateSchedule() {
-                const numCourts = parseInt(numCourtsInput.value);
-                const startTime = startTimeInput.value;
-                const endTime = endTimeInput.value;
-                const preventLevel2Teaming = balancedTeamsCheckbox.checked;
-
-                // Clear existing schedule data
-                scheduleData = [];
-
-                // Create time slots
-                const timeSlots = createTimeSlots(startTime, endTime);
-
-                // Simple round-robin scheduling algorithm
-                let courtAssignments = Array.from({ length: numCourts }, () => []);
-                let playerQueue = [...players];
-
-                // Prevent Level 2 players from teaming up
-                if (preventLevel2Teaming) {
-                    const level2Players = playerQueue.filter(player => player.level === 2);
-                    const otherPlayers = playerQueue.filter(player => player.level !== 2);
-                    playerQueue = [];
-                    while (level2Players.length > 0 || otherPlayers.length > 0) {
-                        if (level2Players.length > 0) {
-                            playerQueue.push(level2Players.shift());
-                        }
-                        if (otherPlayers.length > 0) {
-                            playerQueue.push(otherPlayers.shift());
-                        }
-                    }
-                }
-
-                playerQueue.forEach((player, index) => {
-                    const courtIndex = index % numCourts;
-                    const timeSlot = timeSlots[Math.floor(index / numCourts) % timeSlots.length];
-                    courtAssignments[courtIndex].push({
-                        ...player,
-                        startTime: timeSlot.start,
-                        endTime: timeSlot.end
-                    });
-                });
-
-                // Flatten court assignments for schedule table
-                courtAssignments.forEach((court, courtIndex) => {
-                    court.forEach((assignment, index) => {
-                        if (!scheduleData[index]) {
-                            scheduleData[index] = {};
-                        }
-                        scheduleData[index][`court${courtIndex + 1}`] = assignment;
-                    });
-                });
-
-                renderSchedule();
-                showMessage('Schedule generated successfully!', 'success');
-            }
-
-            // Function to create time slots
-            function createTimeSlots(start, end) {
-                const slots = [];
-                let currentTime = new Date(`1970-01-01T${start}:00`);
-                const endTime = new Date(`1970-01-01T${end}:00`);
-                const slotDuration = 30; // 30 minutes
-
-                while (currentTime <= endTime) {
-                    const nextTime = new Date(currentTime.getTime() + slotDuration * 60000);
-                    slots.push({
-                        start: currentTime.toTimeString().slice(0, 5),
-                        end: nextTime.toTimeString().slice(0, 5)
-                    });
-                    currentTime = nextTime;
-                }
-
-                return slots;
-            }
-
-            // Function to render player table
-            function renderPlayerTable() {
-                playerTableBody.innerHTML = '';
-                players.forEach((player, index) => {
-                    const row = document.createElement('tr');
-                    row.classList.add('hover:bg-gray-50', 'transition-colors', 'duration-200');
-                    row.innerHTML = `
-                        <td class="px-4 py-2 text-gray-700">${index + 1}</td>
-                        <td class="px-4 py-2 text-gray-700">
-                            <input type="text" value="${player.name}" class="editable-name w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" data-index="${index}" data-field="name">
-                        </td>
-                        <td class="px-4 py-2 text-gray-700">
-                            <select class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" data-index="${index}" data-field="level">
-                                <option value="1" ${player.level === 1 ? 'selected' : ''}>1</option>
-                                <option value="2" ${player.level === 2 ? 'selected' : ''}>2</option>
-                                <option value="3" ${player.level === 3 ? 'selected' : ''}>3</option>
-                            </select>
-                        </td>
-                        <td class="px-4 py-2 text-gray-700">${player.startTime}</td>
-                        <td class="px-4 py-2 text-gray-700">${player.endTime}</td>
-                        <td class="px-4 py-2 text-gray-700">${player.playCount}</td>
-                        <td class="px-4 py-2 text-gray-700">${player.restCount}</td>
-                        <td class="px-4 py-2 text-gray-700">${player.wins}</td>
-                        <td class="px-4 py-2 text-gray-700">
-                            <button class="delete-player-btn bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-md transition-colors duration-200" data-index="${index}">
-                                Delete
-                            </button>
-                        </td>
-                    `;
-                    playerTableBody.appendChild(row);
-                });
-
-                // Add event listeners for editable fields and delete buttons
-                addEditableListeners();
-                addDeleteButtonListeners();
-            }
-
-            // Function to add editable field listeners
-            function addEditableListeners() {
-                const editableFields = document.querySelectorAll('.editable-name, .editable-level');
-                editableFields.forEach(field => {
-                    field.addEventListener('blur', (e) => {
-                        const index = e.target.dataset.index;
-                        const fieldName = e.target.dataset.field;
-                        players[index][fieldName] = e.target.value;
-                    });
-                });
-            }
-
-            // Function to add delete button listeners
-            function addDeleteButtonListeners() {
-                const deleteButtons = document.querySelectorAll('.delete-player-btn');
-                deleteButtons.forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const index = e.target.dataset.index;
-                        players.splice(index, 1);
-                        renderPlayerTable();
-                        showMessage('Player deleted successfully!', 'success');
-                    });
-                });
-            }
-
-            // Function to render schedule
-            function renderSchedule() {
-                scheduleTableBody.innerHTML = '';
-                if (scheduleData.length === 0) {
-                    return;
-                }
-
-                // Get court names from the first entry
-                const courtNames = Object.keys(scheduleData[0]).filter(key => key.startsWith('court'));
-
-                // Render header
-                scheduleTableHeader.innerHTML = `
-                    <tr class="rounded-lg">
-                        <th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">No.</th>
-                        ${courtNames.map(court => `<th class="px-4 py-2 text-left text-gray-600">${court}</th>`).join('')}
-                    </tr>
-                `;
-
-                // Render rows
-                scheduleData.forEach((row, index) => {
-                    const tr = document.createElement('tr');
-                    tr.classList.add('hover:bg-gray-50', 'transition-colors', 'duration-200');
-                    tr.innerHTML = `
-                        <td class="px-4 py-2 text-gray-700">${index + 1}</td>
-                        ${courtNames.map(court => {
-                            const player = row[court];
-                            return `
-                                <td class="px-4 py-2 text-gray-700">
-                                    ${player ? player.name : ''}
-                                </td>
-                            `;
-                        }).join('')}
-                    `;
-                    scheduleTableBody.appendChild(tr);
-                });
-            }
-
-            // Function to show messages
-            function showMessage(message, type) {
-                messageArea.innerHTML = message;
-                messageArea.classList.remove('hidden', 'text-red-500', 'text-green-500');
-                messageArea.classList.add(type === 'error' ? 'text-red-500' : 'text-green-500');
-
-                setTimeout(() => {
-                    messageArea.classList.add('hidden');
-                }, 3000);
-            }
-
-            // Initial render
-            renderPlayerTable();
-        });
-    </script>
-</body>
-</html>
                 // Show the selected tab and activate its button
                 if (tabName === 'players') {
                     playersTabContent.classList.remove('hidden');
@@ -794,10 +502,10 @@
                     // Corrected compression and encoding to handle binary data
                     const compressedPlayers = pako.deflate(playerJson);
                     const encodedPlayers = btoa(String.fromCharCode.apply(null, compressedPlayers));
-
+                    
                     const compressedSchedule = pako.deflate(scheduleJson);
                     const encodedSchedule = btoa(String.fromCharCode.apply(null, compressedSchedule));
-
+                    
                     const params = new URLSearchParams();
                     params.set('p', encodedPlayers);
                     params.set('s', encodedSchedule);
@@ -808,7 +516,7 @@
                     params.set('bt', balancedTeamsCheckbox.checked ? 'true' : 'false');
                     const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
                     shareUrlInput.value = newUrl;
-
+                    
                     // Update the browser's URL without reloading the page
                     try {
                         window.history.pushState({}, '', newUrl);
@@ -844,7 +552,7 @@
                     addPlayer(playerNameInput.value.trim());
                 }
             });
-
+            
             // Function to calculate and update player stats
             const calculatePlayerStats = () => {
                 // Reset stats
@@ -892,7 +600,7 @@
                 document.querySelectorAll('.sort-icon').forEach(icon => {
                     icon.classList.remove('asc', 'desc');
                 });
-
+                
                 // Add the new sort icon to the current header
                 const header = document.querySelector(`th[data-sort-by="${column}"] .sort-icon`);
                 if (header) {
@@ -910,7 +618,7 @@
                         return sortDirection[column] === 'asc' ? aValue - bValue : bValue - aValue;
                     }
                 });
-
+                
                 renderPlayers();
             };
 
@@ -1055,7 +763,7 @@
                         const [teamA, teamB, played, scoreA, scoreB] = court;
                         const scoreAValue = scoreA !== null ? scoreA : '';
                         const scoreBValue = scoreB !== null ? scoreB : '';
-
+                        
                         return `<td class="px-2 py-2" data-label="Court ${courtIndex + 1}">
                                 <div class="court-cell cursor-pointer rounded-lg p-2 transition-colors duration-200 ${played ? 'bg-green-200' : 'bg-gray-100'}" data-round-index="${roundIndex}" data-court-index="${courtIndex}">
                                     <div class="flex flex-col items-center">
@@ -1070,7 +778,7 @@
                                 </div>
                             </td>`;
                     }).join('');
-
+                    
                     const restingTeamDisplay = roundData.resting.length > 0 ? roundData.resting.join(', ') : '---';
 
                     row.innerHTML = `
@@ -1091,7 +799,7 @@
                     [array[i], array[j]] = [array[j], array[i]];
                 }
             };
-
+            
             // Function to generate and display the schedule
             const generateAndDisplaySchedule = () => {
                 // Reset play and rest counts for a new schedule
@@ -1119,7 +827,7 @@
                     messageArea.textContent = `You need at least ${numCourts * 4} players for ${numCourts} courts.`;
                     return;
                 }
-
+                
                 // Calculate number of rounds based on start and end times
                 if (endMinutes <= startMinutes) {
                     messageArea.textContent = 'End time must be after start time.';
@@ -1127,7 +835,7 @@
                 }
                 const totalDurationMinutes = endMinutes - startMinutes;
                 const numRounds = Math.floor(totalDurationMinutes / roundDurationMinutes);
-
+                
                 // Create a balanced schedule
                 let currentMinutes = startMinutes;
                 scheduleData = [];
@@ -1136,40 +844,40 @@
                     const currentHour = Math.floor(currentMinutes / 60);
                     const currentMinute = currentMinutes % 60;
                     const timeString = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
-
+                    
                     // Filter players who are available during this time slot
                     const availablePlayers = players.filter(p => {
                         const playerStartMinutes = timeToMinutes(p.startTime);
                         const playerEndMinutes = timeToMinutes(p.endTime);
                         return currentMinutes >= playerStartMinutes && currentMinutes < playerEndMinutes;
                     });
-
+                    
                     // Sort available players by play count (ascending) to prioritize playing for those who played least
                     availablePlayers.sort((a, b) => a.playCount - b.playCount);
-
+                    
                     const playersToPlay = availablePlayers.slice(0, numCourts * 4);
                     const restingPlayers = availablePlayers.slice(numCourts * 4);
-
+                    
                     const roundData = {
                         time: timeString,
                         courts: [],
                         resting: restingPlayers.map(p => p.name),
                         playingCount: playersToPlay.length
                     };
-
+                    
                     const teams = [];
                     let remainingPlayers = [...playersToPlay];
 
                     if (useBalancedTeams) {
                         const level1Players = remainingPlayers.filter(p => p.level === 1);
                         const level2Players = remainingPlayers.filter(p => p.level === 2);
-
+                        
                         // Form mixed-level teams first
                         while (level1Players.length > 0 && level2Players.length > 0) {
                             const team = [level2Players.shift(), level1Players.shift()];
                             teams.push(team);
                         }
-
+                        
                         // Form teams from remaining players of the same level
                         while (level1Players.length >= 2) {
                             const team = [level1Players.shift(), level1Players.shift()];
@@ -1195,12 +903,12 @@
                         const teamA = teams.shift();
                         const teamB = teams.shift();
                         roundData.courts.push([teamA.map(p => p.name), teamB.map(p => p.name), false, null, null]);
-
+                        
                         // Update play counts for the players who just played
                         teamA.forEach(p => p.playCount++);
                         teamB.forEach(p => p.playCount++);
                     }
-
+                    
                     // Update rest counts for all available players who did not get to play
                     const playersWhoPlayed = roundData.courts.flat().flat();
                     playersToPlay.forEach(p => {
@@ -1215,7 +923,7 @@
 
                 // Update the player table to show rest and play counts
                 renderPlayers();
-
+                
                 // Render the generated schedule
                 renderSchedule(numCourts);
 
@@ -1236,14 +944,14 @@
                 const minPlayers = randomCourts * 4;
                 const maxPlayers = 20; // A reasonable upper limit
                 const numPlayers = Math.floor(Math.random() * (maxPlayers - minPlayers + 1)) + minPlayers;
-
+                
                 // Randomly set start and end times
                 const startHour = Math.floor(Math.random() * 10) + 10; // 10 to 19 (10am to 7pm)
                 const startMinute = Math.floor(Math.random() * 4) * 15; // 0, 15, 30, 45
                 const sessionDuration = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3 hours
-
+                
                 const startTime = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
-
+                
                 const endMinutes = timeToMinutes(startTime) + (sessionDuration * 60);
                 const endHour = Math.floor(endMinutes / 60);
                 const endMinute = endMinutes % 60;
@@ -1251,11 +959,11 @@
 
                 startTimeInput.value = startTime;
                 endTimeInput.value = endTime;
-
+                
                 // Generate players
                 const newPlayers = [];
                 const usedNames = new Set();
-
+                
                 while (newPlayers.length < numPlayers) {
                     const randomName = randomNames[Math.floor(Math.random() * randomNames.length)];
                     if (!usedNames.has(randomName)) {
@@ -1300,7 +1008,7 @@
                 const startTimeParam = params.get('st');
                 const endTimeParam = params.get('et');
                 const balancedTeamsParam = params.get('bt');
-
+                
                 let scheduleLoaded = false;
 
                 if (playersParam) {
@@ -1322,7 +1030,7 @@
                             playCount: 0, // Reset these as they are recalculated
                             wins: p.w || 0 // Load wins from URL or default to 0
                         }));
-
+                        
                         if (courtsParam) numCourtsInput.value = courtsParam;
                         if (startTimeParam) startTimeInput.value = startTimeParam;
                         if (endTimeParam) endTimeInput.value = endTimeParam;
@@ -1337,7 +1045,7 @@
                                 }
                                 const decompressedSchedule = pako.inflate(scheduleCharCodes, { to: 'string' });
                                 scheduleData = JSON.parse(decompressedSchedule);
-
+                                
                                 // Recalculate player play and rest counts from the loaded schedule
                                 players.forEach(p => {
                                     p.restCount = 0;
@@ -1345,7 +1053,7 @@
                                 });
                                 scheduleData.forEach(round => {
                                     round.courts.forEach(court => {
-                                        if (court.length > 0 && court[0].length > 0) {
+                                        if (court.length > 0 && court[0].length > 0) { 
                                             // Update play counts for Team A and Team B
                                             court[0].forEach(name => {
                                                 const player = findPlayerByName(name);
@@ -1368,7 +1076,7 @@
                                 renderSchedule(parseInt(numCourtsInput.value));
                                 showTab('schedule');
                                 scheduleLoaded = true;
-
+                                
                              } catch (e) {
                                 console.error('Failed to parse schedule from URL:', e);
                              }
@@ -1389,7 +1097,7 @@
                     resetApplicationState();
                 }
             };
-
+            
             // Add an event listener for score input blur to update the schedule and stats
             scheduleTableBody.addEventListener('blur', (e) => {
                 const target = e.target;
@@ -1402,7 +1110,7 @@
                         const scoreA = parseInt(inputs[0].value) || 0;
                         const scoreB = parseInt(inputs[1].value) || 0;
                         const played = scoreA > 0 || scoreB > 0;
-
+                        
                         scheduleData[roundIndex].courts[courtIndex][2] = played; // Update played status
                         scheduleData[roundIndex].courts[courtIndex][3] = scoreA; // Update scoreA
                         scheduleData[roundIndex].courts[courtIndex][4] = scoreB; // Update scoreB
@@ -1418,7 +1126,7 @@
                     }
                 }
             }, true);
-
+            
             // Set up event listeners
             generateScheduleBtn.addEventListener('click', generateAndDisplaySchedule);
             resetBtn.addEventListener('click', resetApplicationState);

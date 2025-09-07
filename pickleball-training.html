@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pickleball Training Schedule</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Add pako for compression/decompression -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="./libs/pako.min.js"></script>
+    <script src="./libs/tailwind.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -240,8 +239,17 @@
                         </button>
                     </div>
                 </div>
-                <div id="copyMessage" class="text-green-500 text-sm font-semibold mt-2 hidden"></div>
-                
+
+                <!-- Notification Popup -->
+                <div id="notificationPopup" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 ease-in-out">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <p>The URL has been copied to your clipboard. It contains all the player and schedule information.</p>
+                    </div>
+                </div>
+
                 <div id="scheduleTableContainer" class="overflow-x-auto">
                     <table class="w-full table-auto border-collapse responsive-table">
                         <thead class="bg-gray-200" id="scheduleTableHeader">
@@ -967,9 +975,15 @@
                 shareUrlInput.select();
                 navigator.clipboard.writeText(shareUrlInput.value)
                     .then(() => {
-                        copyMessage.textContent = 'The URL has been copied to your clipboard. It contains all the player and schedule information.';
-                        copyMessage.classList.remove('hidden');
-                        setTimeout(() => copyMessage.classList.add('hidden'), 5000);
+                        // Show the notification popup
+                        const popup = document.getElementById('notificationPopup');
+                        popup.classList.remove('opacity-0', 'translate-y-full');
+                        popup.classList.add('opacity-100', 'translate-y-0');
+
+                        setTimeout(() => {
+                            popup.classList.remove('opacity-100', 'translate-y-0');
+                            popup.classList.add('opacity-0', 'translate-y-full');
+                        }, 5000);
                     })
                     .catch(err => {
                         console.error('Failed to copy text: ', err);

@@ -527,6 +527,7 @@
             // Function to update the shareable URL based on the current state
             const updateUrlWithCurrentState = () => {
                 try {
+                    // Player data
                     const shareablePlayers = players.map(p => ({
                         n: p.name,
                         l: p.level,
@@ -537,21 +538,26 @@
                     const playerJson = JSON.stringify(shareablePlayers);
                     const scheduleJson = JSON.stringify(scheduleData);
 
+                    // Compress player and schedule data
                     const compressedPlayers = pako.deflate(playerJson);
                     const encodedPlayers = btoa(String.fromCharCode.apply(null, compressedPlayers));
-                    
                     const compressedSchedule = pako.deflate(scheduleJson);
                     const encodedSchedule = btoa(String.fromCharCode.apply(null, compressedSchedule));
 
+                    // Build URL parameters with all settings
                     const params = new URLSearchParams();
+                    // Core data
                     params.set('p', encodedPlayers);
                     params.set('s', encodedSchedule);
-                    params.set('c', numCourtsInput.value);
-                    params.set('st', startTimeInput.value);
-                    params.set('et', endTimeInput.value);
-                    params.set('bt', balancedTeamsCheckbox.checked ? 'true' : 'false');
-                    params.set('d', trainingDateInput.value);
-                    params.set('t', trainingTitle.textContent); // Add title to URL parameters
+
+                    // Settings
+                    params.set('t', trainingTitle.textContent); // Title
+                    params.set('d', trainingDateInput.value); // Date
+                    params.set('c', numCourtsInput.value); // Courts
+                    params.set('st', startTimeInput.value); // Start time
+                    params.set('et', endTimeInput.value); // End time
+                    params.set('bt', balancedTeamsCheckbox.checked ? 'true' : 'false'); // Balanced teams setting
+
                     const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
                     shareUrlInput.value = newUrl;
                     
@@ -564,6 +570,13 @@
                     console.error('Error generating shareable URL:', e);
                 }
             };
+
+            // Add change listeners to all settings to update URL
+            numCourtsInput.addEventListener('change', updateUrlWithCurrentState);
+            startTimeInput.addEventListener('change', updateUrlWithCurrentState);
+            endTimeInput.addEventListener('change', updateUrlWithCurrentState);
+            balancedTeamsCheckbox.addEventListener('change', updateUrlWithCurrentState);
+            trainingDateInput.addEventListener('change', updateUrlWithCurrentState);
 
             // Function to add a player
             const addPlayer = (name) => {
@@ -967,8 +980,10 @@
                 // Update the URL with the new schedule data
                 updateUrlWithCurrentState();
 
-                // After generating, switch to the schedule view
-                showTab('schedule');
+                // Only switch to schedule tab if we successfully generated a schedule
+                if (scheduleData && scheduleData.length > 0) {
+                    showTab('schedule');
+                }
             };
 
             // Function to generate a random list of players
@@ -1049,17 +1064,28 @@
                 const dateParam = params.get('d');
                 const titleParam = params.get('t');
 
-                // Load the title if provided
+                // Load all settings from URL parameters
                 if (titleParam) {
                     trainingTitle.textContent = titleParam;
                 }
-
-                // Load the date if provided, otherwise use today's date
                 if (dateParam) {
                     trainingDateInput.value = dateParam;
                 } else {
                     trainingDateInput.value = formattedDate;
                 }
+                if (courtsParam) {
+                    numCourtsInput.value = courtsParam;
+                }
+                if (startTimeParam) {
+                    startTimeInput.value = startTimeParam;
+                }
+                if (endTimeParam) {
+                    endTimeInput.value = endTimeParam;
+                }
+                if (balancedTeamsParam) {
+                    balancedTeamsCheckbox.checked = balancedTeamsParam === 'true';
+                }
+
 
                 // Show/hide random button based on debug parameter
                 const randomBtn = document.getElementById('randomPlayersBtn');
@@ -1106,45 +1132,48 @@
                                 const decompressedSchedule = pako.inflate(scheduleCharCodes, { to: 'string' });
                                 scheduleData = JSON.parse(decompressedSchedule);
                                 
-                                // Recalculate player play and rest counts from the loaded schedule
-                                players.forEach(p => {
-                                    p.restCount = 0;
-                                    p.playCount = 0;
-                                });
-                                scheduleData.forEach(round => {
-                                    round.courts.forEach(court => {
-                                        if (court.length > 0 && court[0].length > 0) { 
-                                            // Update play counts for Team A and Team B
-                                            court[0].forEach(name => {
-                                                const player = findPlayerByName(name);
-                                                if (player) player.playCount++;
-                                            });
-                                            if (court[1] && court[1].length > 0) {
-                                                court[1].forEach(name => {
+                                if (scheduleData && scheduleData.length > 0) {
+                                    // Recalculate player play and rest counts from the loaded schedule
+                                    players.forEach(p => {
+                                        p.restCount = 0;
+                                        p.playCount = 0;
+                                    });
+                                    scheduleData.forEach(round => {
+                                        round.courts.forEach(court => {
+                                            if (court.length > 0 && court[0].length > 0) {
+                                                // Update play counts for Team A and Team B
+                                                court[0].forEach(name => {
                                                     const player = findPlayerByName(name);
                                                     if (player) player.playCount++;
                                                 });
+                                                if (court[1] && court[1].length > 0) {
+                                                    court[1].forEach(name => {
+                                                        const player = findPlayerByName(name);
+                                                        if (player) player.playCount++;
+                                                    });
+                                                }
                                             }
-                                        }
+                                        });
+                                        round.resting.forEach(name => {
+                                            const player = findPlayerByName(name);
+                                            if (player) player.restCount++;
+                                        });
                                     });
-                                    round.resting.forEach(name => {
-                                        const player = findPlayerByName(name);
-                                        if (player) player.restCount++;
-                                    });
-                                });
-                                calculatePlayerStats();
-                                renderSchedule(parseInt(numCourtsInput.value));
-                                showTab('schedule');
-                                scheduleLoaded = true;
-                                
+                                    calculatePlayerStats();
+                                    renderSchedule(parseInt(numCourtsInput.value));
+                                    showTab('schedule');
+                                    scheduleLoaded = true;
+                                }
+
                              } catch (e) {
                                 console.error('Failed to parse schedule from URL:', e);
                              }
                         }
 
                         if (!scheduleLoaded) {
-                            // If no schedule was in the URL (or it failed to parse), generate a new one
-                            generateAndDisplaySchedule();
+                            // Initialize players table but stay on Players tab
+                            renderPlayers();
+                            showTab('players');
                         }
 
                     } catch (e) {

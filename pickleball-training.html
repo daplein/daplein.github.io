@@ -335,11 +335,30 @@
     </div>
 </div>
 
+<!-- CSV Column Selection Modal -->
+<div id="csvColumnModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+        <h3 class="text-lg font-semibold mb-4">Select Player Column</h3>
+        <p class="text-sm text-gray-600 mb-4">Choose the column from your CSV that indicates which players are participating (e.g., by having an 'X').</p>
+        <div class="space-y-4">
+            <div>
+                <label for="playingColumnSelect" class="block text-sm font-medium text-gray-700">Playing Column</label>
+                <select id="playingColumnSelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></select>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+            <button id="cancelCsvBtn" type="button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Cancel</button>
+            <button id="confirmCsvBtn" type="button" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Import Players</button>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         let players = [];
         let scheduleData = [];
         let sortDirection = {}; // To store the sort direction for each column
+        let parsedCsvInfo = {}; // To store intermediate CSV data
 
         // List of random names for the "Random" button
         const randomNames = ["Alice", "Bob", "Charlie", "Diana", "Ethan", "Fiona", "George", "Hannah", "Isaac", "Jasmine", "Kevin", "Laura", "Mike", "Nora", "Oscar", "Penny", "Quinn", "Rachel", "Sam", "Tina"];
@@ -403,6 +422,11 @@
         const resetBtn = document.getElementById('resetBtn');
         const randomPlayersBtn = document.getElementById('randomPlayersBtn');
         const csvFileInput = document.getElementById('csvFileInput');
+        // CSV Modal Elements
+        const csvColumnModal = document.getElementById('csvColumnModal');
+        const playingColumnSelect = document.getElementById('playingColumnSelect');
+        const cancelCsvBtn = document.getElementById('cancelCsvBtn');
+        const confirmCsvBtn = document.getElementById('confirmCsvBtn');
 
         // Tab functionality
         function showTab(tabName) {
@@ -466,7 +490,6 @@
 
         // Copy long URL
         copyLongUrlBtn.addEventListener('click', () => {
-            shareUrlInput.select();
             navigator.clipboard.writeText(shareUrlInput.value)
                 .then(() => {
                     const popup = document.getElementById('notificationPopup');
@@ -537,6 +560,11 @@
                     copyTinyUrlBtn.innerHTML = originalText;
                     copyTinyUrlBtn.disabled = false;
                 }, 3000);
+            } else { // Also reset on success
+                 setTimeout(() => {
+                    copyTinyUrlBtn.innerHTML = originalText;
+                    copyTinyUrlBtn.disabled = false;
+                }, 100);
             }
         });
 
@@ -624,20 +652,36 @@
             }
         });
 
-        // Function to handle CSV file upload
+        // Function to parse a single line of a CSV file robustly
+        const parseCsvLine = (line) => {
+            // This regex handles quoted fields, including commas inside them, and empty fields.
+            const regex = /(".*?"|[^,]*)(,|$)/g;
+            const cells = line.match(regex);
+            if (!cells) {
+                return [];
+            }
+            return cells.map(cell => {
+                // Clean up the cell value
+                let value = cell.replace(/,$/, ''); // Remove trailing comma
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    value = value.substring(1, value.length - 1);
+                }
+                return value.replace(/""/g, '"'); // Handle double quotes inside a quoted field
+            });
+        };
+
+
+        // Function to handle CSV file upload, now shows a modal for column selection
         const handleFileUpload = (event) => {
             const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
+            if (!file) return;
 
             const reader = new FileReader();
             reader.onload = (e) => {
                 const text = e.target.result;
                 try {
-                    const lines = text.split('\n').filter(line => line.trim() !== ''); // Split and remove empty lines
+                    const lines = text.split('\n').filter(line => line.trim() !== '');
 
-                    // Find the header row which contains "Name" and "Phone"
                     let headerRowIndex = -1;
                     for (let i = 0; i < lines.length; i++) {
                         const cleanedLine = lines[i].toLowerCase().replace(/"/g, '');
@@ -653,59 +697,102 @@
                     }
 
                     const headerLine = lines[headerRowIndex];
-                    const headers = headerLine.split(',').map(h => h.replace(/"/g, '').trim());
+                    const headers = parseCsvLine(headerLine); // Use robust parser
+                    const nameIndex = headers.findIndex(h => h.toLowerCase().trim() === 'name');
+                    const phoneIndex = headers.findIndex(h => h.toLowerCase().trim() === 'phone');
 
-                    const nameIndex = headers.findIndex(h => h.toLowerCase() === 'name');
-                    const phoneIndex = headers.findIndex(h => h.toLowerCase() === 'phone');
 
                     if (nameIndex === -1 || phoneIndex === -1) {
                         messageArea.textContent = 'Could not find "Name" or "Phone" column in the CSV header.';
                         return;
                     }
 
-                    const playingStatusIndex = phoneIndex + 1;
+                    // Store info for the next step
+                    parsedCsvInfo = {
+                        lines,
+                        headerRowIndex,
+                        nameIndex
+                    };
 
-                    const newPlayers = [];
-                    const dataRows = lines.slice(headerRowIndex + 1);
-
-                    dataRows.forEach(line => {
-                        const data = line.split(',');
-
-                        if (data.length > playingStatusIndex) {
-                            const isPlaying = data[playingStatusIndex].trim() !== '';
-                            if (isPlaying) {
-                                const name = data[nameIndex].replace(/"/g, '').trim();
-                                if (name) {
-                                    const defaultStartTime = startTimeInput.value;
-                                    const defaultEndTime = endTimeInput.value;
-                                    newPlayers.push({ name, level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0, wins: 0 });
-                                }
-                            }
-                        }
-                    });
-
-                    if (newPlayers.length > 0) {
-                        players = newPlayers; // Replace current players
-                        renderPlayers();
-                        updateUrlWithCurrentState();
-                        messageArea.textContent = `Successfully imported ${newPlayers.length} players.`;
-                        setTimeout(() => { messageArea.textContent = '' }, 3000);
-                    } else {
-                        messageArea.textContent = 'No players marked as playing were found in the CSV file.';
+                    // Populate the modal's select dropdown with columns after "Phone"
+                    playingColumnSelect.innerHTML = '';
+                    for (let i = phoneIndex + 1; i < headers.length; i++) {
+                        const option = document.createElement('option');
+                        option.value = i;
+                        option.textContent = headers[i].trim() || `Column ${i + 1}`;
+                        playingColumnSelect.appendChild(option);
                     }
+
+                    // Show the modal
+                    csvColumnModal.classList.remove('hidden');
+                    csvColumnModal.classList.add('flex');
 
                 } catch (error) {
                     console.error("Error parsing CSV:", error);
                     messageArea.textContent = 'Failed to parse the CSV file. Please check the file format.';
                 } finally {
-                    event.target.value = '';
+                    event.target.value = ''; // Reset file input to allow re-uploading the same file
                 }
             };
-
             reader.readAsText(file);
         };
 
+        // New function to process CSV after user makes a selection in the modal
+        const processCsvSelection = () => {
+            const { lines, headerRowIndex, nameIndex } = parsedCsvInfo;
+            const playingStatusIndex = parseInt(playingColumnSelect.value);
+
+            if (isNaN(playingStatusIndex)) {
+                messageArea.textContent = 'Please select a valid column.';
+                return;
+            }
+
+            const newPlayers = [];
+            const dataRows = lines.slice(headerRowIndex + 1);
+
+            dataRows.forEach(line => {
+                if (!line.trim()) return; // Skip empty lines
+                const data = parseCsvLine(line); // Use robust parser
+                if (data.length > playingStatusIndex) {
+                    // A cell is considered "playing" if it's not empty after trimming
+                    const isPlaying = data[playingStatusIndex].trim() !== '';
+                    if (isPlaying) {
+                        const name = data[nameIndex].trim();
+                        if (name) {
+                            const defaultStartTime = startTimeInput.value;
+                            const defaultEndTime = endTimeInput.value;
+                            newPlayers.push({ name, level: 1, startTime: defaultStartTime, endTime: defaultEndTime, restCount: 0, playCount: 0, wins: 0 });
+                        }
+                    }
+                }
+            });
+
+            if (newPlayers.length > 0) {
+                players = newPlayers;
+                renderPlayers();
+                updateUrlWithCurrentState();
+                messageArea.textContent = `Successfully imported ${newPlayers.length} players from the selected column.`;
+                setTimeout(() => { messageArea.textContent = '' }, 3000);
+            } else {
+                messageArea.textContent = 'No players marked as playing were found in the selected column.';
+            }
+
+            // Hide and reset modal
+            csvColumnModal.classList.add('hidden');
+            csvColumnModal.classList.remove('flex');
+            parsedCsvInfo = {};
+        };
+        
+        // Event listeners for the new modal
+        confirmCsvBtn.addEventListener('click', processCsvSelection);
+        cancelCsvBtn.addEventListener('click', () => {
+            csvColumnModal.classList.add('hidden');
+            csvColumnModal.classList.remove('flex');
+            parsedCsvInfo = {};
+        });
+
         csvFileInput.addEventListener('change', handleFileUpload);
+
 
         // Function to calculate and update player stats
         const calculatePlayerStats = () => {

@@ -1068,12 +1068,6 @@
             const useBalancedTeams = balancedTeamsCheckbox.checked;
 
             // Validation Checks
-            if (players.length < numCourts * 4) {
-                messageArea.textContent = `You need at least ${numCourts * 4} players for ${numCourts} courts.`;
-                return;
-            }
-
-            // Calculate number of rounds based on start and end times
             if (endMinutes <= startMinutes) {
                 messageArea.textContent = 'End time must be after start time.';
                 return;
@@ -1186,7 +1180,7 @@
                 if (!player2.pairings) player2.pairings = new Map();
 
                 player1.pairings.set(player2.name, (player1.pairings.get(player2.name) || 0) + 1);
-                player2.pairings.set(player1.name, (player2.pairings.get(player1.name) || 0) + 1);
+                player2.pairings.set(player1.name, (player2.pairings.get(p1.name) || 0) + 1);
             };
 
             // Create a balanced schedule
@@ -1206,54 +1200,58 @@
                 });
 
                 // Sort available players by play count (ascending) to prioritize those who played least
-                // For players with equal play count, add some randomization to avoid always picking the same order
-                availablePlayers.sort((a, b) => {
+                const sortedPlayers = [...availablePlayers].sort((a, b) => {
                     const playCountDiff = a.playCount - b.playCount;
                     if (playCountDiff !== 0) return playCountDiff;
                     // If play counts are equal, add some randomization
                     return Math.random() - 0.5;
                 });
 
-                const playersToPlay = availablePlayers.slice(0, numCourts * 4);
-                const restingPlayers = availablePlayers.slice(numCourts * 4);
+                let playersToAssign = sortedPlayers;
+                const roundCourts = [];
+                const playersPlayingThisRound = [];
+                
+                // Form as many full courts (2v2) as possible, respecting court limits
+                while (playersToAssign.length >= 4 && roundCourts.length < numCourts) {
+                    const teamA = playersToAssign.splice(0, 2);
+                    const teamB = playersToAssign.splice(0, 2);
+                    roundCourts.push([teamA.map(p => p.name), teamB.map(p => p.name), false, null, null]);
+                    playersPlayingThisRound.push(...teamA, ...teamB);
+                }
 
-                const roundData = {
-                    time: timeString,
-                    courts: [],
-                    resting: restingPlayers.map(p => p.name),
-                    playingCount: playersToPlay.length
-                };
-
-                // Form optimal teams considering previous pairings
-                const { teams } = formOptimalTeams(playersToPlay, useBalancedTeams);
-
-                // Assign teams to courts
-                for (let i = 0; i < numCourts && teams.length >= 2; i++) {
-                    const teamA = teams.shift();
-                    const teamB = teams.shift();
-                    roundData.courts.push([teamA.map(p => p.name), teamB.map(p => p.name), false, null, null]);
-
-                    // Update play counts for the players who just played
-                    teamA.forEach(p => p.playCount++);
-                    teamB.forEach(p => p.playCount++);
-
-                    // Update pairing counts for teammates
-                    if (teamA.length === 2) {
-                        updatePairings(teamA[0], teamA[1]);
-                    }
-                    if (teamB.length === 2) {
-                        updatePairings(teamB[0], teamB[1]);
+                // Handle remaining players for a single court if one is available
+                if (playersToAssign.length > 1 && roundCourts.length < numCourts) {
+                    if (playersToAssign.length === 3) {
+                        const teamA = playersToAssign.splice(0, 2);
+                        const teamB = playersToAssign.splice(0, 1);
+                        roundCourts.push([teamA.map(p => p.name), teamB.map(p => p.name), false, null, null]);
+                        playersPlayingThisRound.push(...teamA, ...teamB);
+                    } else if (playersToAssign.length === 2) {
+                        const teamA = playersToAssign.splice(0, 1);
+                        const teamB = playersToAssign.splice(0, 1);
+                        roundCourts.push([teamA.map(p => p.name), teamB.map(p => p.name), false, null, null]);
+                        playersPlayingThisRound.push(...teamA, ...teamB);
                     }
                 }
 
-                // Update rest counts for all available players who did not get to play
-                const playersWhoPlayed = roundData.courts.flat().flat();
-                playersToPlay.forEach(p => {
-                    if (!playersWhoPlayed.includes(p.name)) {
+                const restingPlayers = availablePlayers.filter(p => !playersPlayingThisRound.some(pp => pp.name === p.name));
+                
+                const roundData = {
+                    time: timeString,
+                    courts: roundCourts,
+                    resting: restingPlayers.map(p => p.name),
+                    playingCount: playersPlayingThisRound.length
+                };
+                
+                // Update play and rest counts
+                players.forEach(p => {
+                    if (playersPlayingThisRound.some(pp => pp.name === p.name)) {
+                        p.playCount++;
+                    } else if (availablePlayers.some(ap => ap.name === p.name)) {
                         p.restCount++;
                     }
                 });
-
+                
                 scheduleData.push(roundData);
                 currentMinutes += roundDurationMinutes;
             }
@@ -1535,4 +1533,3 @@
 
 </body>
 </html>
-

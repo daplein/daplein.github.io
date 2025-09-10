@@ -561,7 +561,7 @@
                     copyTinyUrlBtn.disabled = false;
                 }, 3000);
             } else { // Also reset on success
-                 setTimeout(() => {
+                setTimeout(() => {
                     copyTinyUrlBtn.innerHTML = originalText;
                     copyTinyUrlBtn.disabled = false;
                 }, 100);
@@ -782,7 +782,7 @@
             csvColumnModal.classList.remove('flex');
             parsedCsvInfo = {};
         };
-        
+
         // Event listeners for the new modal
         confirmCsvBtn.addEventListener('click', processCsvSelection);
         cancelCsvBtn.addEventListener('click', () => {
@@ -1051,6 +1051,7 @@
                 p.restCount = 0;
                 p.playCount = 0;
                 p.wins = 0; // Reset wins on new schedule generation
+                p.pairings = p.pairings || new Map(); // Track who this player has played with
             });
             renderPlayers();
 
@@ -1080,6 +1081,114 @@
             const totalDurationMinutes = endMinutes - startMinutes;
             const numRounds = Math.floor(totalDurationMinutes / roundDurationMinutes);
 
+            // Helper function to get pairing score (lower is better for variety)
+            const getPairingScore = (player1, player2) => {
+                const pairings1 = player1.pairings || new Map();
+                const pairings2 = player2.pairings || new Map();
+                return (pairings1.get(player2.name) || 0) + (pairings2.get(player1.name) || 0);
+            };
+
+            // Helper function to form optimal teams with rotation consideration
+            const formOptimalTeams = (availablePlayers, useBalancedTeams) => {
+                const teams = [];
+                let remainingPlayers = [...availablePlayers];
+
+                if (useBalancedTeams) {
+                    const level1Players = remainingPlayers.filter(p => p.level === 1);
+                    const level2Players = remainingPlayers.filter(p => p.level === 2);
+
+                    // Form mixed-level teams with minimal previous pairings
+                    while (level1Players.length > 0 && level2Players.length > 0) {
+                        let bestPair = null;
+                        let bestScore = Infinity;
+
+                        // Find the level 1 and level 2 player pair with the lowest pairing score
+                        for (const l1Player of level1Players) {
+                            for (const l2Player of level2Players) {
+                                const score = getPairingScore(l1Player, l2Player);
+                                if (score < bestScore) {
+                                    bestScore = score;
+                                    bestPair = [l1Player, l2Player];
+                                }
+                            }
+                        }
+
+                        if (bestPair) {
+                            teams.push(bestPair);
+                            level1Players.splice(level1Players.indexOf(bestPair[0]), 1);
+                            level2Players.splice(level2Players.indexOf(bestPair[1]), 1);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    // Form teams from remaining players of the same level
+                    const formSameLevelTeams = (playerList) => {
+                        while (playerList.length >= 2) {
+                            let bestPair = null;
+                            let bestScore = Infinity;
+
+                            for (let i = 0; i < playerList.length - 1; i++) {
+                                for (let j = i + 1; j < playerList.length; j++) {
+                                    const score = getPairingScore(playerList[i], playerList[j]);
+                                    if (score < bestScore) {
+                                        bestScore = score;
+                                        bestPair = [playerList[i], playerList[j]];
+                                    }
+                                }
+                            }
+
+                            if (bestPair) {
+                                teams.push(bestPair);
+                                playerList.splice(playerList.indexOf(bestPair[0]), 1);
+                                playerList.splice(playerList.indexOf(bestPair[1]), 1);
+                            } else {
+                                break;
+                            }
+                        }
+                    };
+
+                    formSameLevelTeams(level1Players);
+                    formSameLevelTeams(level2Players);
+                    remainingPlayers = [...level1Players, ...level2Players];
+                } else {
+                    // Form teams without level restrictions, minimizing previous pairings
+                    while (remainingPlayers.length >= 2) {
+                        let bestPair = null;
+                        let bestScore = Infinity;
+
+                        for (let i = 0; i < remainingPlayers.length - 1; i++) {
+                            for (let j = i + 1; j < remainingPlayers.length; j++) {
+                                const score = getPairingScore(remainingPlayers[i], remainingPlayers[j]);
+                                if (score < bestScore) {
+                                    bestScore = score;
+                                    bestPair = [remainingPlayers[i], remainingPlayers[j]];
+                                }
+                            }
+                        }
+
+                        if (bestPair) {
+                            teams.push(bestPair);
+                            remainingPlayers.splice(remainingPlayers.indexOf(bestPair[0]), 1);
+                            remainingPlayers.splice(remainingPlayers.indexOf(bestPair[1]), 1);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                return { teams, remainingPlayers };
+            };
+
+            // Helper function to update pairing counts
+            const updatePairings = (player1, player2) => {
+                if (!player1.pairings) player1.pairings = new Map();
+                if (!player2.pairings) player2.pairings = new Map();
+
+                player1.pairings.set(player2.name, (player1.pairings.get(player2.name) || 0) + 1);
+                player2.pairings.set(player1.name, (player2.pairings.get(player1.name) || 0) + 1);
+            };
+
             // Create a balanced schedule
             let currentMinutes = startMinutes;
             scheduleData = [];
@@ -1096,8 +1205,14 @@
                     return currentMinutes >= playerStartMinutes && currentMinutes < playerEndMinutes;
                 });
 
-                // Sort available players by play count (ascending) to prioritize playing for those who played least
-                availablePlayers.sort((a, b) => a.playCount - b.playCount);
+                // Sort available players by play count (ascending) to prioritize those who played least
+                // For players with equal play count, add some randomization to avoid always picking the same order
+                availablePlayers.sort((a, b) => {
+                    const playCountDiff = a.playCount - b.playCount;
+                    if (playCountDiff !== 0) return playCountDiff;
+                    // If play counts are equal, add some randomization
+                    return Math.random() - 0.5;
+                });
 
                 const playersToPlay = availablePlayers.slice(0, numCourts * 4);
                 const restingPlayers = availablePlayers.slice(numCourts * 4);
@@ -1109,38 +1224,8 @@
                     playingCount: playersToPlay.length
                 };
 
-                const teams = [];
-                let remainingPlayers = [...playersToPlay];
-
-                if (useBalancedTeams) {
-                    const level1Players = remainingPlayers.filter(p => p.level === 1);
-                    const level2Players = remainingPlayers.filter(p => p.level === 2);
-
-                    // Form mixed-level teams first
-                    while (level1Players.length > 0 && level2Players.length > 0) {
-                        const team = [level2Players.shift(), level1Players.shift()];
-                        teams.push(team);
-                    }
-
-                    // Form teams from remaining players of the same level
-                    while (level1Players.length >= 2) {
-                        const team = [level1Players.shift(), level1Players.shift()];
-                        teams.push(team);
-                    }
-                    while (level2Players.length >= 2) {
-                        const team = [level2Players.shift(), level2Players.shift()];
-                        teams.push(team);
-                    }
-                    remainingPlayers = [...level1Players, ...level2Players]; // These players will be resting
-                } else {
-                    // If balanced teams are not required, just form teams from the list
-                    while (remainingPlayers.length >= 2) {
-                        const team = [remainingPlayers.shift(), remainingPlayers.shift()];
-                        teams.push(team);
-                    }
-                }
-
-                shuffleArray(teams); // Shuffle teams to mix up opponents
+                // Form optimal teams considering previous pairings
+                const { teams } = formOptimalTeams(playersToPlay, useBalancedTeams);
 
                 // Assign teams to courts
                 for (let i = 0; i < numCourts && teams.length >= 2; i++) {
@@ -1151,6 +1236,14 @@
                     // Update play counts for the players who just played
                     teamA.forEach(p => p.playCount++);
                     teamB.forEach(p => p.playCount++);
+
+                    // Update pairing counts for teammates
+                    if (teamA.length === 2) {
+                        updatePairings(teamA[0], teamA[1]);
+                    }
+                    if (teamB.length === 2) {
+                        updatePairings(teamB[0], teamB[1]);
+                    }
                 }
 
                 // Update rest counts for all available players who did not get to play

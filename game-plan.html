@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pickleball Training Schedule</title>
+
+    <!-- External Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Styles -->
+    
+  <script type="module">(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const s of document.querySelectorAll('link[rel="modulepreload"]'))a(s);new MutationObserver(s=>{for(const r of s)if(r.type==="childList")for(const n of r.addedNodes)n.tagName==="LINK"&&n.rel==="modulepreload"&&a(n)}).observe(document,{childList:!0,subtree:!0});function t(s){const r={};return s.integrity&&(r.integrity=s.integrity),s.referrerPolicy&&(r.referrerPolicy=s.referrerPolicy),s.crossOrigin==="use-credentials"?r.credentials="include":s.crossOrigin==="anonymous"?r.credentials="omit":r.credentials="same-origin",r}function a(s){if(s.ep)return;s.ep=!0;const r=t(s);fetch(s.href,r)}})();class S{constructor(e,t=3,a="18:30",s="20:00"){this.id=Date.now()+Math.random(),this.name=e.trim(),this.skillLevel=t,this.startTime=a,this.endTime=s,this.playCount=0,this.restCount=0,this.wins=0,this.gamesPlayed=[]}update(e){Object.keys(e).forEach(t=>{Object.prototype.hasOwnProperty.call(this,t)&&(this[t]=e[t])})}incrementPlayCount(){this.playCount++}incrementRestCount(){this.restCount++}addWin(){this.wins++}isAvailableAt(e){return e>=this.startTime&&e<=this.endTime}toJSON(){return{id:this.id,name:this.name,skillLevel:this.skillLevel,startTime:this.startTime,endTime:this.endTime,playCount:this.playCount,restCount:this.restCount,wins:this.wins,gamesPlayed:this.gamesPlayed}}static fromJSON(e){const t=new S(e.name,e.skillLevel,e.startTime,e.endTime);return t.id=e.id,t.playCount=e.playCount||0,t.restCount=e.restCount||0,t.wins=e.wins||0,t.gamesPlayed=e.gamesPlayed||[],t}}const p={DEFAULT_START_TIME:"18:30",DEFAULT_END_TIME:"20:00",GAME_DURATION_MINUTES:20,DEFAULT_COURT_COUNT:2,MIN_COURTS:1,MAX_COURTS:4,MIN_PLAYERS_FOR_SCHEDULE:4,SKILL_LEVELS:[1,2],DEFAULT_SKILL_LEVEL:3,PREVENT_LEVEL2_PAIRING:!0,TINYURL_API:"https://tinyurl.com/api-create.php",NOTIFICATION_DURATION:3e3,AUTO_SAVE_INTERVAL:3e4,RANDOM_NAMES:["Alice","Bob","Charlie","Diana","Ethan","Fiona","George","Hannah","Isaac","Jasmine","Kevin","Laura","Mike","Nora","Oscar","Penny","Quinn","Rachel","Sam","Tina"]},d={playersTabBtn:"#playersTabBtn",scheduleTabBtn:"#scheduleTabBtn",playersTabContent:"#playersTabContent",scheduleTabContent:"#scheduleTabContent",playerName:"#playerName",numCourts:"#numCourts",startTime:"#startTime",endTime:"#endTime",trainingDate:"#trainingDate",trainingTitle:"#trainingTitle",balancedTeams:"#balancedTeams",addPlayerBtn:"#addPlayerBtn",generateScheduleBtn:"#generateScheduleBtn",generateScheduleInTabBtn:"#generateScheduleInTabBtn",resetBtn:"#resetBtn",randomPlayersBtn:"#randomPlayersBtn",copyUrlBtn:"#copyUrlBtn",copyLongUrlBtn:"#copyLongUrlBtn",copyTinyUrlBtn:"#copyTinyUrlBtn",playerTableBody:"#playerTableBody",scheduleTableBody:"#scheduleTableBody",scheduleTableHeader:"#scheduleTableHeader",csvFileInput:"#csvFileInput",csvColumnModal:"#csvColumnModal",playingColumnSelect:"#playingColumnSelect",confirmCsvBtn:"#confirmCsvBtn",cancelCsvBtn:"#cancelCsvBtn",shareModal:"#shareModal",closeShareModal:"#closeShareModal",shareUrlInput:"#shareUrlInput",notificationPopup:"#notificationPopup",messageArea:"#messageArea",playerCount:"#playerCount",scheduleTableContainer:"#scheduleTableContainer",courtCell:".court-cell",scoreInput:".score-input",sortableHeaders:".sortable",sortIcon:".sort-icon"};class T{constructor(){this.players=[],this.sortDirection={}}addPlayer(e,t=p.DEFAULT_SKILL_LEVEL,a=p.DEFAULT_START_TIME,s=p.DEFAULT_END_TIME){if(!e||e.trim().length===0)return null;if(this.players.some(n=>n.name.toLowerCase()===e.toLowerCase()))throw new Error(`Player "${e}" already exists`);const r=new S(e,t,a,s);return this.players.push(r),r}removePlayer(e){const t=typeof e=="string"?parseFloat(e):e,a=this.players.findIndex(s=>s.id===t);return a!==-1?(this.players.splice(a,1),!0):!1}getPlayer(e){const t=typeof e=="string"?parseFloat(e):e;return this.players.find(a=>a.id===t)||null}getPlayerById(e){const t=typeof e=="string"?parseFloat(e):e;return this.players.find(a=>a.id===t)||null}updatePlayer(e,t){const a=this.getPlayer(e);return a?(a.update(t),!0):!1}getAllPlayers(){return[...this.players]}getAvailablePlayersAt(e){return this.players.filter(t=>t.isAvailableAt(e))}sortPlayers(e){const t=this.sortDirection[e]==="asc"?"desc":"asc";return this.sortDirection={[e]:t},[...this.players].sort((s,r)=>{let n=s[e],l=r[e];return typeof n=="string"&&(n=n.toLowerCase(),l=l.toLowerCase()),t==="asc"?n>l?1:n<l?-1:0:n<l?1:n>l?-1:0})}clearAllPlayers(){this.players=[]}generateRandomPlayers(e=10){this.clearAllPlayers(),[...p.RANDOM_NAMES].sort(()=>Math.random()-.5).slice(0,Math.min(e,p.RANDOM_NAMES.length)).forEach(s=>{const r=Math.floor(Math.random()*5)+1;this.addPlayer(s,r)})}importFromCSV(e,t){const a=e.trim().split(`
+`);if(a.length<2)throw new Error("CSV must have at least a header row and one data row");const s=a[0].split(",").map(i=>i.trim().replace(/"/g,"")),r=s.indexOf(t);if(r===-1)throw new Error(`Column "${t}" not found in CSV`);const n=s.findIndex(i=>i.toLowerCase().includes("name")||i.toLowerCase().includes("player"));if(n===-1)throw new Error("No name column found in CSV");let l=0;for(let i=1;i<a.length;i++){const o=a[i].split(",").map(u=>u.trim().replace(/"/g,""));if(o[r]&&o[r].toLowerCase().includes("x")){const u=o[n];if(u)try{this.addPlayer(u),l++}catch{console.warn(`Skipped duplicate player: ${u}`)}}}return l}validateForScheduling(){return this.players.length<p.MIN_PLAYERS_FOR_SCHEDULE?{isValid:!1,message:`At least ${p.MIN_PLAYERS_FOR_SCHEDULE} players are required to generate a schedule.`}:{isValid:!0,message:""}}toJSON(){return{players:this.players.map(e=>e.toJSON()),sortDirection:this.sortDirection}}fromJSON(e){this.players=e.players.map(t=>S.fromJSON(t)),this.sortDirection=e.sortDirection||{}}}class E{constructor(e){this.playerManager=e,this.schedule=[]}generateSchedule(e,t,a,s=!1){const r=this.playerManager.getAllPlayers(),n=this.playerManager.validateForScheduling();if(!n.isValid)throw new Error(n.message);r.forEach(i=>{i.playCount=0,i.restCount=0,i.wins=0,i.gamesPlayed=[],i.pairings||(i.pairings=new Map)});const l=this._generateTimeSlots(t,a);return this.schedule=[],l.forEach(i=>{const o=this.playerManager.getAvailablePlayersAt(i),u=this._assignPlayersToCourts(o,e,s),c=new Set;u.forEach(h=>{h.team1.forEach(y=>c.add(y.id)),h.team2.forEach(y=>c.add(y.id))});const m=o.filter(h=>!c.has(h.id));this.schedule.push({time:i,courts:u.map(h=>({team1:h.team1,team2:h.team2,played:!1,scoreA:null,scoreB:null,players:[...h.team1,...h.team2]})),resting:m,availablePlayers:o.length,playingCount:c.size}),this._updatePlayerStats(u,o)}),this.schedule}_generateTimeSlots(e,t){const a=[],s=this._timeToMinutes(e),r=this._timeToMinutes(t);for(let n=s;n<r;n+=p.GAME_DURATION_MINUTES)a.push(this._minutesToTime(n));return a}_timeToMinutes(e){const[t,a]=e.split(":").map(Number);return t*60+a}_minutesToTime(e){const t=Math.floor(e/60),a=e%60;return`${t.toString().padStart(2,"0")}:${a.toString().padStart(2,"0")}`}_assignPlayersToCourts(e,t,a){const s=[],r=[...e];r.sort((n,l)=>n.playCount-l.playCount);for(let n=0;n<t&&r.length>=4;n++){const l=this._selectPlayersForCourt(r,a);if(l.length===4){const i=this._formTeams(l,a);s.push({courtNumber:n+1,team1:i.team1,team2:i.team2,players:l}),l.forEach(o=>{const u=r.findIndex(c=>c.id===o.id);u!==-1&&r.splice(u,1)})}}return s}_selectPlayersForCourt(e,t){if(e.length<4)return[];if(!t)return e.slice(0,4);const a=e.filter(n=>n.skillLevel===2),s=e.filter(n=>n.skillLevel!==2);let r=[];return s.length>=4?r=s.slice(0,4):a.length<=1?r=e.slice(0,4):(r=[...s.slice(0,3),a[0]],r.length<4&&(r=e.slice(0,4))),r}_formTeams(e,t){if(!t){const s=[...e].sort(()=>Math.random()-.5);return{team1:s.slice(0,2),team2:s.slice(2,4)}}const a=[...e].sort((s,r)=>r.skillLevel-s.skillLevel);return{team1:[a[0],a[3]],team2:[a[1],a[2]]}}_updatePlayerStats(e,t){const a=new Set;e.forEach(s=>{s.players.forEach(r=>{r.incrementPlayCount(),a.add(r.id)})}),t.forEach(s=>{a.has(s.id)||s.incrementRestCount()})}recordGameResult(e,t,a){if(!this.schedule[e]||!this.schedule[e].courts[t])throw new Error("Invalid time slot or court index");const s=this.schedule[e].courts[t];(a===1?s.team1:s.team2).forEach(n=>{n.addWin()}),s.resultRecorded=!0}updateCourtScore(e,t,a,s){if(!this.schedule[e]||!this.schedule[e].courts[t])throw new Error("Invalid time slot or court index");const r=this.schedule[e].courts[t];return r.scoreA=parseInt(a)||0,r.scoreB=parseInt(s)||0,r.played=!0,this._calculateWinStatistics(),r}_calculateWinStatistics(){this.playerManager.getAllPlayers().forEach(t=>{t.wins=0}),this.schedule.forEach(t=>{t.courts.forEach(a=>{a.played&&a.scoreA!==null&&a.scoreB!==null&&(a.scoreA>a.scoreB?a.team1.forEach(s=>{const r=this.playerManager.getPlayerById(s.id);r&&r.wins++}):a.scoreB>a.scoreA&&a.team2.forEach(s=>{const r=this.playerManager.getPlayerById(s.id);r&&r.wins++}))})})}_updatePairings(e,t){e.pairings||(e.pairings=new Map),t.pairings||(t.pairings=new Map),e.pairings.set(t.name,(e.pairings.get(t.name)||0)+1),t.pairings.set(e.name,(t.pairings.get(e.name)||0)+1)}_getPairingScore(e,t){const a=e.pairings||new Map,s=t.pairings||new Map;return(a.get(t.name)||0)+(s.get(e.name)||0)}getSchedule(){return this.schedule}clearSchedule(){this.schedule=[]}toJSON(){return{schedule:this.schedule}}fromJSON(e){this.schedule=e.schedule||[]}}class v{constructor(e,t){this.playerManager=e,this.scheduleGenerator=t,this.currentTab="players"}initialize(){this._setupEventListeners(),this._initializeDefaults(),this.updatePlayerTable(),this.updatePlayerCount()}_setupEventListeners(){var e,t,a,s,r,n,l,i,o,u,c,m;(e=document.querySelector(d.playersTabBtn))==null||e.addEventListener("click",()=>this.showTab("players")),(t=document.querySelector(d.scheduleTabBtn))==null||t.addEventListener("click",()=>this.showTab("schedule")),(a=document.querySelector(d.addPlayerBtn))==null||a.addEventListener("click",()=>this.handleAddPlayer()),(s=document.querySelector(d.playerName))==null||s.addEventListener("keydown",h=>{h.key==="Enter"&&this.handleAddPlayer()}),(r=document.querySelector(d.generateScheduleBtn))==null||r.addEventListener("click",()=>this.handleGenerateSchedule()),(n=document.querySelector(d.generateScheduleInTabBtn))==null||n.addEventListener("click",()=>this.handleGenerateSchedule()),(l=document.querySelector(d.resetBtn))==null||l.addEventListener("click",()=>this.handleReset()),(i=document.querySelector(d.randomPlayersBtn))==null||i.addEventListener("click",()=>this.handleRandomPlayers()),(o=document.querySelector(d.csvFileInput))==null||o.addEventListener("change",h=>this.handleCSVImport(h)),(u=document.querySelector(d.numCourts))==null||u.addEventListener("change",()=>this.validateSettings()),(c=document.querySelector(d.startTime))==null||c.addEventListener("change",()=>this.validateSettings()),(m=document.querySelector(d.endTime))==null||m.addEventListener("change",()=>this.validateSettings()),this._setupTableSorting()}_setupTableSorting(){document.querySelectorAll(".sortable").forEach(e=>{e.addEventListener("click",()=>{const t=e.dataset.sortBy;if(t){const a=this.playerManager.sortPlayers(t);this.updatePlayerTable(a),this._updateSortIcons(e,this.playerManager.sortDirection[t])}})})}_updateSortIcons(e,t){document.querySelectorAll(".sort-icon").forEach(s=>{s.className="sort-icon"});const a=e.querySelector(".sort-icon");a&&(a.className=`sort-icon ${t}`)}_initializeDefaults(){const e=new Date().toISOString().split("T")[0],t=document.querySelector(d.trainingDate);t&&(t.value=e);const a=document.querySelector(d.startTime),s=document.querySelector(d.endTime);a&&(a.value=p.DEFAULT_START_TIME),s&&(s.value=p.DEFAULT_END_TIME);const r=document.querySelector(d.numCourts);r&&(r.value=p.DEFAULT_COURT_COUNT)}showTab(e){const t=document.querySelector(d.playersTabContent),a=document.querySelector(d.scheduleTabContent),s=document.querySelector(d.playersTabBtn),r=document.querySelector(d.scheduleTabBtn);[t,a].forEach(n=>n==null?void 0:n.classList.add("hidden")),[s,r].forEach(n=>n==null?void 0:n.classList.remove("active")),e==="players"?(t==null||t.classList.remove("hidden"),s==null||s.classList.add("active")):e==="schedule"&&(a==null||a.classList.remove("hidden"),r==null||r.classList.add("active")),this.currentTab=e}handleAddPlayer(){var a;const e=document.querySelector(d.playerName),t=(a=e==null?void 0:e.value)==null?void 0:a.trim();if(!t){this.showMessage("Please enter a player name","error");return}try{this.playerManager.addPlayer(t),e.value="",this.updatePlayerTable(),this.updatePlayerCount(),this.showMessage(`Added player: ${t}`,"success")}catch(s){this.showMessage(s.message,"error")}}handleGenerateSchedule(){var e,t,a,s;try{const r=parseInt((e=document.querySelector(d.numCourts))==null?void 0:e.value)||p.DEFAULT_COURT_COUNT,n=((t=document.querySelector(d.startTime))==null?void 0:t.value)||p.DEFAULT_START_TIME,l=((a=document.querySelector(d.endTime))==null?void 0:a.value)||p.DEFAULT_END_TIME,i=((s=document.querySelector(d.balancedTeams))==null?void 0:s.checked)||!1,o=this.scheduleGenerator.generateSchedule(r,n,l,i);this.updateScheduleTable(o),this.updatePlayerTable(),this.showTab("schedule"),this.showMessage("Schedule generated successfully!","success")}catch(r){this.showMessage(r.message,"error")}}handleReset(){confirm("Are you sure you want to reset all players and schedule data?")&&(this.playerManager.clearAllPlayers(),this.scheduleGenerator.clearSchedule(),this.updatePlayerTable(),this.updatePlayerCount(),this.updateScheduleTable([]),this.showMessage("All data has been reset","success"))}handleRandomPlayers(){this.playerManager.generateRandomPlayers(10),this.updatePlayerTable(),this.updatePlayerCount(),this.showMessage("Random players generated","success")}handleCSVImport(e){const t=e.target.files[0];if(!t)return;const a=new FileReader;a.onload=s=>{try{const r=s.target.result,n=r.trim().split(`
+`);if(n.length<2)throw new Error("CSV must have at least a header row and one data row");const l=n[0].split(",").map(i=>i.trim().replace(/"/g,""));this._showCSVColumnSelector(l,r)}catch(r){this.showMessage(`CSV import error: ${r.message}`,"error")}},a.readAsText(t)}_showCSVColumnSelector(e,t){var l,i;const a=document.querySelector(d.csvColumnModal),s=document.querySelector("#playingColumnSelect");s.innerHTML="",e.forEach(o=>{const u=document.createElement("option");u.value=o,u.textContent=o,s.appendChild(u)}),a==null||a.classList.remove("hidden"),a==null||a.classList.add("flex");const r=()=>{const o=s.value;try{const u=this.playerManager.importFromCSV(t,o);this.updatePlayerTable(),this.updatePlayerCount(),this.showMessage(`Imported ${u} players from CSV`,"success")}catch(u){this.showMessage(`Import error: ${u.message}`,"error")}this._hideCSVColumnSelector()},n=()=>{this._hideCSVColumnSelector()};(l=document.querySelector("#confirmCsvBtn"))==null||l.addEventListener("click",r,{once:!0}),(i=document.querySelector("#cancelCsvBtn"))==null||i.addEventListener("click",n,{once:!0})}_hideCSVColumnSelector(){const e=document.querySelector(d.csvColumnModal);e==null||e.classList.remove("flex"),e==null||e.classList.add("hidden")}updatePlayerTable(e=null){const t=document.querySelector(d.playerTableBody);if(!t)return;const a=e||this.playerManager.getAllPlayers();t.innerHTML="",a.forEach((s,r)=>{const n=this._createPlayerRow(s,r+1);t.appendChild(n)})}_createPlayerRow(e,t){const a=document.createElement("tr");return a.className="hover:bg-gray-50",a.innerHTML=`
+      <td data-label="No." class="px-4 py-2">${t}</td>
+      <td data-label="Player Name" class="px-4 py-2">
+        <input type="text" value="${e.name}" 
+               class="editable-name bg-transparent border-none w-full focus:bg-blue-50"
+               onchange="window.app.uiManager.updatePlayerName('${e.id}', this.value)">
+      </td>
+      <td data-label="Skill Level" class="px-4 py-2">
+        <select onchange="window.app.uiManager.updatePlayerSkillLevel('${e.id}', this.value)"
+                class="bg-transparent border border-gray-300 rounded px-2 py-1">
+          ${p.SKILL_LEVELS.map(s=>`<option value="${s}" ${e.skillLevel===s?"selected":""}>${s}</option>`).join("")}
+        </select>
+      </td>
+      <td data-label="Start Time" class="px-4 py-2">
+        <input type="time" value="${e.startTime}" 
+               class="bg-transparent border border-gray-300 rounded px-2 py-1"
+               onchange="window.app.uiManager.updatePlayerTime('${e.id}', 'startTime', this.value)">
+      </td>
+      <td data-label="End Time" class="px-4 py-2">
+        <input type="time" value="${e.endTime}" 
+               class="bg-transparent border border-gray-300 rounded px-2 py-1"
+               onchange="window.app.uiManager.updatePlayerTime('${e.id}', 'endTime', this.value)">
+      </td>
+      <td data-label="Play Periods" class="px-4 py-2 text-center">${e.playCount}</td>
+      <td data-label="Rest Periods" class="px-4 py-2 text-center">${e.restCount}</td>
+      <td data-label="Wins" class="px-4 py-2 text-center">${e.wins}</td>
+      <td data-label="Action" class="px-4 py-2">
+        <button id="remove-player-${e.id}" onclick="window.app.uiManager.removePlayer('${e.id}')" 
+                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+          Remove
+        </button>
+      </td>
+    `,a}updatePlayerName(e,t){this.playerManager.updatePlayer(e,{name:t.trim()})&&this.showMessage("Player name updated","success")}updatePlayerSkillLevel(e,t){this.playerManager.updatePlayer(e,{skillLevel:parseInt(t)})&&this.showMessage("Skill level updated","success")}updatePlayerTime(e,t,a){this.playerManager.updatePlayer(e,{[t]:a})&&this.showMessage("Player time updated","success")}removePlayer(e){this.playerManager.removePlayer(e)&&(this.updatePlayerTable(),this.updatePlayerCount(),this.showMessage("Player removed","success"))}updatePlayerCount(){const e=document.querySelector(d.playerCount);e&&(e.textContent=this.playerManager.getAllPlayers().length)}updateScheduleTable(e){this._updateScheduleHeader(e),this._updateScheduleBody(e)}_updateScheduleHeader(e){const t=document.querySelector(d.scheduleTableHeader);if(!t)return;let a='<tr class="rounded-lg"><th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">Round</th><th class="px-4 py-2 text-left text-gray-600">Time Slot</th><th class="px-4 py-2 text-left text-gray-600">Available Players</th>';if(e.length>0){const s=Math.max(...e.map(r=>r.courts.length));for(let r=1;r<=s;r++)a+=`<th class="px-4 py-2 text-left text-gray-600">Court ${r}</th>`}a+='<th class="px-4 py-2 text-left text-gray-600 rounded-tr-lg">Resting Players</th></tr>',t.innerHTML=a}_updateScheduleBody(e){const t=document.querySelector(d.scheduleTableBody);if(t){if(t.innerHTML="",e.length===0){const a=document.createElement("tr");a.innerHTML='<td colspan="100%" class="px-4 py-8 text-center text-gray-500">No schedule generated yet. Add players and click "Generate Schedule".</td>',t.appendChild(a);return}e.forEach((a,s)=>{const r=this._createScheduleRowWithRounds(a,s);t.appendChild(r)})}}_createScheduleRowWithRounds(e,t){const a=document.createElement("tr");a.className="hover:bg-gray-50";let s=`
+      <td class="px-4 py-2" data-label="Round">${t+1}</td>
+      <td class="px-4 py-2" data-label="Time Slot">${e.time}</td>
+      <td class="px-4 py-2" data-label="Available Players">${e.playingCount} / ${e.availablePlayers}</td>`;const r=4;for(let l=0;l<r;l++){const i=e.courts[l];if(i){const o=i.scoreA!==null?i.scoreA:"",u=i.scoreB!==null?i.scoreB:"",c=i.played?"bg-green-200":"bg-gray-100";s+=`<td class="px-2 py-2" data-label="Court ${l+1}">
+          <div class="court-cell cursor-pointer rounded-lg p-2 transition-colors duration-200 ${c}" 
+               data-time-index="${t}" data-court-index="${l}">
+            <div class="flex flex-col items-center">
+              <span class="text-sm font-medium">${i.team1.map(m=>m.name).join(" & ")}</span>
+              <div class="flex items-center gap-1 my-1">
+                <input type="number" class="score-input w-10 text-center border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" 
+                       value="${o}" min="0" data-team="A">
+                <span class="text-sm font-semibold text-gray-500">-</span>
+                <input type="number" class="score-input w-10 text-center border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" 
+                       value="${u}" min="0" data-team="B">
+              </div>
+              <span class="text-sm font-medium">${i.team2.map(m=>m.name).join(" & ")}</span>
+            </div>
+          </div>
+        </td>`}else s+='<td class="px-4 py-2 text-gray-400">-</td>'}const n=e.resting&&e.resting.length>0?e.resting.map(l=>l.name).join(", "):"---";return s+=`<td class="px-4 py-2" data-label="Resting Players">${n}</td>`,a.innerHTML=s,this._setupCourtInteractions(a,t),a}_setupCourtInteractions(e,t){e.querySelectorAll(".score-input").forEach(r=>{r.addEventListener("blur",n=>{this.updateCourtScore(n.target)}),r.addEventListener("keydown",n=>{n.key==="Enter"&&n.target.blur()})}),e.querySelectorAll(".court-cell").forEach(r=>{r.addEventListener("click",n=>{if(!n.target.classList.contains("score-input")){const l=r.querySelectorAll(".score-input");l[0].value===""&&l[1].value===""&&(l[0].value="0",l[1].value="0",this.updateCourtScore(l[0]))}})})}updateCourtScore(e){const t=e.closest(".court-cell");if(!t)return;const a=parseInt(t.dataset.timeIndex),s=parseInt(t.dataset.courtIndex),r=t.querySelectorAll(".score-input"),n=parseInt(r[0].value)||0,l=parseInt(r[1].value)||0;try{this.scheduleGenerator.updateCourtScore(a,s,n,l),t.classList.remove("bg-gray-100"),t.classList.add("bg-green-200"),this.updatePlayerTable(),this.showMessage("Score updated successfully","success")}catch(i){this.showMessage(`Error updating score: ${i.message}`,"error")}}validateSettings(){var a,s;const e=(a=document.querySelector(d.startTime))==null?void 0:a.value,t=(s=document.querySelector(d.endTime))==null?void 0:s.value;return e&&t&&e>=t?(this.showMessage("End time must be after start time","error"),!1):!0}showMessage(e,t="info"){const a=document.querySelector(d.messageArea);a&&(a.textContent=e,a.className="font-semibold mb-4 text-center",t==="error"?a.classList.add("text-red-500"):t==="success"?a.classList.add("text-green-500"):a.classList.add("text-blue-500"),t==="success"&&setTimeout(()=>{a.textContent="",a.className=""},3e3))}}class w{constructor(e,t){this.playerManager=e,this.scheduleGenerator=t}compressData(e){try{const t=JSON.stringify(e),a=pako.deflate(t);return btoa(String.fromCharCode.apply(null,a))}catch(t){throw console.error("Error compressing data:",t),new Error("Failed to compress data for sharing")}}decompressData(e){try{const t=atob(e),a=new Uint8Array(t.length);for(let r=0;r<t.length;r++)a[r]=t.charCodeAt(r);const s=pako.inflate(a,{to:"string"});return JSON.parse(s)}catch(t){throw console.error("Error decompressing data:",t),new Error("Failed to load data from URL")}}getCurrentState(){var o,u,c,m,h,y;const e=this.playerManager.getAllPlayers(),t=this.scheduleGenerator.getSchedule(),a=((o=document.getElementById("trainingTitle"))==null?void 0:o.textContent)||"Pickleball Training",s=((u=document.getElementById("trainingDate"))==null?void 0:u.value)||new Date().toISOString().split("T")[0],r=((c=document.getElementById("numCourts"))==null?void 0:c.value)||"2",n=((m=document.getElementById("startTime"))==null?void 0:m.value)||"18:30",l=((h=document.getElementById("endTime"))==null?void 0:h.value)||"20:00",i=((y=document.getElementById("balancedTeams"))==null?void 0:y.checked)||!1;return{players:e.map(f=>({n:f.name,l:f.skillLevel,st:f.startTime,et:f.endTime,w:f.wins||0})),schedule:t,settings:{title:a,date:s,courts:r,startTime:n,endTime:l,balancedTeams:i}}}generateShareableUrl(){try{const e=this.getCurrentState(),t={players:e.players},a={schedule:e.schedule},s=this.compressData(t),r=this.compressData(a),n=new URLSearchParams;n.set("p",s),e.schedule&&e.schedule.length>0&&n.set("s",r),n.set("t",e.settings.title),n.set("d",e.settings.date),n.set("c",e.settings.courts),n.set("st",e.settings.startTime),n.set("et",e.settings.endTime),n.set("bt",e.settings.balancedTeams?"true":"false");const l=`${window.location.origin}${window.location.pathname}?${n.toString()}`,i=document.getElementById("shareUrlInput");i&&(i.value=l),this.setHTMLDocTitle(e.settings.title,e.settings.date);try{window.history.pushState({},"",l)}catch(o){console.warn("Failed to update browser history:",o)}return l}catch(e){throw console.error("Error generating shareable URL:",e),new Error("Failed to generate shareable URL")}}loadStateFromUrl(){const e=new URLSearchParams(window.location.search),t=e.get("p");if(!t)return this.loadDefaultState(),!1;try{this.loadSettingsFromUrl(e),this.loadPlayersFromUrl(t);const a=e.get("s");return a?(this.loadScheduleFromUrl(a),!0):!1}catch(a){return console.error("Failed to load state from URL:",a),this.loadDefaultState(),!1}}loadSettingsFromUrl(e){const t=e.get("t"),a=e.get("d"),s=e.get("c"),r=e.get("st"),n=e.get("et"),l=e.get("bt")==="true",i=e.get("debug")==="true";if(t){const c=document.getElementById("trainingTitle");c&&(c.textContent=t)}if(a){const c=document.getElementById("trainingDate");c&&(c.value=a)}else{const c=new Date().toISOString().split("T")[0],m=document.getElementById("trainingDate");m&&(m.value=c)}if(s){const c=document.getElementById("numCourts");c&&(c.value=s)}if(r){const c=document.getElementById("startTime");c&&(c.value=r)}if(n){const c=document.getElementById("endTime");c&&(c.value=n)}const o=document.getElementById("balancedTeams");o&&(o.checked=l);const u=document.getElementById("randomPlayersBtn");u&&(i?u.classList.remove("hidden"):u.classList.add("hidden")),this.setHTMLDocTitle(t,a)}loadPlayersFromUrl(e){const t=this.decompressData(e);this.playerManager.clearAllPlayers(),t.players.forEach(a=>{const s=this.playerManager.addPlayer(a.n,a.l,a.st,a.et);s&&a.w!==void 0&&(s.wins=a.w)})}loadScheduleFromUrl(e){try{const t=this.decompressData(e);t.schedule&&t.schedule.length>0&&(this.scheduleGenerator.schedule=t.schedule,this.recalculatePlayerStats())}catch(t){console.error("Failed to load schedule from URL:",t)}}recalculatePlayerStats(){const e=this.playerManager.getAllPlayers(),t=this.scheduleGenerator.getSchedule();e.forEach(a=>{a.playCount=0,a.restCount=0,a.wins=0}),t.forEach(a=>{a.courts&&a.courts.forEach(s=>{s.team1&&s.team1.forEach(r=>{const n=this.playerManager.getAllPlayers().find(l=>l.name===r.name);n&&n.playCount++}),s.team2&&s.team2.forEach(r=>{const n=this.playerManager.getAllPlayers().find(l=>l.name===r.name);n&&n.playCount++}),s.played&&s.scoreA!==null&&s.scoreB!==null&&(s.scoreA>s.scoreB&&s.team1?s.team1.forEach(r=>{const n=this.playerManager.getAllPlayers().find(l=>l.name===r.name);n&&n.wins++}):s.scoreB>s.scoreA&&s.team2&&s.team2.forEach(r=>{const n=this.playerManager.getAllPlayers().find(l=>l.name===r.name);n&&n.wins++}))}),a.resting&&a.resting.forEach(s=>{const r=this.playerManager.getAllPlayers().find(n=>n.name===s.name);r&&r.restCount++})})}loadDefaultState(){const e=new Date().toISOString().split("T")[0],t=document.getElementById("trainingDate");t&&(t.value=e),this.setHTMLDocTitle("Pickleball Training",e),this.initializeDebugMode()}initializeDebugMode(){const t=new URLSearchParams(window.location.search).get("debug")==="true",a=document.getElementById("randomPlayersBtn");a&&(t?a.classList.remove("hidden"):a.classList.add("hidden"))}setHTMLDocTitle(e="Pickleball Training",t=null){var a;t||(t=((a=document.getElementById("trainingDate"))==null?void 0:a.value)||new Date().toISOString().split("T")[0]);try{const s=new Date(t).toLocaleDateString("en-IE");document.title=`${e} - ${s}`}catch{document.title=e}}autoSave(){try{const e=this.getCurrentState();localStorage.setItem("pickleballTrainingState",JSON.stringify(e))}catch(e){console.warn("Failed to auto-save state:",e)}}loadFromLocalStorage(){try{const e=localStorage.getItem("pickleballTrainingState");if(e){const t=JSON.parse(e);return this.loadStateFromData(t),this.initializeDebugMode(),!0}}catch(e){console.warn("Failed to load from localStorage:",e)}return!1}loadStateFromData(e){if(this.playerManager.clearAllPlayers(),e.players&&e.players.forEach(t=>{const a=this.playerManager.addPlayer(t.n||t.name,t.l||t.skillLevel,t.st||t.startTime,t.et||t.endTime);a&&(t.w!==void 0||t.wins!==void 0)&&(a.wins=t.w||t.wins||0)}),e.settings){if(e.settings.title){const t=document.getElementById("trainingTitle");t&&(t.textContent=e.settings.title)}if(e.settings.date){const t=document.getElementById("trainingDate");t&&(t.value=e.settings.date)}}e.schedule&&(this.scheduleGenerator.schedule=e.schedule,this.recalculatePlayerStats())}clearSavedState(){try{localStorage.removeItem("pickleballTrainingState"),window.history.pushState({},"",window.location.pathname)}catch(e){console.warn("Failed to clear saved state:",e)}}}class C{constructor(e){this.dataManager=e,this.notificationPopup=document.getElementById("notificationPopup")}initialize(){this._setupSharingHandlers()}_setupSharingHandlers(){var e,t,a,s,r;(e=document.getElementById("copyUrlBtn"))==null||e.addEventListener("click",n=>{n.preventDefault(),this.showShareModal()}),(t=document.getElementById("closeShareModal"))==null||t.addEventListener("click",()=>{this.hideShareModal()}),(a=document.getElementById("copyLongUrlBtn"))==null||a.addEventListener("click",()=>{this.copyLongUrl()}),(s=document.getElementById("copyTinyUrlBtn"))==null||s.addEventListener("click",()=>{this.copyTinyUrl()}),(r=document.getElementById("shareModal"))==null||r.addEventListener("click",n=>{n.target.id==="shareModal"&&this.hideShareModal()})}showShareModal(){const e=document.getElementById("shareModal");e==null||e.classList.remove("hidden"),e==null||e.classList.add("flex")}hideShareModal(){const e=document.getElementById("shareModal");e==null||e.classList.remove("flex"),e==null||e.classList.add("hidden")}async copyLongUrl(){try{const e=this.dataManager.generateShareableUrl();await navigator.clipboard.writeText(e),this.showNotification("Long URL copied to clipboard!"),this.hideShareModal()}catch(e){console.error("Failed to copy URL:",e),this.showNotification("Failed to copy URL","error")}}async copyTinyUrl(){const e=document.getElementById("copyTinyUrlBtn"),t=e.innerHTML;try{e.innerHTML=`
+        <svg class="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Creating Tiny URL...
+      `,e.disabled=!0;const a=this.dataManager.generateShareableUrl(),s=await this.createTinyUrl(a);if(s)await navigator.clipboard.writeText(s),this.showNotification("Tiny URL copied to clipboard!"),this.hideShareModal();else throw new Error("Failed to create tiny URL")}catch(a){console.error("Failed to create tiny URL:",a),e.innerHTML=`
+        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        Failed to create Tiny URL
+      `,setTimeout(()=>{e.innerHTML=t,e.disabled=!1},3e3)}e.disabled||setTimeout(()=>{e.innerHTML=t,e.disabled=!1},100)}async createTinyUrl(e){try{const t=await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(e)}`);if(!t.ok)throw new Error("TinyURL API request failed");const a=await t.text();if(a.startsWith("https://tinyurl.com/"))return a;throw new Error("Invalid response from TinyURL API")}catch(t){return console.error("Error creating tiny URL:",t),null}}showNotification(e,t="success"){if(!this.notificationPopup)return;const a=this.notificationPopup.querySelector("p");a&&(a.textContent=e),t==="error"?this.notificationPopup.className=this.notificationPopup.className.replace("bg-green-500","bg-red-500"):this.notificationPopup.className=this.notificationPopup.className.replace("bg-red-500","bg-green-500"),this.notificationPopup.classList.remove("opacity-0","translate-y-full"),this.notificationPopup.classList.add("opacity-100","translate-y-0"),setTimeout(()=>{this.notificationPopup.classList.remove("opacity-100","translate-y-0"),this.notificationPopup.classList.add("opacity-0","translate-y-full")},3e3)}}class M{constructor(e,t){this.playerManager=e,this.uiManager=t}initialize(){const e=document.getElementById("csvFileInput");e==null||e.addEventListener("change",t=>this.handleFileUpload(t))}handleFileUpload(e){const t=e.target.files[0];if(!t)return;const a=new FileReader;a.onload=s=>{try{const r=s.target.result;this.processCSVText(r)}catch(r){console.error("Error processing CSV:",r),this.uiManager.showMessage("Failed to parse CSV file. Please check the file format.","error")}finally{e.target.value=""}},a.readAsText(t)}processCSVText(e){const t=e.split(`
+`).filter(i=>i.trim()!=="");if(t.length<2)throw new Error("CSV must have at least a header row and one data row");let a=-1;for(let i=0;i<t.length;i++){const o=t[i].toLowerCase().replace(/"/g,"");if(o.includes("name")&&o.includes("phone")){a=i;break}}if(a===-1)throw new Error('CSV must contain a header row with "Name" and "Phone" columns.');const s=t[a],r=this.parseCsvLine(s),n=r.findIndex(i=>i.toLowerCase().trim()==="name"),l=r.findIndex(i=>i.toLowerCase().trim()==="phone");if(n===-1||l===-1)throw new Error('Could not find "Name" or "Phone" column in the CSV header.');this.parsedCsvInfo={lines:t,headerRowIndex:a,nameIndex:n,headers:r},this.showColumnSelector(r,l)}parseCsvLine(e){const t=/(".*?"|[^,]*)(,|$)/g,a=e.match(t);return a?a.map(s=>{let r=s.replace(/,$/,"");return r.startsWith('"')&&r.endsWith('"')&&(r=r.substring(1,r.length-1)),r.replace(/""/g,'"')}):[]}showColumnSelector(e,t){const a=document.getElementById("csvColumnModal"),s=document.getElementById("playingColumnSelect");s.innerHTML="";for(let r=t+1;r<e.length;r++){const n=document.createElement("option");n.value=r,n.textContent=e[r].trim()||`Column ${r+1}`,s.appendChild(n)}a==null||a.classList.remove("hidden"),a==null||a.classList.add("flex"),this.setupColumnSelectorHandlers()}setupColumnSelectorHandlers(){const e=document.getElementById("confirmCsvBtn"),t=document.getElementById("cancelCsvBtn"),a=()=>{this.processSelectedColumn(),this.hideColumnSelector(),this.removeEventListeners()},s=()=>{this.hideColumnSelector(),this.removeEventListeners()};e==null||e.addEventListener("click",a),t==null||t.addEventListener("click",s),this.confirmHandler=a,this.cancelHandler=s}processSelectedColumn(){const e=document.getElementById("playingColumnSelect"),t=parseInt(e.value);if(isNaN(t)){this.uiManager.showMessage("Please select a valid column.","error");return}const{lines:a,headerRowIndex:s,nameIndex:r}=this.parsedCsvInfo,n=a.slice(s+1),l=[];n.forEach(i=>{if(!i.trim())return;const o=this.parseCsvLine(i);if(o.length>t&&o[t].trim()!==""){const c=o[r].trim();if(c)try{this.playerManager.addPlayer(c),l.push(c)}catch{console.warn(`Skipped duplicate or invalid player: ${c}`)}}}),l.length>0?(this.uiManager.updatePlayerTable(),this.uiManager.updatePlayerCount(),this.uiManager.showMessage(`Successfully imported ${l.length} players from CSV`,"success")):this.uiManager.showMessage("No players marked as playing were found in the selected column.","error"),this.parsedCsvInfo=null}hideColumnSelector(){const e=document.getElementById("csvColumnModal");e==null||e.classList.add("hidden"),e==null||e.classList.remove("flex")}removeEventListeners(){const e=document.getElementById("confirmCsvBtn"),t=document.getElementById("cancelCsvBtn");e==null||e.removeEventListener("click",this.confirmHandler),t==null||t.removeEventListener("click",this.cancelHandler)}}class L{constructor(){this.playerManager=new T,this.scheduleGenerator=new E(this.playerManager),this.uiManager=new v(this.playerManager,this.scheduleGenerator),this.dataManager=new w(this.playerManager,this.scheduleGenerator),this.sharingManager=new C(this.dataManager),this.csvImporter=new M(this.playerManager,this.uiManager),this.isInitialized=!1}async initialize(){if(this.isInitialized){console.warn("App already initialized");return}try{if(window.app={playerManager:this.playerManager,scheduleGenerator:this.scheduleGenerator,uiManager:this.uiManager,dataManager:this.dataManager,sharingManager:this.sharingManager},this.uiManager.initialize(),this.sharingManager.initialize(),this.csvImporter.initialize(),this.setupEditableTitle(),this.setupAutoSave(),this.setupSettingsListeners(),this.dataManager.loadStateFromUrl())this.uiManager.updatePlayerTable(),this.uiManager.updatePlayerCount(),this.uiManager.updateScheduleTable(this.scheduleGenerator.getSchedule()),this.uiManager.showTab("schedule");else if(!this.dataManager.loadFromLocalStorage())this.dataManager.loadDefaultState();else{this.uiManager.updatePlayerTable(),this.uiManager.updatePlayerCount();const t=this.scheduleGenerator.getSchedule();t.length>0&&this.uiManager.updateScheduleTable(t)}this.setupPageUnloadHandler(),this.isInitialized=!0}catch(e){throw console.error("Failed to initialize app:",e),e}}setupEditableTitle(){const e=document.getElementById("trainingTitle");e&&(e.addEventListener("blur",()=>{this.updateUrlWithCurrentState()}),e.addEventListener("keydown",t=>{t.key==="Enter"&&(t.preventDefault(),e.blur())}),e.addEventListener("focus",()=>{e.classList.add("outline-2","outline-blue-500","outline","rounded-md","bg-blue-50")}),e.addEventListener("blur",()=>{e.classList.remove("outline-2","outline-blue-500","outline","rounded-md","bg-blue-50")}))}setupAutoSave(){setInterval(()=>{this.dataManager.autoSave()},3e4),["change","input","blur"].forEach(t=>{document.addEventListener(t,a=>{a.target.matches("input, select, [contenteditable]")&&(clearTimeout(this.autoSaveTimeout),this.autoSaveTimeout=setTimeout(()=>{this.dataManager.autoSave()},1e3))})})}setupSettingsListeners(){["trainingTitle","trainingDate","numCourts","startTime","endTime","balancedTeams"].forEach(t=>{const a=document.getElementById(t);if(a){const s=a.type==="checkbox"?"change":a.contentEditable==="true"?"blur":"change";a.addEventListener(s,()=>{this.updateUrlWithCurrentState()})}})}updateUrlWithCurrentState(){try{this.dataManager.generateShareableUrl()}catch(e){console.error("Failed to update URL:",e)}}setupPageUnloadHandler(){window.addEventListener("beforeunload",()=>{try{this.dataManager.autoSave()}catch(e){console.warn("Failed to save data on page unload:",e)}}),document.addEventListener("visibilitychange",()=>{if(document.hidden)try{this.dataManager.autoSave()}catch(e){console.warn("Failed to save data on visibility change:",e)}})}reset(){confirm("Are you sure you want to reset all players and schedule data?")&&(this.playerManager.clearAllPlayers(),this.scheduleGenerator.clearSchedule(),this.dataManager.clearSavedState(),this.uiManager.updatePlayerTable(),this.uiManager.updatePlayerCount(),this.uiManager.updateScheduleTable([]),this.uiManager.showTab("players"),document.getElementById("trainingTitle").textContent="Pickleball Training",document.getElementById("trainingDate").value=new Date().toISOString().split("T")[0],document.getElementById("numCourts").value="2",document.getElementById("startTime").value="18:30",document.getElementById("endTime").value="20:00",document.getElementById("balancedTeams").checked=!1,this.dataManager.setHTMLDocTitle(),this.uiManager.showMessage("All data has been reset","success"))}getState(){return{players:this.playerManager.getAllPlayers().length,schedule:this.scheduleGenerator.getSchedule().length,hasSchedule:this.scheduleGenerator.getSchedule().length>0,currentTab:this.uiManager.currentTab}}handleError(e,t="Unknown"){console.error(`App Error in ${t}:`,e),this.uiManager.showMessage(`Error: ${e.message}`,"error")}}document.addEventListener("DOMContentLoaded",async()=>{try{await new L().initialize()}catch(g){console.error("Failed to start Pickleball Training App:",g);const e=document.getElementById("messageArea");e&&(e.textContent="Failed to load application. Please refresh the page.",e.className="text-red-500 font-semibold mb-4 text-center")}});
+</script>
+  <style>body{font-family:Inter,sans-serif;background-color:#f0f4f8;overflow-x:hidden}.container{max-width:100%}@media (min-width: 768px){.container{max-width:800px}}.tab-button.active{border-bottom:3px solid #3b82f6;color:#3b82f6;font-weight:600}.tab-content.hidden{display:none}.tab-content{min-height:400px}.responsive-table{border-collapse:collapse;width:100%}@media (max-width: 767px){.responsive-table thead{display:none}.responsive-table tr{display:block;margin-bottom:1rem;border:1px solid #e5e7eb;border-radius:.5rem;padding:1rem}.responsive-table td{display:block;text-align:right;font-size:.875rem;position:relative;padding-left:50%;border:none}.responsive-table td:before{content:attr(data-label);position:absolute;left:1rem;width:calc(50% - 1.5rem);font-weight:600;text-align:left}.responsive-table td:first-child{border-top-left-radius:.5rem;border-top-right-radius:.5rem}.responsive-table td:last-child{border-bottom-left-radius:.5rem;border-bottom-right-radius:.5rem}}.editable-name:focus{outline:2px solid #3b82f6;border-radius:.25rem;background-color:#e3f2fd}.court-cell{cursor:pointer;transition:background-color .2s ease-in-out;border-radius:.5rem}.court-cell.played{background-color:#d1fae5}.sortable{cursor:pointer;position:relative}.sortable:hover{color:#3b82f6}.sort-icon{position:absolute;right:0;top:50%;transform:translateY(-50%);opacity:.5;transition:opacity .2s}.sortable:hover .sort-icon{opacity:1}.sort-icon.asc:before{content:"▲"}.sort-icon.desc:before{content:"▼"}#notificationPopup{z-index:9999}#notificationPopup.show{opacity:1;transform:translateY(0)}.modal{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}.animate-spin{animation:spin 1s linear infinite}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}.score-input{transition:all .2s ease-in-out}.score-input:focus{box-shadow:0 0 0 2px #3b82f680}button{transition:all .2s ease-in-out}button:disabled{opacity:.6;cursor:not-allowed}input:focus,select:focus,button:focus{outline:2px solid #3b82f6;outline-offset:2px}.form-checkbox{color:#3b82f6}input[type=file]{transition:all .2s ease-in-out}#messageArea{transition:all .3s ease-in-out;min-height:1rem}#playerCount{transition:all .2s ease-in-out}#trainingTitle:focus{outline:2px solid #3b82f6;border-radius:.25rem;background-color:#eff6ff;padding:.25rem .5rem}.court-assignment{border:2px dashed transparent;transition:border-color .2s ease-in-out}.court-assignment:hover{border-color:#d1d5db}@media (max-width: 640px){.container{padding:0;margin:0;border-radius:0}.p-4{padding:1rem}.gap-4{gap:.5rem}}@media print{.no-print{display:none!important}body{background-color:#fff}.container{box-shadow:none;max-width:100%}}
+</style>>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
+
+<div class="container mx-auto p-0 bg-white rounded-none md:rounded-xl shadow-lg w-full">
+    <div class="p-4 md:p-6">
+        <!-- Header Section -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center">
+                <div class="flex items-center gap-2">
+                    <h1 class="text-3xl font-bold text-gray-800" contenteditable="true" id="trainingTitle">Pickleball Training</h1>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 cursor-pointer hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" onclick="document.getElementById('trainingTitle').focus()">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
+                    </svg>
+                </div>
+                <div class="ml-2">
+                    <input type="date" id="trainingDate" class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="flex items-center">
+                <input type="hidden" id="shareUrlInput">
+                <button id="copyUrlBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors duration-200 flex-shrink-0 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                    </svg>
+                    Share
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="sticky top-0 z-10 bg-white flex border-b border-gray-200 mb-6 shadow-sm">
+            <button id="playersTabBtn" class="tab-button active flex-1 py-4 px-4 text-center text-lg font-medium text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
+                <span id="playerCount" class="bg-gray-200 text-gray-700 text-sm font-bold ml-2 px-2 py-1 rounded-full">0</span> Players
+            </button>
+            <button id="scheduleTabBtn" class="tab-button flex-1 py-4 px-4 text-center text-lg font-medium text-gray-600 hover:text-blue-500 transition-colors duration-200 focus:outline-none">
+                Schedule
+            </button>
+        </div>
+
+        <!-- Players Tab Content -->
+        <div id="playersTabContent" class="tab-content">
+            <!-- Settings & Player Input Section -->
+            <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Settings</h2>
+                <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                    <div class="flex items-center gap-2">
+                        <label for="numCourts" class="font-medium text-gray-700">Number of Courts:</label>
+                        <input type="number" id="numCourts" value="2" min="1" max="4" class="w-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="startTime" class="font-medium text-gray-700">Starting Time:</label>
+                        <input type="time" id="startTime" value="18:30" class="w-32 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="endTime" class="font-medium text-gray-700">Ending Time:</label>
+                        <input type="time" id="endTime" value="20:00" class="w-32 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Team Balancing Option -->
+                <div class="flex items-center gap-2 mb-4">
+                    <input type="checkbox" id="balancedTeams" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                    <label for="balancedTeams" class="font-medium text-gray-700">Prevent Level 2 players from teaming up</label>
+                </div>
+
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700 mt-6">Add Players Manually</h2>
+                <div class="flex flex-row gap-4 mb-4 items-center">
+                    <input type="text" id="playerName" placeholder="Enter player name (Press Enter to add)" class="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="addPlayerBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 whitespace-nowrap">
+                        Add
+                    </button>
+                </div>
+
+                <!-- CSV Upload Section -->
+                <div class="hidden lg:block">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700 mt-6">Import Players from CSV (desktop only)</h2>
+                    <span class="text-xs">install <a href="https://chromewebstore.google.com/detail/fhcpmkmedhoioppkfiinpccgplckjgig?utm_source=item-share-cb" target="_blank" class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">Export WhatsApp Polls</a> on your browser to enable CSV Download in
+                        <a href="https://web.whatsapp.com/" target="_blank" class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">https://web.whatsapp.com/</a>
+                        then export the poll and import here</span>
+                    <div class="flex flex-row gap-4 mb-4 items-center">
+                        <input type="file" id="csvFileInput" accept=".csv" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Player List & Generate Button -->
+            <div class="mb-8">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-700">Players</h2>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button id="resetBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-1/2 sm:w-auto">
+                            Reset
+                        </button>
+                        <button id="randomPlayersBtn" class="hidden bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-1/2 sm:w-auto">
+                            Random
+                        </button>
+                        <button id="generateScheduleBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 w-full sm:w-auto">
+                            Generate Schedule
+                        </button>
+                    </div>
+                </div>
+                <div id="messageArea" class="text-red-500 font-semibold mb-4 text-center"></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto border-collapse responsive-table">
+                        <thead class="bg-gray-200">
+                        <tr class="rounded-lg">
+                            <th class="px-4 py-2 text-left text-gray-600 rounded-tl-lg">No.</th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="name">
+                                Player Name
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="skillLevel">
+                                Skill Level
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="startTime">
+                                Start Time
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="endTime">
+                                End Time
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="playCount">
+                                Play Periods
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="restCount">
+                                Rest Periods
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 sortable" data-sort-by="wins">
+                                Wins
+                                <span class="sort-icon"></span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-gray-600 rounded-tr-lg">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="playerTableBody" class="divide-y divide-gray-200">
+                        <!-- Player rows will be generated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Tab Content -->
+        <div id="scheduleTabContent" class="tab-content hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-2xl font-semibold text-gray-700">Training Schedule</h2>
+                    <div class="flex gap-2">
+                        <button id="generateScheduleInTabBtn" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Generate Schedule
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="scheduleTableContainer" class="overflow-x-auto">
+                <table class="w-full table-auto border-collapse responsive-table">
+                    <thead class="bg-gray-200" id="scheduleTableHeader">
+                    <!-- Header will be dynamically generated -->
+                    </thead>
+                    <tbody id="scheduleTableBody" class="divide-y divide-gray-200">
+                    <!-- Schedule rows will be generated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Popup -->
+<div id="notificationPopup" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 ease-in-out">
+    <div class="flex items-center space-x-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <p>The URL has been copied to your clipboard.</p>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div id="shareModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-900">Share Training Schedule</h3>
+            <button id="closeShareModal" class="text-gray-500 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <button id="copyLongUrlBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                    Copy Long URL
+                </button>
+            </div>
+            <div>
+                <button id="copyTinyUrlBtn" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                    </svg>
+                    Copy Tiny URL
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSV Column Selection Modal -->
+<div id="csvColumnModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+        <h3 class="text-lg font-semibold mb-4">Select Player Column</h3>
+        <p class="text-sm text-gray-600 mb-4">Choose the column from your CSV that indicates which players are participating (e.g., by having an 'X').</p>
+        <div class="space-y-4">
+            <div>
+                <label for="playingColumnSelect" class="block text-sm font-medium text-gray-700">Playing Column</label>
+                <select id="playingColumnSelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></select>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+            <button id="cancelCsvBtn" type="button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Cancel</button>
+            <button id="confirmCsvBtn" type="button" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Import Players</button>
+        </div>
+    </div>
+</div>
+
+<!-- Load the modular JavaScript -->
+
+
+</body>
+</html>

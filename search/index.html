@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Service — Acceptance Testing (v1)</title>
+
+    <!-- External Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+        mermaid.initialize({ startOnLoad: true, theme: "default" });
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .prose-section h2 { scroll-margin-top: 5rem; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.875rem; }
+        th { background-color: #f3f4f6; font-weight: 600; }
+        code { background-color: #f3f4f6; padding: 0.1rem 0.35rem; border-radius: 0.25rem; font-size: 0.85em; }
+        pre code { background-color: transparent; padding: 0; }
+        pre { background-color: #1f2937; color: #f9fafb; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<div class="container mx-auto p-0 bg-white rounded-none md:rounded-xl shadow-lg w-full max-w-5xl my-0 md:my-8">
+    <div class="p-4 md:p-10 prose-section">
+
+        <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+            <h1 class="text-3xl font-bold text-gray-800">Search Service Acceptance Testing Spec (v1)</h1>
+            <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Draft</span>
+        </div>
+        <p class="text-gray-500 mb-8">Working notes migrated from <code>sitecore.search.search-service</code> — mirrors the same structure/style as the repo's <code>integration-testing-v1.md</code> spec. Will iterate here as the design evolves.</p>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">Goal</h2>
+        <p class="text-gray-700 leading-relaxed">
+            Stand up a first, thin acceptance test in Go, in this repo, that hits a real deployed
+            environment (starting with dev/staging) end-to-end — proving the deployed system is
+            alive and serving real data — replacing the Jenkins-triggered Python suite in
+            <code>Sitecore-PD/sitecore.search.qa.tests</code> for this class of test. This spec
+            captures the auth investigation from today's session and defines the smallest possible
+            first test.
+        </p>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">Quick Read</h2>
+        <p class="text-gray-700 leading-relaxed">
+            Acceptance tests need a <strong>real user token</strong> (org-role scopes), not an M2M
+            client-credentials token — confirmed both empirically and by Fanis. Today, the only
+            working path to get that token is a manual copy-paste from a browser session; a
+            scripted login flow is deferred to v1.1, pending credentials for a dedicated portal
+            test user (from Vijay, next business day — different time zone). v1 ships one
+            read-only smoke test (<code>GET /v1/config</code>) authenticated with a
+            manually-supplied, short-lived bearer token, so we can prove the plumbing (env config,
+            HTTP client, CI scaffold) works today without blocking on that dependency.
+        </p>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">Relationship to Existing Specs</h2>
+        <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2">
+            <li><code>specs/integration-testing-v1.md</code> covers <strong>integration tests</strong>: local/CI dev stack, dummy JWT middleware, disposable fixtures, build tag <code>integration && e2e</code>.</li>
+            <li><code>specs/proposal-qa-acceptance-test-consolidation.md</code> proposes migrating most of the QA repo's CRUD/schema/error-code tests into that integration suite, leaving a <strong>thin acceptance layer</strong> (~8-10 tests) that only proves the live deployed system is healthy and serving real content.</li>
+            <li><strong>This spec</strong> is the acceptance-layer counterpart to <code>integration-testing-v1.md</code>: same repo, same language, different target (real deployed environments, real auth, real data) and a separate build tag so the two never run together by accident.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">Auth Investigation (2026-09-09)</h2>
+
+        <div class="mermaid my-6">
+flowchart TD
+    A["Goal: call a real deployed<br/>Search API from a Go test"] --> B{"Which credential type?"}
+    B --> C["M2M client-credentials<br/>(Auth0 client_id/secret)"]
+    B --> D["Real user token<br/>(org-role scopes)"]
+
+    C --> C1["Tried personalize's shared<br/>M2M client (dev + prod)"]
+    C1 --> C2["Token issued OK (200)<br/>but API call fails with 403<br/>insufficient scopes"]
+    C2 --> C3["Tried 'Search Developer (test)'<br/>client from security.md registry"]
+    C3 --> C4["Token issued OK<br/>(needs api-internal-staging<br/>audience, not api-staging)"]
+    C4 --> C5["API call fails with 403<br/>insufficient scopes again:<br/>scopes are platform.tenants,<br/>tcs.contexts.ai:read only<br/>NOT search.config"]
+    C5 --> C6["Confirmed by Fanis:<br/>M2M cannot call endpoints like<br/>create config that need<br/>user and tenant context"]
+
+    D --> D1["QA repo's real approach:<br/>headless browser (Playwright)<br/>drives Auth0 Universal Login,<br/>steals bearer token from<br/>network traffic"]
+    D1 --> D2["Needs a dedicated portal<br/>test user (email/password)<br/>not yet available,<br/>Vijay P has to help,<br/>different timezone"]
+    D --> D3["Shortcut for today:<br/>manually copy real user's<br/>bearer token from browser<br/>DevTools while logged into<br/>staging org UI"]
+    D3 --> D4["Verified 2026-09-09:<br/>GET config list returns 200 OK<br/>scope carried: search.config write<br/>search.index write, org-role based"]
+
+    C6 --> Z["Decision:<br/>v1: manual token env var<br/>v1_1: scripted login flow"]
+    D4 --> Z
+    D2 --> Z
+
+    classDef root fill:#1A237E,stroke:#FFD600,stroke-width:4px,color:#FFFFFF,font-weight:bold;
+    classDef decision fill:#4A148C,stroke:#EA80FC,stroke-width:3px,color:#FFFFFF,font-weight:bold;
+    classDef blocked fill:#B71C1C,stroke:#FF8A80,stroke-width:3px,color:#FFFFFF,font-weight:bold;
+    classDef works fill:#1B5E20,stroke:#B9F6CA,stroke-width:3px,color:#FFFFFF,font-weight:bold;
+    classDef pending fill:#E65100,stroke:#FFD180,stroke-width:3px,color:#FFFFFF,font-weight:bold;
+    classDef outcome fill:#0D47A1,stroke:#82B1FF,stroke-width:4px,color:#FFFFFF,font-weight:bold;
+
+    class A root;
+    class B decision;
+    class C1,C2,C3,C4,C5,C6 blocked;
+    class D1,D3,D4 works;
+    class D2 pending;
+    class Z outcome;
+
+    linkStyle default stroke:#FFD600,stroke-width:3px;
+        </div>
+
+        <h3 class="text-xl font-bold text-gray-800 mt-8 mb-3">Findings Summary</h3>
+        <div class="overflow-x-auto">
+            <table class="mb-4">
+                <thead>
+                <tr>
+                    <th>Credential tried</th>
+                    <th>Client</th>
+                    <th>Audience</th>
+                    <th>Token issued?</th>
+                    <th>API call result</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>M2M</td>
+                    <td>Personalize shared client</td>
+                    <td><code>api-staging.sitecore-staging.cloud</code></td>
+                    <td>Yes (200)</td>
+                    <td><code>403 insufficient scopes</code></td>
+                </tr>
+                <tr>
+                    <td>M2M</td>
+                    <td>"Search Developer (test)" (security.md registry)</td>
+                    <td><code>api-staging...</code></td>
+                    <td>No — <code>access_denied</code> (wrong audience)</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>M2M</td>
+                    <td>"Search Developer (test)"</td>
+                    <td><code>api-internal-staging...</code></td>
+                    <td>Yes (200)</td>
+                    <td><code>403 insufficient scopes</code> (scopes: <code>platform.tenants:*</code>, <code>tcs.contexts.ai:read</code> — no <code>search.config:*</code>)</td>
+                </tr>
+                <tr class="bg-green-50">
+                    <td>User (manual, from browser session)</td>
+                    <td>Real staging portal user, org <code>org_IPbUf06Qs4MsdATN</code></td>
+                    <td><code>api-webapp-staging.sitecore-staging.cloud</code></td>
+                    <td>Yes</td>
+                    <td class="font-bold text-green-700"><code>200 OK</code> — real config list returned</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="text-gray-700 leading-relaxed">
+            <strong>Conclusion</strong>: none of the 5 M2M clients in the Identity Client Registry
+            (<code>docs/architecture/security.md</code> §7) carry <code>search.config:r</code>/<code>search.config:m</code>
+            — they're service-to-service or tenant-lookup clients only. Endpoints like
+            <code>GET /v1/config</code> require a real user token with org-role-derived scopes.
+            This is a hard constraint, not a missing-scope-grant fix.
+        </p>
+
+        <h3 class="text-xl font-bold text-gray-800 mt-8 mb-3">Verified Working Call (2026-09-09)</h3>
+        <p class="text-gray-700 leading-relaxed">The only successful end-to-end call made during this spike:</p>
+        <pre><code>GET https://api-dev-eun-cdpp.sitecorecloud.io/search-config/v1/config
+Authorization: Bearer &lt;manually copied user token&gt;</code></pre>
+        <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2">
+            <li><strong>Result</strong>: <code>200 OK</code>, JSON array of real configs for tenant <code>4ac50af5-cf61-41e3-fc65-08de28e65f66</code> (e.g. <code>Sitemap_Sept_9th</code>, <code>Content_Sept_9th</code>).</li>
+            <li><strong>Token source</strong>: copied by hand from a browser's DevTools Network tab while logged into the staging portal UI for org <code>org_IPbUf06Qs4MsdATN</code> (see "Shortcut for today" in the diagram above).</li>
+            <li><strong>Token claims</strong>: <code>iss=https://auth-staging-1.sitecore-staging.cloud/</code>, <code>aud=[api-webapp-staging.sitecore-staging.cloud, one-sc-staging.eu.auth0.com/userinfo]</code>, <code>scope</code> includes <code>search.config:m search.index:m</code> (plus many unrelated product scopes — this is a broad org-role token, not a scoped test credential), <code>tenant_id=4ac50af5-cf61-41e3-fc65-08de28e65f66</code>.</li>
+            <li>This is the exact request the v1 acceptance test should reproduce in Go, using the same URL and bearer token pulled from <code>ACCEPTANCE_STAGING_BEARER_TOKEN</code>.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">Test Framework (v1)</h2>
+        <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2">
+            <li>Language: Go</li>
+            <li>Runner: standard <code>go test</code></li>
+            <li>Assertions: <code>testify</code> (<code>require</code>/<code>assert</code>)</li>
+            <li>Isolation: new build tag <code>acceptance</code> (e.g. <code>//go:build acceptance</code>), kept entirely separate from <code>integration && e2e</code> — different target (real deployed env), different secrets, different risk profile (real prod/staging data). Never run as part of <code>go test ./...</code>, <code>make test</code>, or the existing <code>make test-integration-e2e</code>.</li>
+            <li>Config/secrets: <code>local_dev_env/env/acceptance.env</code> (gitignored; template at <code>acceptance.env.example</code>), following the same per-service <code>.env</code>/<code>.env.example</code> convention already used by <code>local_dev_env/env/*.env</code>.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">First Acceptance Test Scope (v1 — today)</h2>
+        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-2">Scenario</h3>
+        <p class="text-gray-700 leading-relaxed">Authenticate with a manually-supplied bearer token (env var <code>ACCEPTANCE_STAGING_BEARER_TOKEN</code>) and call <code>GET /v1/config</code> against the real dev-eun deployed Config API, asserting a healthy response.</p>
+
+        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-2">Minimum Assertions</h3>
+        <ol class="list-decimal list-inside text-gray-700 leading-relaxed space-y-2">
+            <li>Request succeeds with <code>200 OK</code>.</li>
+            <li>Response body decodes as a JSON array.</li>
+            <li>(Stretch) At least one returned config has the expected shape (<code>id</code>, <code>name</code>, <code>tenantId</code>, <code>status</code> fields present).</li>
+        </ol>
+
+        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-2">Explicitly Out of Scope for v1</h3>
+        <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2">
+            <li>Any write operation (create/update/delete config) — read-only smoke test only, to avoid mutating real staging/prod data before the login flow (and its cleanup story) exists.</li>
+            <li>Scripted/automated login (browser or ROPC) — token is manually pasted for now.</li>
+            <li>Ingestion/Runtime API coverage — start with Config API only.</li>
+            <li>Multi-environment matrix (staging vs prod) — staging only for v1.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">Environment Strategy</h2>
+        <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2">
+            <li>Target: real deployed dev-eun cluster via its public endpoint (<code>https://api-dev-eun-cdpp.sitecorecloud.io/search-config/v1/config</code>), same environment the <code>sitecore.search.qa.tests</code> "staging" config points at.</li>
+            <li>No local stack, no mocks — this is the point of an acceptance test.</li>
+            <li>Config loading mirrors <code>test/integration/client.go</code>'s <code>envOrDefault</code> pattern: all URLs/timeouts overridable via env var, sensible defaults committed.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">Secrets Strategy (v1)</h2>
+        <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2">
+            <li>Local: <code>ACCEPTANCE_STAGING_BEARER_TOKEN</code> in <code>local_dev_env/env/acceptance.env</code> (gitignored), manually refreshed by hand each session (token is short-lived, ~1-24h).</li>
+            <li>CI: <strong>not yet wired</strong> — v1 is local-only until the login flow (v1.1) exists; CI cannot copy-paste a browser token. Do not add this test to any GitHub Actions workflow yet.</li>
+            <li>M2M client ids from <code>docs/architecture/security.md</code> §7 are <strong>not</strong> used for this test class — documented here so a future contributor doesn't re-attempt the same dead end.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">v1.1 (Next — blocked on Vijay P / portal test user)</h2>
+        <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2">
+            <li>Replace manual token with a scripted login:
+                <ul class="list-[circle] list-inside ml-6 mt-2 space-y-2">
+                    <li>First choice: confirm with Vijay whether the staging Auth0 tenant supports a direct Resource Owner Password (ROPC) grant for the dedicated QA portal test user (would avoid a browser dependency).</li>
+                    <li>Fallback: port <code>sitecore.search.qa.tests/conftest.py</code>'s Playwright-based login (<code>login_and_extract_bearer_staging</code>) to Go (e.g. <code>chromedp</code>), intercepting the <code>/oauth/token</code> response / <code>Authorization</code> header the same way.</li>
+                </ul>
+            </li>
+            <li>Store portal test user credentials in LastPass under a clear, documented item name (today's session found no existing documented item for this — it may currently live only in Jenkins credentials, which is why this is blocked).</li>
+            <li>Once scripted login lands, wire this test into a CI workflow (nightly or manual-dispatch only, per <code>specs/proposal-qa-acceptance-test-consolidation.md</code>'s guidance to keep acceptance tests thin and infrequent vs. PR-blocking).</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">Open Questions</h2>
+        <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2">
+            <li>Which Vijay owns the portal test user credentials (see also the same open question in <code>specs/proposal-qa-acceptance-test-consolidation.md</code> re: Vijay Kalkundri vs. Vijay P)?</li>
+            <li>Should the eventual scripted-login token be cached/reused across a test run (session-scoped fixture, as the Python suite does) or re-acquired per test?</li>
+            <li>Multi-env support (prod) sequencing — same login mechanism, different org/tenant/credentials?</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-3 border-b pb-2">Definition of Done (v1)</h2>
+        <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2">
+            <li>One Go test, tagged <code>acceptance</code>, runs locally against real staging and passes with a manually-supplied token.</li>
+            <li><code>local_dev_env/env/acceptance.env.example</code> documents the required env var with no real secret committed.</li>
+            <li>This spec merged/cross-linked with <code>proposal-qa-acceptance-test-consolidation.md</code> and <code>integration-testing-v1.md</code>.</li>
+            <li>No CI workflow changes yet (explicitly deferred to v1.1).</li>
+        </ul>
+
+        <div class="mt-12 pt-6 border-t text-sm text-gray-400">
+            Mirrored from <code>sitecore.search.search-service/specs/acceptance-testing-v1.md</code> — internal working notes, iterate here as the design evolves.
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Real, publicly-hosted crawl fixture for the Search Service acceptance
+  tests, mirroring local_dev_env/mocks/wiremock/__files/integration_sitemap.xml
+  from sitecore.search.search-service's integration test suite.
+
+  The integration test's sitemap only works locally (host.docker.internal,
+  behind a local WireMock mock), which real deployed environments (dev/
+  staging/prod) cannot reach. This file exists so an acceptance test can
+  point a real Search config at a small, fast, stable, publicly-reachable
+  site (this one) and crawl/index real content end-to-end, the same way
+  the integration test crawls its local mock fixture.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://daplein.github.io/search/page.html</loc>
+  </url>
+  <url>
+    <loc>https://daplein.github.io/search/page-two.html</loc>
+  </url>
+</urlset>

@@ -7,5 +7,6 @@
   "cert": "3993af18ac72e71897f310276a47ff08bdbf1231a71211f4434a40d81ebc0a0b",
   "color": "#E8483B",
   "requires": "For Android phones and tablets. Plays in landscape.",
-  "keeps": "your settings and best laps"
+  "keeps": "your settings and best laps",
+  "note": "Had Tiny Racers 0.3.0 or older? **Uninstall it once first.** The game moved to a new signing key in 0.4.0, so Android won't install the new version over the old one. From now on, updates install over each other."
 }

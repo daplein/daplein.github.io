@@ -24,6 +24,8 @@ h1 { font-size: 34px; margin: 14px 0 2px; }
 .download { display: block; margin: 22px 0 6px; padding: 20px; border-radius: 18px; background: var(--accent);
   border: 3px solid rgba(0,0,0,.25); color: #fff; font-size: 24px; font-weight: 700; text-align: center; text-decoration: none; }
 .download:active { filter: brightness(.9); }
+.warn { margin: 14px 0 0; padding: 14px 16px; border-radius: 14px; background: #FFF4D6; border: 2px solid #F2C230; font-size: 16px; }
+.warn p { margin: 4px 0; }
 .small { text-align: center; color: #666; font-size: 14px; margin: 0; }
 section { background: #fff; border-radius: 16px; padding: 4px 20px 14px; margin-top: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
 h2 { font-size: 20px; margin: 16px 0 6px; }
@@ -53,16 +55,25 @@ footer { text-align: center; color: #888; font-size: 13px; margin-top: 28px; }
 <a class="download" href="https://github.com/daplein/tiny-racers-releases/releases/download/v0.4.0/TinyRacers.apk">Download for Android</a>
 <p class="small">For Android phones and tablets. Plays in landscape.</p>
 
+<div class="warn">
+<p><b>Chrome will ask "File might be harmful".</b> It asks that for every app
+that isn't from the Play Store. Tap <b>Download anyway</b>.</p>
+<p>It only asks once the whole 53 MB has downloaded, so keep this page open.
+If you tap Cancel, go back or close the page, Chrome throws the file away.</p>
+</div>
+
 <section>
 <h2>How to install</h2>
 <ol>
-<li>Tap <b>Download for Android</b> above.</li>
-<li>When it's done, tap the file (or open it from <b>Downloads</b>).</li>
+<li>Tap <b>Download for Android</b> above and wait for it to finish.</li>
+<li>When Chrome asks <b>File might be harmful</b>, tap <b>Download anyway</b>.</li>
+<li>Tap <b>Open</b> (or open <b>TinyRacers.apk</b> from <b>Downloads</b>).</li>
 <li>If Android says it can't install apps from this source, tap <b>Settings</b>,
   turn on <b>Allow from this source</b>, then go back.</li>
 <li>Tap <b>Install</b>, then <b>Open</b>.</li>
 </ol>
 <p>Already have it? Install the new version over the old one: your settings and best laps stay.</p>
+<p>Had Tiny Racers 0.3.0 or older? <b>Uninstall it once first.</b> The game moved to a new signing key in 0.4.0, so Android won&#x27;t install the new version over the old one. From now on, updates install over each other.</p>
 </section>
 
 <section>

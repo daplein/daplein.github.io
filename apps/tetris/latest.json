@@ -1,14 +1,14 @@
 {
   "format": 1,
-  "app": "tetris",
-  "name": "Tetris",
-  "version": "0.3.0",
-  "code": 3,
-  "published": "2026-10-26T11:03:13Z",
-  "notes": "New: an online **Leaderboard** shared with friends. Tap **Leaderboard** on the start screen or after a game.\n\n- Every finished game is posted automatically. The first time, you pick a name.\n- Two boards: **Legit**, and **Anything goes** for games where you used a cheat.\n- Each phone shows once per board, with its best game. Your own row is highlighted.",
-  "apk": "https://github.com/daplein/tetris-releases/releases/download/v0.3.0/Tetris.apk",
-  "sha256": "7507aff856fc1cd6584dcce1d9894ddbff63fbea29c416e661d50c217a661969",
-  "size": 23443400,
-  "page": "https://daplein.github.io/apps/tetris/",
-  "releases": "https://github.com/daplein/tetris-releases/releases"
+  "app": "raining-bricks",
+  "name": "It's Raining Bricks",
+  "version": "1.0.0",
+  "code": 1,
+  "published": "2026-10-26T11:33:29Z",
+  "notes": "It's raining bricks! 🧱 The block game has a name and a look of its own.\n\n- **Bricks, not blocks:** every piece is a little brick wall, each with its own clay colour and bond.\n- **A wider board** (11 × 22) and a **landing guide** that marks where the piece will rest.\n- Clear four lines at once for a **HALLELUJAH!** Spins into a slot are now **twists**.\n- **New music:** *Brick Rain*, written for the game.\n- Same controls, hold, cheats, leaderboard, Share and update check.\n\nHad the earlier version? This one installs next to it: install it, then uninstall the old one.",
+  "apk": "https://github.com/daplein/raining-bricks-releases/releases/download/v1.0.0/RainingBricks.apk",
+  "sha256": "4d2109fcd9239ea8583ed7abad9ebe74255421d31ae083b785ee463b32db8bf6",
+  "size": 23459904,
+  "page": "https://daplein.github.io/apps/raining-bricks/",
+  "releases": "https://github.com/daplein/raining-bricks-releases/releases"
 }

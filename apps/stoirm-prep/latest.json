@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "app": "stoirm-prep",
+  "name": "Stoirm Prep",
+  "version": "0.5.0-alpha",
+  "code": 7,
+  "published": "2026-10-26T10:46:59Z",
+  "notes": "Share Stoirm Prep with the family: tap **Share** at the top of the home screen and let them scan the code, or tap **Send link** to send it in a chat. 📲\n\n- The app now tells you when a new version is out: a yellow banner at the top of the home screen.\n- Settings shows which version you have.",
+  "apk": "https://github.com/daplein/stoirm-prep-releases/releases/download/v0.5.0-alpha/StoirmPrep.apk",
+  "sha256": "8050f72af08e922b3d5cd6fad01d40a0d4524a7e4976d7b4412a2036679636af",
+  "size": 29206153,
+  "page": "https://daplein.github.io/apps/stoirm-prep/",
+  "releases": "https://github.com/daplein/stoirm-prep-releases/releases"
+}

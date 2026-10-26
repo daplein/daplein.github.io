@@ -1,0 +1,11 @@
+{
+  "name": "Stoirm Prep",
+  "tagline": "Storm warnings for exactly your spot, and a family checklist to get ready.",
+  "package": "com.daplein.stoirmprep",
+  "releases": "daplein/stoirm-prep-releases",
+  "apk": "StoirmPrep.apk",
+  "cert": "9e423637b5a8e3bb2b8335042175667cb7f799b246770eb4b302d4aac89c49e3",
+  "color": "#34435A",
+  "requires": "Android 13 or newer. Alpha: always check met.ie for official warnings.",
+  "keeps": "your settings and checklist"
+}

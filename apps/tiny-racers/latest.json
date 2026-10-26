@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "app": "tiny-racers",
+  "name": "Tiny Racers",
+  "version": "0.4.0",
+  "code": 7,
+  "published": "2026-10-26T09:58:21Z",
+  "notes": "Share Tiny Racers with a friend: tap **Share** on the start menu and let them scan the code with their phone's camera.\n\n- The game now tells you when a new version is out: look for the yellow button at the top of the start menu.\n- Hosting a race? Friends who don't have the game yet can install it straight from the join page.\n- New signing key: if you had an older version, uninstall it once before installing this one.",
+  "apk": "https://github.com/daplein/tiny-racers-releases/releases/download/v0.4.0/TinyRacers.apk",
+  "sha256": "3eafe436869503166dfd6b0598db9d15b5f27f09740c55eebc50a38668bf02cd",
+  "size": 52806403,
+  "page": "https://daplein.github.io/apps/tiny-racers/",
+  "releases": "https://github.com/daplein/tiny-racers-releases/releases"
+}

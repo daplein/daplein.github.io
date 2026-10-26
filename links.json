@@ -1,5 +1,4 @@
 [
   {"title": "GamePlan", "emoji": "🏓", "text": "Plan pickleball training sessions: players, courts and rounds.", "href": "game-plan.html"},
-  {"title": "Pickleball training", "emoji": "🎾", "text": "The earlier version of the training planner.", "href": "pickleball-training.html"},
-  {"title": "Tetris in the browser", "emoji": "🧱", "text": "Play Tetris right here, nothing to install.", "href": "tetris.html"}
+  {"title": "Pickleball training", "emoji": "🎾", "text": "The earlier version of the training planner.", "href": "pickleball-training.html"}
 ]

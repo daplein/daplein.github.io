@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "app": "tetris",
+  "name": "Tetris",
+  "version": "0.2.0",
+  "code": 2,
+  "published": "2026-10-26T10:42:08Z",
+  "notes": "Share Tetris with a friend: tap **Share** on the start screen and let them scan the code, or tap **Send link** to send it in a chat.\n\n- The game now tells you when a new version is out: look for the yellow **NEW** button on the start screen.\n- The start screen shows which version you have.",
+  "apk": "https://github.com/daplein/tetris-releases/releases/download/v0.2.0/Tetris.apk",
+  "sha256": "beedbc01340d67074224788809748c527683840a38cd712942ef3243bc943bbf",
+  "size": 23394248,
+  "page": "https://daplein.github.io/apps/tetris/",
+  "releases": "https://github.com/daplein/tetris-releases/releases"
+}

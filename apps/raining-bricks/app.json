@@ -1,0 +1,12 @@
+{
+  "name": "It's Raining Bricks",
+  "tagline": "Bricks rain down from the night sky: swipe, spin and stack them into lines. No ads, with cheats if you're into that.",
+  "package": "com.daplein.rainingbricks",
+  "releases": "daplein/raining-bricks-releases",
+  "apk": "RainingBricks.apk",
+  "cert": "52659a6d5e170c930fc7f9127afab0b6a0b764a6073ada47367d7eab9743b1cb",
+  "color": "#C4553A",
+  "requires": "Android 13 or newer. Plays in portrait.",
+  "keeps": "your settings and best score",
+  "note": "Had the earlier version of this game? It has a new name now, so it installs next to the old one: install this, then uninstall the old one."
+}

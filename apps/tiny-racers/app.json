@@ -1,0 +1,11 @@
+{
+  "name": "Tiny Racers",
+  "tagline": "Tiny cars racing across tables, desks and floors around the house. Race the bots, your own ghost, or each other on the same Wi-Fi.",
+  "package": "io.github.daplein.tinyracers",
+  "releases": "daplein/tiny-racers-releases",
+  "apk": "TinyRacers.apk",
+  "cert": "3993af18ac72e71897f310276a47ff08bdbf1231a71211f4434a40d81ebc0a0b",
+  "color": "#E8483B",
+  "requires": "For Android phones and tablets. Plays in landscape.",
+  "keeps": "your settings and best laps"
+}

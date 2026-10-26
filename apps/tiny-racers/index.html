@@ -37,9 +37,13 @@ a { color: #0E7C86; }
 .qr img { width: 220px; height: 220px; image-rendering: pixelated; }
 .apps a { display: flex; align-items: center; gap: 16px; padding: 14px 0; color: inherit; text-decoration: none; border-bottom: 1px solid #eee; }
 .apps a:last-child { border-bottom: 0; }
-.apps img { width: 64px; height: 64px; border-radius: 15px; }
+.apps img { width: 64px; height: 64px; border-radius: 15px; flex-shrink: 0; }
 .apps b { font-size: 20px; display: block; }
-.apps span { color: #666; }
+.apps span { color: #666; display: block; }
+.apps .ver { font-size: 13px; color: #888; margin-top: 2px; }
+.apps .emoji { width: 64px; height: 64px; border-radius: 15px; background: #F4F1EC; display: flex; flex-shrink: 0;
+  align-items: center; justify-content: center; font-size: 32px; color: inherit; }
+.apps h2 { margin: 16px 0 0; }
 footer { text-align: center; color: #888; font-size: 13px; margin-top: 28px; }
 </style>
 </head>
@@ -90,7 +94,7 @@ If you tap Cancel, go back or close the page, Chrome throws the file away.</p>
 </section>
 
 <footer><a href="https://github.com/daplein/tiny-racers-releases/releases">All versions</a> · <a href="../">More apps</a><br>
-Page updated 26 Oct 2026, 10:46 GMT</footer>
+Page updated 26 Oct 2026, 10:47 GMT</footer>
 </main>
 </body>
 </html>

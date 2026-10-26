@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>daplein</title>
+<style>
+:root { --accent: #EB1F1F; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #F4F1EC; color: #2B2B2B; line-height: 1.5; }
+main { max-width: 560px; margin: 0 auto; padding: 24px 20px 48px; }
+.hero { text-align: center; padding: 8px 0 12px; }
+.hero img.icon { width: 112px; height: 112px; border-radius: 26px; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+h1 { font-size: 34px; margin: 14px 0 2px; }
+.tagline { margin: 0; font-size: 18px; color: #555; }
+.meta { margin: 8px 0 0; color: #666; font-size: 15px; }
+.download { display: block; margin: 22px 0 6px; padding: 20px; border-radius: 18px; background: var(--accent);
+  border: 3px solid rgba(0,0,0,.25); color: #fff; font-size: 24px; font-weight: 700; text-align: center; text-decoration: none; }
+.download:active { filter: brightness(.9); }
+.warn { margin: 14px 0 0; padding: 14px 16px; border-radius: 14px; background: #FFF4D6; border: 2px solid #F2C230; font-size: 16px; }
+.warn p { margin: 4px 0; }
+.small { text-align: center; color: #666; font-size: 14px; margin: 0; }
+section { background: #fff; border-radius: 16px; padding: 4px 20px 14px; margin-top: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+h2 { font-size: 20px; margin: 16px 0 6px; }
+h3 { font-size: 17px; margin: 12px 0 4px; }
+ol, ul { padding-left: 22px; margin: 6px 0; }
+li { margin: 6px 0; }
+a { color: #0E7C86; }
+.qr { text-align: center; }
+.qr img { width: 220px; height: 220px; image-rendering: pixelated; }
+.apps a { display: flex; align-items: center; gap: 16px; padding: 14px 0; color: inherit; text-decoration: none; border-bottom: 1px solid #eee; }
+.apps a:last-child { border-bottom: 0; }
+.apps img { width: 64px; height: 64px; border-radius: 15px; flex-shrink: 0; }
+.apps b { font-size: 20px; display: block; }
+.apps span { color: #666; display: block; }
+.apps .ver { font-size: 13px; color: #888; margin-top: 2px; }
+.apps .emoji { width: 64px; height: 64px; border-radius: 15px; background: #F4F1EC; display: flex; flex-shrink: 0;
+  align-items: center; justify-content: center; font-size: 32px; color: inherit; }
+.apps h2 { margin: 16px 0 0; }
+footer { text-align: center; color: #888; font-size: 13px; margin-top: 28px; }
+</style>
+</head>
+<body>
+<main>
+<div class="hero"><h1>daplein</h1><p class="tagline">Little apps and pages for family and friends.</p></div>
+<section class="apps"><h2>Android apps</h2>
+<a href="apps/stoirm-prep/"><img src="apps/stoirm-prep/icon.png" alt=""><div><b>Stoirm Prep</b><span>Storm warnings for exactly your spot, and a family checklist to get ready.</span><span class="ver">Android · version 0.5.0-alpha</span></div></a>
+<a href="apps/tetris/"><img src="apps/tetris/icon.png" alt=""><div><b>Tetris</b><span>Ad-free falling blocks. Swipe to move, tap to rotate, flick to drop. With cheats, if you&#x27;re into that.</span><span class="ver">Android · version 0.2.0</span></div></a>
+<a href="apps/tiny-racers/"><img src="apps/tiny-racers/icon.png" alt=""><div><b>Tiny Racers</b><span>Tiny cars racing across tables, desks and floors around the house. Race the bots, your own ghost, or each other on the same Wi-Fi.</span><span class="ver">Android · version 0.4.0</span></div></a>
+</section>
+<section class="apps"><h2>On the web</h2>
+<a href="game-plan.html"><span class="emoji">🏓</span><div><b>GamePlan</b><span>Plan pickleball training sessions: players, courts and rounds.</span></div></a>
+<a href="pickleball-training.html"><span class="emoji">🎾</span><div><b>Pickleball training</b><span>The earlier version of the training planner.</span></div></a>
+<a href="tetris.html"><span class="emoji">🧱</span><div><b>Tetris in the browser</b><span>Play Tetris right here, nothing to install.</span></div></a>
+</section>
+<footer><a href="https://github.com/daplein">github.com/daplein</a><br>Page updated 26 Oct 2026, 10:47 GMT</footer>
+</main>
+</body>
+</html>

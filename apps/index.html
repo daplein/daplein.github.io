@@ -31,9 +31,13 @@ a { color: #0E7C86; }
 .qr img { width: 220px; height: 220px; image-rendering: pixelated; }
 .apps a { display: flex; align-items: center; gap: 16px; padding: 14px 0; color: inherit; text-decoration: none; border-bottom: 1px solid #eee; }
 .apps a:last-child { border-bottom: 0; }
-.apps img { width: 64px; height: 64px; border-radius: 15px; }
+.apps img { width: 64px; height: 64px; border-radius: 15px; flex-shrink: 0; }
 .apps b { font-size: 20px; display: block; }
-.apps span { color: #666; }
+.apps span { color: #666; display: block; }
+.apps .ver { font-size: 13px; color: #888; margin-top: 2px; }
+.apps .emoji { width: 64px; height: 64px; border-radius: 15px; background: #F4F1EC; display: flex; flex-shrink: 0;
+  align-items: center; justify-content: center; font-size: 32px; color: inherit; }
+.apps h2 { margin: 16px 0 0; }
 footer { text-align: center; color: #888; font-size: 13px; margin-top: 28px; }
 </style>
 </head>
@@ -41,10 +45,11 @@ footer { text-align: center; color: #888; font-size: 13px; margin-top: 28px; }
 <main>
 <div class="hero"><h1>Apps</h1><p class="tagline">Little Android apps for family and friends.</p></div>
 <section class="apps">
-<a href="stoirm-prep/"><img src="stoirm-prep/icon.png" alt=""><div><b>Stoirm Prep</b><span>Storm warnings for exactly your spot, and a family checklist to get ready.</span></div></a>
-<a href="tetris/"><img src="tetris/icon.png" alt=""><div><b>Tetris</b><span>Ad-free falling blocks. Swipe to move, tap to rotate, flick to drop. With cheats, if you&#x27;re into that.</span></div></a>
-<a href="tiny-racers/"><img src="tiny-racers/icon.png" alt=""><div><b>Tiny Racers</b><span>Tiny cars racing across tables, desks and floors around the house. Race the bots, your own ghost, or each other on the same Wi-Fi.</span></div></a>
+<a href="stoirm-prep/"><img src="stoirm-prep/icon.png" alt=""><div><b>Stoirm Prep</b><span>Storm warnings for exactly your spot, and a family checklist to get ready.</span><span class="ver">Android · version 0.5.0-alpha</span></div></a>
+<a href="tetris/"><img src="tetris/icon.png" alt=""><div><b>Tetris</b><span>Ad-free falling blocks. Swipe to move, tap to rotate, flick to drop. With cheats, if you&#x27;re into that.</span><span class="ver">Android · version 0.2.0</span></div></a>
+<a href="tiny-racers/"><img src="tiny-racers/icon.png" alt=""><div><b>Tiny Racers</b><span>Tiny cars racing across tables, desks and floors around the house. Race the bots, your own ghost, or each other on the same Wi-Fi.</span><span class="ver">Android · version 0.4.0</span></div></a>
 </section>
+<footer><a href="../">More from daplein</a><br>Page updated 26 Oct 2026, 10:47 GMT</footer>
 </main>
 </body>
 </html>

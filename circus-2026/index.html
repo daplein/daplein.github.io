@@ -84,8 +84,7 @@
     <b>Convention ticket</b> gets you into all convention workshops (Thu at KDYS Hall, Fri–Sun at Kerry Sports Academy / MTU Sports Hall, V92 Y7PK), plus Film Night and Circus Siamsa free.
     Convention hours: Thu 10:00–20:00 · Fri 09:00–21:00 · Sat 09:00–19:00 · Sun 09:00–17:00.<br><br>
     <b>Circus Siamsa</b> without a convention ticket: €20, family of 4 €50, family of 5 €65, concession €15 (book via Siamsa Tíre).<br><br>
-    <b>Parade &amp; fireworks:</b> accessible viewing point at the corner of Denny Street and Ivy Terrace, in front of Páirc an Piarsaigh.<br><br>
-    <b>Heads-up:</b> the site lists Film Night at 21:00 in its calendar but says 7pm in the event text. Check before you go.
+    <b>Parade &amp; fireworks:</b> accessible viewing point at the corner of Denny Street and Ivy Terrace, in front of Páirc an Piarsaigh.
   </div>
 </main>
 
@@ -102,7 +101,7 @@ const DAYS = [
 // Main programme (from the festival's event calendar)
 const MAIN = [
   ["thu","18:00","20:00","Based On Kimberly: Fictional Creation Masterclass","St John's Church, Ashe Street","talk",["€10"],"based-on-kimberly-fictional-creation-masterclass/"],
-  ["thu","21:00","22:00","Film Night: Circus is for Every Body + Q&A","St John's Church, Ashe Street","show",["€5","Free w/ convention ticket","Time unclear: 19:00 or 21:00"],"film-night-2026/"],
+  ["thu","21:00","22:00","Film Night: Circus is for Every Body + Q&A","St John's Church, Ashe Street","show",["€5","Free w/ convention ticket"],"film-night-2026/"],
   ["fri","10:30","13:30","Aleš Hrdlička Ring Juggling Masterclass","Kerry Sports Academy","talk",["€5","Max 20, bring 3 rings"],"ales-hrdlicka-ring-juggling-masterclass/"],
   ["fri","11:00","16:00","Promenade Future Producers Industry Day","Kerry Sports Academy","talk",["Free, register"],"promenade-future-producers-industry-day-2026/"],
   ["fri","18:00","19:00","Parade: Endurance Above the Ice","Starts St John's Church → Ashe St → Denny St","show",["Free"],"parade-endurance-above-the-ice/"],
@@ -185,7 +184,7 @@ function stamp(day, hhmm, isEnd, start) {
 }
 
 function mainCard(e) {
-  const tags = e.tags.map(t => `<span class="tag ${t.startsWith("€") || t.startsWith("From") || t === "Free" || t.startsWith("Free") ? "price" : ""}${t.startsWith("Time unclear") || t.startsWith("Ages") ? " warn" : ""}">${esc(t)}</span>`).join("");
+  const tags = e.tags.map(t => `<span class="tag ${t.startsWith("€") || t.startsWith("From") || t === "Free" || t.startsWith("Free") ? "price" : ""}${t.startsWith("Ages") ? " warn" : ""}">${esc(t)}</span>`).join("");
   return `<div class="ev ${e.kind}" data-day="${e.day}" data-start="${e.start}" data-end="${e.end}">
     <div class="time">${e.start}<span class="end">to ${e.end}</span></div>
     <div><div class="title"><a href="${e.url}" target="_blank" rel="noopener">${esc(e.title)}</a></div>

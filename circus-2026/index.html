@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Circus Festival Tralee 2026: Schedule</title>
+<style>
+  :root {
+    --bg: #14111c; --card: #211c2e; --line: #3a3150; --text: #f4f1fa; --muted: #b3a9c9;
+    --pink: #ff3fa4; --yellow: #ffd23f; --teal: #2ad1c9; --violet: #8f7bff; --orange: #ff8a3d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 28px 18px 8px; max-width: 820px; margin: 0 auto; }
+  h1 { margin: 0; font-size: 28px; line-height: 1.15; }
+  h1 span { color: var(--pink); }
+  .sub { color: var(--muted); margin: 6px 0 0; }
+  nav.days { position: sticky; top: 0; z-index: 5; background: rgba(20,17,28,.94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+  nav.days .inner { max-width: 820px; margin: 0 auto; display: flex; gap: 6px; padding: 10px 18px; overflow-x: auto; }
+  nav.days a { flex: 0 0 auto; text-decoration: none; color: var(--text); background: var(--card); border: 1px solid var(--line); padding: 7px 14px; border-radius: 999px; font-weight: 700; font-size: 14px; }
+  nav.days a.today { border-color: var(--yellow); color: var(--yellow); }
+  main { max-width: 820px; margin: 0 auto; padding: 0 18px 60px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 4px; }
+  .filters label { display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--line); padding: 6px 12px; border-radius: 999px; font-size: 14px; cursor: pointer; user-select: none; }
+  .filters input { accent-color: var(--pink); }
+  section.day { scroll-margin-top: 64px; }
+  h2 { margin: 30px 0 10px; font-size: 22px; color: var(--yellow); display: flex; align-items: baseline; gap: 10px; }
+  h2 small { color: var(--muted); font-size: 14px; font-weight: 500; }
+  .ev { display: grid; grid-template-columns: 92px 1fr; gap: 12px; background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--c, var(--violet)); border-radius: 10px; padding: 12px 14px; margin: 8px 0; }
+  .time { font-weight: 800; font-variant-numeric: tabular-nums; font-size: 17px; }
+  .time .end { display: block; color: var(--muted); font-weight: 500; font-size: 13px; }
+  .title { font-weight: 700; font-size: 17px; }
+  .title a { color: inherit; text-decoration: none; }
+  .title a:hover { text-decoration: underline; }
+  .meta { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .meta a { color: var(--muted); }
+  .tags { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: #2e2742; color: var(--text); }
+  .tag.price { background: #3b3214; color: var(--yellow); }
+  .tag.warn { background: #3d1c22; color: #ff9aa8; }
+  .ev.show { --c: var(--pink); }
+  .ev.family { --c: var(--teal); }
+  .ev.night { --c: var(--violet); }
+  .ev.talk { --c: var(--orange); }
+  .ev.ws { --c: #5a4f73; padding: 9px 14px; }
+  .ev.ws .title { font-size: 15px; }
+  .ev.ws .time { font-size: 15px; }
+  .ev.past { opacity: .45; }
+  .ev.now { outline: 2px solid var(--yellow); }
+  .hidden { display: none !important; }
+  .wshead { margin: 18px 0 4px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .note { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; color: var(--muted); font-size: 14px; margin-top: 30px; }
+  .note b { color: var(--text); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 13px; margin-top: 10px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+  @media (max-width: 480px) { .ev { grid-template-columns: 74px 1fr; gap: 10px; } h1 { font-size: 24px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>National Circus Festival <span>Tralee</span></h1>
+  <p class="sub">Thu 5 – Sun 8 November 2026 · all times Irish time · from <a href="https://circusfestival.ie/events/" style="color:var(--muted)">circusfestival.ie</a></p>
+  <div class="legend">
+    <span><i style="background:var(--pink)"></i>Shows &amp; spectacle</span>
+    <span><i style="background:var(--teal)"></i>Kids &amp; family</span>
+    <span><i style="background:var(--orange)"></i>Talks &amp; industry</span>
+    <span><i style="background:var(--violet)"></i>Nights out</span>
+    <span><i style="background:#5a4f73"></i>Convention workshops</span>
+  </div>
+</header>
+<nav class="days"><div class="inner" id="daynav"></div></nav>
+<main>
+  <div class="filters">
+    <label><input type="checkbox" id="f-ws" checked> Convention workshops</label>
+    <label><input type="checkbox" class="f-disc" value="Aerial" checked> Aerial</label>
+    <label><input type="checkbox" class="f-disc" value="Acro" checked> Acro</label>
+    <label><input type="checkbox" class="f-disc" value="Juggling" checked> Juggling &amp; hoop</label>
+    <label><input type="checkbox" id="f-past"> Hide finished</label>
+  </div>
+  <div id="days"></div>
+
+  <div class="note">
+    <b>Convention ticket</b> gets you into all convention workshops (Thu at KDYS Hall, Fri–Sun at Kerry Sports Academy / MTU Sports Hall, V92 Y7PK), plus Film Night and Circus Siamsa free.
+    Convention hours: Thu 10:00–20:00 · Fri 09:00–21:00 · Sat 09:00–19:00 · Sun 09:00–17:00.<br><br>
+    <b>Circus Siamsa</b> without a convention ticket: €20, family of 4 €50, family of 5 €65, concession €15 (book via Siamsa Tíre).<br><br>
+    <b>Parade &amp; fireworks:</b> accessible viewing point at the corner of Denny Street and Ivy Terrace, in front of Páirc an Piarsaigh.<br><br>
+    <b>Heads-up:</b> the site lists Film Night at 21:00 in its calendar but says 7pm in the event text. Check before you go.
+  </div>
+</main>
+
+<script>
+const MAPS = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q + ", Tralee");
+const EV = "https://circusfestival.ie/events/";
+const DAYS = [
+  { id: "thu", date: "2026-11-05", name: "Thursday", label: "5 Nov" },
+  { id: "fri", date: "2026-11-06", name: "Friday", label: "6 Nov" },
+  { id: "sat", date: "2026-11-07", name: "Saturday", label: "7 Nov" },
+  { id: "sun", date: "2026-11-08", name: "Sunday", label: "8 Nov" },
+];
+
+// Main programme (from the festival's event calendar)
+const MAIN = [
+  ["thu","18:00","20:00","Based On Kimberly: Fictional Creation Masterclass","St John's Church, Ashe Street","talk",["€10"],"based-on-kimberly-fictional-creation-masterclass/"],
+  ["thu","21:00","22:00","Film Night: Circus is for Every Body + Q&A","St John's Church, Ashe Street","show",["€5","Free w/ convention ticket","Time unclear: 19:00 or 21:00"],"film-night-2026/"],
+  ["fri","10:30","13:30","Aleš Hrdlička Ring Juggling Masterclass","Kerry Sports Academy","talk",["€5","Max 20, bring 3 rings"],"ales-hrdlicka-ring-juggling-masterclass/"],
+  ["fri","11:00","16:00","Promenade Future Producers Industry Day","Kerry Sports Academy","talk",["Free, register"],"promenade-future-producers-industry-day-2026/"],
+  ["fri","18:00","19:00","Parade: Endurance Above the Ice","Starts St John's Church → Ashe St → Denny St","show",["Free"],"parade-endurance-above-the-ice/"],
+  ["fri","19:00","20:00","Fireworks Display","Kerry County Museum","show",["Free"],"fireworks-display/"],
+  ["fri","20:30","21:30","Yes Person by Based On Kimberly","Siamsa Tíre","show",["Ages 13+"],"yes-person-by-based-on-kimberly/"],
+  ["fri","22:30","01:00","Festival Club: The Dirty Disco meets Fonda Jane","Greyhound Bar, Pembroke Street","night",[],"festival-club-friday-night/"],
+  ["sat","10:00","12:00","ISACS SHARE Open Forum","The Ashe Hotel","talk",["Reserve a place"],"isacs-share-open-forum-at-ncfi-2026/"],
+  ["sat","11:00","12:00","Children's Circus Workshop (11am)","Siamsa Tíre","family",["Book early"],"childrens-circus-workshops-sat-7th-11am/"],
+  ["sat","12:00","13:00","Children's Circus Workshop (12pm)","Siamsa Tíre","family",["Book early"],"childrens-circus-workshops-sat-7th-12pm/"],
+  ["sat","14:00","16:00","Circus Siamsa (2pm show)","Siamsa Tíre","family",["From €15","Free w/ convention ticket"],"circus-siamsa-2026-2pm/"],
+  ["sat","17:30","19:30","Circus Siamsa (5:30pm show)","Siamsa Tíre","family",["From €15","Free w/ convention ticket"],"circus-siamsa-2026-530pm/"],
+  ["sat","21:00","22:00","5×5: Five Acts, Five Minutes, Five New Works","St John's Church, Ashe Street","show",[],"5x5-five-acts-five-minutes-five-new-works/"],
+  ["sat","22:30","01:00","Festival Club: Renegade Stage (open mic) with John Spillane","Greyhound Bar, Pembroke Street","night",[],"festival-club-saturday-night/"],
+  ["sun","11:00","12:00","Children's Circus Workshop (11am)","Siamsa Tíre","family",["Book early"],"childrens-circus-workshops-sun-8th-11am/"],
+  ["sun","12:00","13:00","Children's Circus Workshop (12pm)","Siamsa Tíre","family",["Book early"],"childrens-circus-workshops-sun-8th-12pm/"],
+].map(([day,start,end,title,venue,kind,tags,slug]) => ({day,start,end,title,venue,kind,tags,url: EV+slug}));
+
+// Convention workshops (from the Aerial / Acro / Juggling schedule PDFs)
+const KSA = "Kerry Sports Academy (MTU Sports Hall)";
+const WS = [
+  ["thu","15:30","17:30","Juggling","Juggling with Friends","Ian Marchant · all levels","KDYS Hall, Denny Street"],
+  ["thu","17:30","18:30","Juggling","Classic Juggling","Kiki Vita · all levels","KDYS Hall, Denny Street"],
+
+  ["fri","10:00","10:30","Acro","Acro / Aerial Warm Up","",KSA],
+  ["fri","10:00","10:30","Juggling","Juggling Warm Up","Cormac · all levels",KSA],
+  ["fri","10:30","12:00","Aerial","Fabrics","Sara · mixed level, non-beginners",KSA],
+  ["fri","10:30","12:00","Acro","Elena Acrodance (beginner)","Prereq: cartwheel",KSA],
+  ["fri","13:00","14:30","Aerial","Trapeze","Sara · mixed level, non-beginners",KSA],
+  ["fri","13:00","14:30","Acro","Hand to Hand Basics","Leo & Charlotte · prereq: L-base foot to hand",KSA],
+  ["fri","13:00","14:30","Acro","Elena Acrodance (advanced)","Prereq: tinsica",KSA],
+  ["fri","14:00","15:30","Juggling","Conversations with the Audience (all disciplines)","Ian Marchant · all levels",KSA],
+  ["fri","14:30","15:30","Juggling","Hula Hoop Trick Share","Caroline Sweets · all levels",KSA],
+  ["fri","15:00","16:30","Aerial","Spinning & Floor-to-Air Lab (cocoon & ADT)","Chantal · mixed level, non-beginners",KSA],
+  ["fri","15:00","16:30","Aerial","Hoop Master Class","Jenny · mixed level, non-beginners",KSA],
+  ["fri","15:00","16:30","Acro","Leo Creative Group Acro","Prereq: good 2-high",KSA],
+  ["fri","15:00","16:30","Acro","Flexibility","Charlotte",KSA],
+  ["fri","15:30","17:30","Juggling","One Trick Wonder","Kiki Vita & Amelia Cadwallader · all levels",KSA],
+
+  ["sat","10:00","10:30","Acro","Acro / Aerial Warm Up","",KSA],
+  ["sat","10:00","10:30","Juggling","Points to Note for the Manipulation of Objects","Ian Marchant · all levels",KSA],
+  ["sat","10:30","12:00","Aerial","Fabrics","Sara · mixed level, non-beginners",KSA],
+  ["sat","10:30","12:00","Acro","Rollerskate Duos","Leo & Charlotte · bring skates and a friend",KSA],
+  ["sat","10:30","12:00","Acro","Handstands (intermediate)","Imogen",KSA],
+  ["sat","10:30","11:30","Juggling","Hula Hoop: Multihoop","Niamh Dennehy · all levels",KSA],
+  ["sat","11:00","12:30","Aerial","Hoop Master Class","Jenny · mixed level, non-beginners",KSA],
+  ["sat","11:30","13:00","Juggling","Hula Hooping Like a Pro","Amelia Cadwallader · int/adv",KSA],
+  ["sat","11:30","13:00","Juggling","Juggling for All Seasons","Kiki Vita · int/adv",KSA],
+  ["sat","12:30","13:30","Juggling","Club Multiplexes","Emer Greenford · int/adv",KSA],
+  ["sat","13:00","14:30","Aerial","Cocoon","Chantal · mixed level, non-beginners",KSA],
+  ["sat","13:00","14:30","Acro","Dynamic Throws & Catches (intermediate)","Leo & Charlotte · prereq: standing foot-to-hand & rev foot-to-hand",KSA],
+  ["sat","13:00","14:30","Acro","Handstands (beginner)","Imogen",KSA],
+  ["sat","13:00","14:00","Juggling","Circus School: Preparing for Application/Audition","Ian Marchant · int/adv",KSA],
+  ["sat","13:30","14:30","Juggling","Fire Talk","Brona Howard · all levels",KSA],
+  ["sat","14:30","16:00","Juggling","Juggling Around the World","Kiki Vita · beginner friendly",KSA],
+  ["sat","14:30","15:30","Juggling","Rope Dart: Introduction to the Dart Side","Mélisande Souef · beginner friendly",KSA],
+  ["sat","15:00","17:30","Aerial","Creative Lab on Spirals","Chantal · mixed level, non-beginners",KSA],
+  ["sat","15:00","16:30","Acro","Flex Backbends","Charlotte · prereq: comfortable bridge",KSA],
+  ["sat","15:00","16:30","Acro","Elena Acrodance (int/adv)","Prereq: tinsica",KSA],
+
+  ["sun","11:00","12:30","Aerial","Creative Lab on Spirals","Sara · mixed level, non-beginners",KSA],
+  ["sun","11:00","12:30","Juggling","Creating with Imaginary Objects (all disciplines)","Ian Marchant · int/adv",KSA],
+  ["sun","11:00","12:00","Juggling","How to Balance with Another Body","Vilhelmiina Sinervo · int/adv",KSA],
+  ["sun","12:00","13:00","Juggling","Optimising Juggling Technique (with balls)","Jonny Moore · int/adv",KSA],
+  ["sun","12:30","13:30","Juggling","Hooping for Hoops","Amelia Cadwallader · all levels",KSA],
+  ["sun","13:00","14:30","Acro","Acro Towers","Leo · prereq: 2-high for 30 sec",KSA],
+  ["sun","13:00","14:30","Acro","Elena Acrodance (beginner)","Prereq: cartwheel",KSA],
+  ["sun","13:30","14:30","Juggling","Let's Do the Trick","Kiki Vita · beginner friendly",KSA],
+  ["sun","15:00","16:30","Acro","Circus Olympics","Everyone",KSA],
+].map(([day,start,end,disc,title,who,venue]) => ({day,start,end,disc,title,who,venue}));
+
+const DISC_TAG = { Aerial: "Aerial", Acro: "Acro", Juggling: "Juggling / hoop" };
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]);
+const byStart = (a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end);
+
+function stamp(day, hhmm, isEnd, start) {
+  const d = DAYS.find(x => x.id === day).date;
+  const t = new Date(`${d}T${hhmm}:00Z`); // Ireland is on GMT in November
+  if (isEnd && hhmm < start) t.setUTCDate(t.getUTCDate() + 1);
+  return t;
+}
+
+function mainCard(e) {
+  const tags = e.tags.map(t => `<span class="tag ${t.startsWith("€") || t.startsWith("From") || t === "Free" || t.startsWith("Free") ? "price" : ""}${t.startsWith("Time unclear") || t.startsWith("Ages") ? " warn" : ""}">${esc(t)}</span>`).join("");
+  return `<div class="ev ${e.kind}" data-day="${e.day}" data-start="${e.start}" data-end="${e.end}">
+    <div class="time">${e.start}<span class="end">to ${e.end}</span></div>
+    <div><div class="title"><a href="${e.url}" target="_blank" rel="noopener">${esc(e.title)}</a></div>
+    <div class="meta">📍 <a href="${MAPS(e.venue)}" target="_blank" rel="noopener">${esc(e.venue)}</a></div>
+    ${tags ? `<div class="tags">${tags}</div>` : ""}</div></div>`;
+}
+
+function wsCard(w) {
+  return `<div class="ev ws" data-ws data-disc="${w.disc}" data-day="${w.day}" data-start="${w.start}" data-end="${w.end}">
+    <div class="time">${w.start}<span class="end">to ${w.end}</span></div>
+    <div><div class="title">${esc(w.title)}</div>
+    <div class="meta">${w.who ? esc(w.who) + " · " : ""}${esc(w.venue)}</div>
+    <div class="tags"><span class="tag">${DISC_TAG[w.disc]}</span></div></div></div>`;
+}
+
+function render() {
+  const nav = document.getElementById("daynav"), out = document.getElementById("days");
+  const today = new Date().toISOString().slice(0, 10);
+  for (const d of DAYS) {
+    nav.insertAdjacentHTML("beforeend", `<a href="#${d.id}" class="${d.date === today ? "today" : ""}">${d.name.slice(0,3)} ${d.label}</a>`);
+    const main = MAIN.filter(e => e.day === d.id).sort(byStart).map(mainCard).join("");
+    const ws = WS.filter(w => w.day === d.id).sort(byStart).map(wsCard).join("");
+    out.insertAdjacentHTML("beforeend", `<section class="day" id="${d.id}">
+      <h2>${d.name} <small>${d.label}${d.date === today ? " · today" : ""}</small></h2>
+      ${main}
+      ${ws ? `<div class="wshead" data-wshead>Convention workshops</div>${ws}` : ""}
+    </section>`);
+  }
+}
+
+function applyFilters() {
+  const showWs = document.getElementById("f-ws").checked;
+  const discs = [...document.querySelectorAll(".f-disc:checked")].map(i => i.value);
+  const hidePast = document.getElementById("f-past").checked;
+  const now = new Date();
+  document.querySelectorAll(".ev").forEach(el => {
+    const start = stamp(el.dataset.day, el.dataset.start), end = stamp(el.dataset.day, el.dataset.end, true, el.dataset.start);
+    const past = end < now;
+    el.classList.toggle("past", past);
+    el.classList.toggle("now", start <= now && now < end);
+    const wsHidden = el.hasAttribute("data-ws") && (!showWs || !discs.includes(el.dataset.disc));
+    el.classList.toggle("hidden", wsHidden || (hidePast && past));
+  });
+  document.querySelectorAll("[data-wshead]").forEach(h => {
+    const any = [...h.parentElement.querySelectorAll("[data-ws]")].some(e => !e.classList.contains("hidden"));
+    h.classList.toggle("hidden", !any);
+  });
+}
+
+render();
+document.querySelectorAll(".filters input").forEach(i => i.addEventListener("change", applyFilters));
+applyFilters();
+setInterval(applyFilters, 60000);
+</script>
+</body>
+</html>

@@ -196,7 +196,7 @@ function wsCard(w) {
   return `<div class="ev ws" data-ws data-disc="${w.disc}" data-day="${w.day}" data-start="${w.start}" data-end="${w.end}">
     <div class="time">${w.start}<span class="end">to ${w.end}</span></div>
     <div><div class="title">${esc(w.title)}</div>
-    <div class="meta">${w.who ? esc(w.who) + " · " : ""}${esc(w.venue)}</div>
+    <div class="meta">${w.who ? esc(w.who) + " · " : ""}📍 <a href="${MAPS(w.venue === KSA ? "Kerry Sports Academy, V92 Y7PK" : w.venue)}" target="_blank" rel="noopener">${esc(w.venue)}</a></div>
     <div class="tags"><span class="tag">${DISC_TAG[w.disc]}</span></div></div></div>`;
 }
 

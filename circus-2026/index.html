@@ -13,6 +13,8 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
   header { padding: 28px 18px 8px; max-width: 820px; margin: 0 auto; }
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .brand img { height: 96px; width: auto; flex: 0 0 auto; }
   h1 { margin: 0; font-size: 28px; line-height: 1.15; }
   h1 span { color: var(--pink); }
   .sub { color: var(--muted); margin: 6px 0 0; }
@@ -54,12 +56,15 @@
   .note b { color: var(--text); }
   .legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 13px; margin-top: 10px; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
-  @media (max-width: 480px) { .ev { grid-template-columns: 74px 1fr; gap: 10px; } h1 { font-size: 24px; } }
+  @media (max-width: 480px) { .ev { grid-template-columns: 74px 1fr; gap: 10px; } h1 { font-size: 22px; } .brand { gap: 12px; } .brand img { height: 68px; } }
 </style>
 </head>
 <body>
 <header>
-  <h1>National Circus Festival <span>Tralee</span></h1>
+  <div class="brand">
+    <a href="https://circusfestival.ie/" target="_blank" rel="noopener"><img src="logo.png" alt="National Circus Festival of Ireland"></a>
+    <h1>Festival schedule <span>2026</span></h1>
+  </div>
   <p class="sub">Thu 5 – Sun 8 November 2026 · all times Irish time · from <a href="https://circusfestival.ie/events/" style="color:var(--muted)">circusfestival.ie</a></p>
   <div class="legend">
     <span><i style="background:var(--pink)"></i>Shows &amp; spectacle</span>

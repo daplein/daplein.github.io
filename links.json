@@ -1,4 +1,6 @@
 [
+  {"title": "Wing Alert", "icon": "wing-alert/logo.svg", "text": "Daily wingfoiling conditions for the Wicklow coast: forecast, wind map, tides and spot guides.", "href": "wing-alert/"},
+  {"title": "Circus Festival Tralee 2026", "emoji": "🎪", "text": "Unofficial schedule for the festival: shows, workshops and venues.", "href": "circus-2026/"},
   {"title": "GamePlan", "emoji": "🏓", "text": "Plan pickleball training sessions: players, courts and rounds.", "href": "game-plan.html"},
   {"title": "Pickleball training", "emoji": "🎾", "text": "The earlier version of the training planner.", "href": "pickleball-training.html"}
 ]

@@ -455,12 +455,15 @@
         const copyLongUrlBtn = document.getElementById('copyLongUrlBtn');
         const copyTinyUrlBtn = document.getElementById('copyTinyUrlBtn');
 
-        // Function to create tiny URL using TinyURL API
+        // Function to create a short URL using the is.gd API.
+        // (TinyURL's API only allows requests from tinyurl.com itself, so browsers block it here.)
         const createTinyUrl = async (longUrl) => {
             try {
-                const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+                const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`);
                 if (!response.ok) throw new Error('Failed to create tiny URL');
-                return await response.text();
+                const data = await response.json();
+                if (!data.shorturl) throw new Error(data.errormessage || 'No short URL returned');
+                return data.shorturl;
             } catch (error) {
                 console.error('Error creating tiny URL:', error);
                 return null;

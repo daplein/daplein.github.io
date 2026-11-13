@@ -1,0 +1,11 @@
+{
+  "name": "Ballinastoe Trail",
+  "tagline": "A hands-free mountain bike companion for Ballinastoe Woods: directions at junctions, automatic timing, ghost racing.",
+  "package": "com.daplein.ballinastoetrail",
+  "releases": "daplein/ballinastoe-trail-releases",
+  "apk": "BallinastoeTrail.apk",
+  "cert": "b226fb790162315c0ad735b9b0df05c87336917d43413a953db322a71b4cc496",
+  "color": "#1F4A33",
+  "requires": "Android 7 or newer. First version: ride within your limits.",
+  "keeps": "your rides and best times"
+}
